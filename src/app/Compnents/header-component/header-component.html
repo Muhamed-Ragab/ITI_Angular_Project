@@ -1,0 +1,56 @@
+<header class="bg-dark text-light py-2">
+  <div class="container d-flex align-items-center flex-wrap">
+
+    <!-- Left: Logo + Name -->
+    <div class="d-flex align-items-center me-4">
+      <a class="navbar-brand d-flex align-items-center p-0 m-0" routerLink="/">
+        <img src="logo.png" class="logo-img me-2" alt="SouqMasr Logo">
+        <span class="fs-4 fw-bold text-warning">SouqMasr</span>
+      </a>
+
+      <!-- Categories Dropdown -->
+      <div class="dropdown ms-3">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Categories
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+            <li *ngFor="let item of categories">
+            <a class="dropdown-item" [routerLink]="['/category', item]">{{ item }}</a>
+            </li>
+        </ul>
+      </div>
+
+      <!-- Language Dropdown -->
+      <div class="dropdown ms-2">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Language
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+          <li><a class="dropdown-item" href="#">English</a></li>
+          <li><a class="dropdown-item" href="#">Arabic</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Center: Search -->
+    <div class="flex-fill mx-3">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search for products...">
+        <button class="btn btn-warning">Search</button>
+      </div>
+    </div>
+
+    <!-- Right: Login + Cart -->
+    <div class="d-flex align-items-center gap-2">
+      <a class="btn btn-warning" routerLink="/login">Login</a>
+
+      <button class="btn btn-outline-light position-relative">
+        <i class="bi bi-cart4"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          5
+        </span>
+      </button>
+    </div>
+
+  </div>
+</header>
