@@ -1,8 +1,8 @@
 <header class="bg-dark text-light py-2">
-  <div class="container d-flex align-items-center flex-wrap">
+  <div class="container d-flex flex-wrap align-items-center justify-content-between">
 
-    <!-- Left: Logo + Name -->
-    <div class="d-flex align-items-center me-4">
+    <!-- Left: Logo + Name + Categories + Language -->
+    <div class="d-flex align-items-center flex-wrap me-3">
       <a class="navbar-brand d-flex align-items-center p-0 m-0" routerLink="/">
         <img src="logo.png" class="logo-img me-2" alt="SouqMasr Logo">
         <span class="fs-4 fw-bold text-warning">SouqMasr</span>
@@ -14,9 +14,12 @@
           Categories
         </button>
         <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
-            <li *ngFor="let item of categories">
-            <a class="dropdown-item" [routerLink]="['/category', item]">{{ item }}</a>
-            </li>
+          @for (item of categories; track $index) {
+             <li>
+                <a class="dropdown-item" [routerLink]="['/category', item]">{{ item }}</a>
+              </li>
+          }
+         
         </ul>
       </div>
 
@@ -33,7 +36,7 @@
     </div>
 
     <!-- Center: Search -->
-    <div class="flex-fill mx-3">
+    <div class="flex-fill mx-3 my-2 my-md-0">
       <div class="input-group">
         <input type="text" class="form-control" placeholder="Search for products...">
         <button class="btn btn-warning">Search</button>
@@ -41,7 +44,7 @@
     </div>
 
     <!-- Right: Login + Cart -->
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
       <a class="btn btn-warning" routerLink="/login">Login</a>
 
       <button class="btn btn-outline-light position-relative">
@@ -54,3 +57,4 @@
 
   </div>
 </header>
+

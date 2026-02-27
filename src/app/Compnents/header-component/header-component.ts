@@ -10,4 +10,7 @@ import { RouterLink } from '@angular/router';
 })
 export class HeaderComponent {
 categories=["Electronics","Fasion","home"];
+
+
+
 }
