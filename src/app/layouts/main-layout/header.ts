@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
+  standalone:true,
   imports: [RouterLink],
   template: `<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
   <div class="container">
