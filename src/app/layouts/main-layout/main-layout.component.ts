@@ -6,7 +6,7 @@ import { Header } from "./header";
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Header],
+  imports: [RouterOutlet, RouterLink, Header],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Navbar -->
