@@ -22,7 +22,6 @@ import { RouterLink } from '@angular/router';
 
     <div class="collapse navbar-collapse" id="mainNavbar">
 
-      <!-- Left -->
       <ul class="navbar-nav me-3">
 
         <!-- Categories -->
@@ -97,7 +96,6 @@ import { RouterLink } from '@angular/router';
 
   </div>
 </nav>`,
-  // templateUrl: './header.html',
   styles:`
   .logo-img {
   max-height: 7.75rem; 
