@@ -77,7 +77,7 @@ import { RouterLink } from '@angular/router';
       <!-- Right -->
       <div class="d-flex align-items-center gap-2">
 
-        <a class="btn btn-warning" routerLink="/login">
+        <a class="btn btn-warning" routerLink="/auth/login">
           Login
         </a>
 
