@@ -10,7 +10,8 @@ export class CookieService {
       const expires = new Date();
       expires.setSeconds(expires.getSeconds() + this.expiresInSeconds);
       // Remove Secure flag for development (localhost without HTTPS)
-      document.cookie = `${this.tokenCookieName}=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
+      const secureFlag = location.protocol === 'https:' ? ';Secure' : '';
+      document.cookie = `${this.tokenCookieName}=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict${secureFlag}`;
 
       // Verify cookie was set
       const cookieSet = this.getCookie();
