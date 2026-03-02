@@ -20,6 +20,12 @@ export const routes: Routes = [
         component: HomeComponent,
         canActivate: [authGuard],
       },
+      {
+  path: 'products',
+  canActivate: [authGuard],
+  loadChildren: () =>
+    import('./domains/products/routes').then((m) => m.productRoutes),
+},
     ],
   },
   { path: '**', redirectTo: 'home' },
