@@ -94,7 +94,7 @@ export class VerifyEmailComponent {
   }
 
   private verifyEmailAndAutoLogin(token: string): void {
-    this.authFacade.verifyEmailAndLogin$(token).subscribe({
+    this.authFacade.verifyEmail$(token).subscribe({
       next: (success) => {
         if (success) {
           this.success.set(true);
