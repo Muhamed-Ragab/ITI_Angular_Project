@@ -5,8 +5,8 @@ import { ApiService } from './api.service';
 import {
   ProductFilters,
   ProductListResponse,
-  ProductDetailResponse,  
-  CreateReviewDto,        
+  ProductDetailResponse,
+  CreateReviewDto,
 } from '@domains/products/dto';
 
 @Injectable({ providedIn: 'root' })

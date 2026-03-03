@@ -12,9 +12,7 @@ import { Product, ProductFilters, ProductPagination } from '../../dto';
   imports: [ProductCardComponent, ProductFiltersComponent, ProductPaginationComponent],
   template: `
     <div class="container py-4">
-      <h4 class="fw-bold mb-4">
-        <i class="bi bi-grid me-2"></i>Products
-      </h4>
+      <h4 class="fw-bold mb-4"><i class="bi bi-grid me-2"></i>Products</h4>
 
       <app-product-filters (filtersChange)="onFiltersChange($event)" />
 
@@ -53,10 +51,7 @@ import { Product, ProductFilters, ProductPagination } from '../../dto';
         </div>
       }
 
-      <app-product-pagination
-        [pagination]="pagination()"
-        (pageChange)="onPageChange($event)"
-      />
+      <app-product-pagination [pagination]="pagination()" (pageChange)="onPageChange($event)" />
     </div>
   `,
 })

@@ -10,7 +10,6 @@ import { ProductFilters } from '../../dto';
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
         <div class="row g-2 align-items-end">
-
           <div class="col-md-3">
             <label class="form-label small fw-semibold">Search</label>
             <input
@@ -25,7 +24,8 @@ import { ProductFilters } from '../../dto';
           <div class="col-md-2">
             <label class="form-label small fw-semibold">Min Price</label>
             <input
-              type="number" class="form-control form-control-sm"
+              type="number"
+              class="form-control form-control-sm"
               [ngModel]="filters().minPrice"
               (ngModelChange)="patch('minPrice', $event)"
               name="minPrice"
@@ -35,7 +35,8 @@ import { ProductFilters } from '../../dto';
           <div class="col-md-2">
             <label class="form-label small fw-semibold">Max Price</label>
             <input
-              type="number" class="form-control form-control-sm"
+              type="number"
+              class="form-control form-control-sm"
               [ngModel]="filters().maxPrice"
               (ngModelChange)="patch('maxPrice', $event)"
               name="maxPrice"
@@ -62,7 +63,9 @@ import { ProductFilters } from '../../dto';
           <div class="col-md-2">
             <div class="form-check mt-4">
               <input
-                class="form-check-input" type="checkbox" id="inStock"
+                class="form-check-input"
+                type="checkbox"
+                id="inStock"
                 [checked]="filters().inStock === 'true'"
                 (change)="patch('inStock', $any($event.target).checked ? 'true' : '')"
               />
@@ -78,7 +81,6 @@ import { ProductFilters } from '../../dto';
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
-
         </div>
       </div>
     </div>
@@ -90,7 +92,7 @@ export class ProductFiltersComponent {
   readonly filters = signal<ProductFilters>({ page: 1, limit: 10 });
 
   patch(key: keyof ProductFilters, value: unknown): void {
-    this.filters.update(f => ({ ...f, [key]: value }));
+    this.filters.update((f) => ({ ...f, [key]: value }));
   }
 
   apply(): void {
