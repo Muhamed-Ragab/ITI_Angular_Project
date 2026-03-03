@@ -1,25 +1,25 @@
 export interface ProductCategory {
-  id: string;
+  _id: string;
   name: string;
 }
 
 export interface ProductSeller {
-  id: string;
-  store_name: string;
-  bio?: string;
+  _id: string;
+  name: string;
+  email?: string;
 }
 
 export interface Product {
-  id: string;
-  name: string;
+  _id: string;
+  title: string;
   description: string;
   price: number;
-  category: ProductCategory;
+  category_id: ProductCategory;
   stock: number;
   images: string[];
   average_rating: number;
   ratings_count: number;
-  seller: ProductSeller;
+  seller_id: ProductSeller;
 }
 
 export interface ProductPagination {
