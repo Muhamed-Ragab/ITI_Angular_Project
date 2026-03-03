@@ -12,7 +12,6 @@ import { ProductDetail } from '../../dto';
   imports: [CurrencyPipe, NgClass, ProductReviewsComponent],
   template: `
     <div class="container py-4">
-
       <!-- Back Button -->
       <button class="btn btn-outline-secondary btn-sm mb-4" (click)="goBack()">
         <i class="bi bi-arrow-left me-1"></i> Back to Products
@@ -37,7 +36,6 @@ import { ProductDetail } from '../../dto';
       <!-- Product Content -->
       @if (!isLoading() && product()) {
         <div class="row g-4">
-
           <!-- Left: Images -->
           <div class="col-md-5">
             <img
@@ -70,12 +68,16 @@ import { ProductDetail } from '../../dto';
             <!-- Rating -->
             <div class="d-flex align-items-center gap-2 mb-3">
               <div>
-                @for (star of [1,2,3,4,5]; track star) {
-                  <i class="bi small"
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                  <i
+                    class="bi small"
                     [class.bi-star-fill]="star <= product()!.average_rating"
-                    [class.bi-star-half]="star > product()!.average_rating && star - 0.5 <= product()!.average_rating"
+                    [class.bi-star-half]="
+                      star > product()!.average_rating && star - 0.5 <= product()!.average_rating
+                    "
                     [class.bi-star]="star - 0.5 > product()!.average_rating"
-                    class="text-warning">
+                    class="text-warning"
+                  >
                   </i>
                 }
               </div>
@@ -104,7 +106,9 @@ import { ProductDetail } from '../../dto';
               class="badge fs-6 mb-3"
               [ngClass]="product()!.stock > 0 ? 'bg-success' : 'bg-danger'"
             >
-              {{ product()!.stock > 0 ? 'In Stock (' + product()!.stock + ' left)' : 'Out of Stock' }}
+              {{
+                product()!.stock > 0 ? 'In Stock (' + product()!.stock + ' left)' : 'Out of Stock'
+              }}
             </span>
 
             <!-- Actions -->
@@ -117,7 +121,6 @@ import { ProductDetail } from '../../dto';
               </button>
             </div>
           </div>
-
         </div>
 
         <!-- Reviews Section -->
@@ -126,7 +129,6 @@ import { ProductDetail } from '../../dto';
           (reviewSubmit)="onReviewSubmit($event)"
         />
       }
-
     </div>
   `,
 })
@@ -164,13 +166,15 @@ export class ProductDetailComponent implements OnInit {
   }
 
   onReviewSubmit(review: { rating: number; comment: string }): void {
-    this.productService.createReview({
-      productId: this.id(),
-      ...review,
-    }).subscribe({
-      next: () => this.loadProduct(), // refresh to show new review
-      error: (err) => this.error.set(err.message || 'Failed to submit review'),
-    });
+    this.productService
+      .createReview({
+        productId: this.id(),
+        ...review,
+      })
+      .subscribe({
+        next: () => this.loadProduct(), // refresh to show new review
+        error: (err) => this.error.set(err.message || 'Failed to submit review'),
+      });
   }
 
   goBack(): void {

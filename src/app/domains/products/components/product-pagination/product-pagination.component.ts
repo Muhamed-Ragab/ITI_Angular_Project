@@ -15,8 +15,8 @@ import { ProductPagination } from '../../dto';
           </li>
           <li class="page-item disabled">
             <span class="page-link">
-              Page {{ pagination()!.page }} of {{ pagination()!.pages }}
-              &nbsp;·&nbsp; {{ pagination()!.total }} items
+              Page {{ pagination()!.page }} of {{ pagination()!.pages }} &nbsp;·&nbsp;
+              {{ pagination()!.total }} items
             </span>
           </li>
           <li class="page-item" [class.disabled]="pagination()!.page >= pagination()!.pages">

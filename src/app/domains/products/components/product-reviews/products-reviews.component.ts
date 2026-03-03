@@ -26,17 +26,19 @@ import { Review } from '../../dto';
                   <span class="badge bg-success ms-2 small">Verified Purchase</span>
                 }
               </div>
-              <small class="text-muted">{{ review.createdAt | date:'mediumDate' }}</small>
+              <small class="text-muted">{{ review.createdAt | date: 'mediumDate' }}</small>
             </div>
 
             <!-- Stars -->
             <div class="my-1">
-              @for (star of [1,2,3,4,5]; track star) {
-                <i class="bi small"
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <i
+                  class="bi small"
                   [class.bi-star-fill]="star <= review.rating"
                   [class.bi-star]="star > review.rating"
                   [class.text-warning]="star <= review.rating"
-                  [class.text-muted]="star > review.rating">
+                  [class.text-muted]="star > review.rating"
+                >
                 </i>
               }
             </div>
@@ -59,14 +61,16 @@ import { Review } from '../../dto';
           <div class="mb-3">
             <label class="form-label small fw-semibold">Rating</label>
             <div class="d-flex gap-1">
-              @for (star of [1,2,3,4,5]; track star) {
-                <i class="bi fs-4 cursor-pointer"
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <i
+                  class="bi fs-4 cursor-pointer"
                   [class.bi-star-fill]="star <= newRating()"
                   [class.bi-star]="star > newRating()"
                   [class.text-warning]="star <= newRating()"
                   [class.text-muted]="star > newRating()"
                   style="cursor: pointer;"
-                  (click)="newRating.set(star)">
+                  (click)="newRating.set(star)"
+                >
                 </i>
               }
             </div>

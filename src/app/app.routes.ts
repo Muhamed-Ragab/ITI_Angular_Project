@@ -21,11 +21,10 @@ export const routes: Routes = [
         canActivate: [authGuard],
       },
       {
-  path: 'products',
-  canActivate: [authGuard],
-  loadChildren: () =>
-    import('./domains/products/routes').then((m) => m.productRoutes),
-},
+        path: 'products',
+        canActivate: [authGuard],
+        loadChildren: () => import('./domains/products/routes').then((m) => m.productRoutes),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },
