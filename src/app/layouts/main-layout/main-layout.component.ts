@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { Footer } from "./footer";
-import { Header } from "./header";
+import { Footer } from './footer';
+import { Header } from './header';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Header, Footer],
+  imports: [RouterOutlet, Header, Footer],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Navbar -->
-   <app-header/>
+    <app-header />
 
     <!-- Main Content -->
     <main class="py-4">
@@ -21,7 +21,7 @@ import { Header } from "./header";
     </main>
 
     <!-- Footer -->
-    <app-footer/>
+    <app-footer />
   `,
   styles: [
     `
