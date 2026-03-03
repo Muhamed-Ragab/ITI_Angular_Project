@@ -1,25 +1,25 @@
-import { Component, input } from '@angular/core';
 import { CurrencyPipe, NgClass } from '@angular/common';
-import { Product } from '../../dto';
+import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Product } from '../../dto';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
   imports: [CurrencyPipe, NgClass, RouterLink],
   template: `
-    <a [routerLink]="['/products', product().id]" class="text-decoration-none text-dark">
+    <a [routerLink]="['/products', product()._id]" class="text-decoration-none text-dark">
       <div class="card h-100 shadow-sm border-0">
         <img
           [src]="product().images[0]"
-          [alt]="product().name"
+          [alt]="product().title"
           class="card-img-top"
           style="height: 200px; object-fit: cover;"
         />
         <div class="card-body d-flex flex-column">
-          <span class="badge bg-secondary mb-2 w-fit">{{ product().category.name }}</span>
-          <h6 class="card-title fw-semibold">{{ product().name }}</h6>
-          <p class="text-muted small mb-1">by {{ product().seller.store_name }}</p>
+          <span class="badge bg-secondary mb-2 w-fit">{{ product().category_id.name }}</span>
+          <h6 class="card-title fw-semibold">{{ product().title }}</h6>
+          <p class="text-muted small mb-1">by {{ product().seller_id.name }}</p>
           <p class="fw-bold text-primary fs-5 mb-1">{{ product().price | currency }}</p>
 
           <div class="d-flex align-items-center gap-1 mb-2">

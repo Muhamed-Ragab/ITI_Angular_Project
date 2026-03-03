@@ -43,7 +43,7 @@ import { Product, ProductFilters, ProductPagination } from '../../dto';
       <!-- Grid -->
       @if (!isLoading() && products().length > 0) {
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-          @for (product of products(); track product.id) {
+          @for (product of products(); track product._id) {
             <div class="col">
               <app-product-card [product]="product" />
             </div>

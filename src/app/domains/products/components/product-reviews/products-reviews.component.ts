@@ -1,6 +1,6 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
 import { Review } from '../../dto';
 
 @Component({

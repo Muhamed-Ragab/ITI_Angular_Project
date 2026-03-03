@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { CurrencyPipe, NgClass } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductService } from '@core/services/product.service';
 import { ProductReviewsComponent } from '../../components/product-reviews/products-reviews.component';
@@ -40,7 +40,7 @@ import { ProductDetail } from '../../dto';
           <div class="col-md-5">
             <img
               [src]="selectedImage()"
-              [alt]="product()!.name"
+              [alt]="product()!.title"
               class="img-fluid rounded shadow-sm w-100"
               style="height: 380px; object-fit: cover;"
             />
@@ -62,8 +62,8 @@ import { ProductDetail } from '../../dto';
 
           <!-- Right: Info -->
           <div class="col-md-7">
-            <span class="badge bg-secondary mb-2">{{ product()!.category.name }}</span>
-            <h3 class="fw-bold">{{ product()!.name }}</h3>
+            <span class="badge bg-secondary mb-2">{{ product()!.category_id.name }}</span>
+            <h3 class="fw-bold">{{ product()!.title }}</h3>
 
             <!-- Rating -->
             <div class="d-flex align-items-center gap-2 mb-3">
@@ -93,9 +93,9 @@ import { ProductDetail } from '../../dto';
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-shop fs-4 text-primary"></i>
                 <div>
-                  <p class="mb-0 fw-semibold">{{ product()!.seller.store_name }}</p>
-                  @if (product()!.seller.bio) {
-                    <small class="text-muted">{{ product()!.seller.bio }}</small>
+                  <p class="mb-0 fw-semibold">{{ product()!.seller_id.name }}</p>
+                  @if (product()!.seller_id.email) {
+                    <small class="text-muted">{{ product()!.seller_id.email }}</small>
                   }
                 </div>
               </div>
