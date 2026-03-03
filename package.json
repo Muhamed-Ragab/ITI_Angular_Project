@@ -1,6 +1,7 @@
 {
-  "name": "test",
-  "version": "0.0.0",
+  "name": "iti_mean_stack_ecommerce",
+  "description": "ITI Mean Stack E-commerce Application",
+  "version": "0.0.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
