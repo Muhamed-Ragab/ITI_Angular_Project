@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SliderBannerService } from './slider.banner.service';
 
 @Component({
   selector: 'app-slider',
@@ -58,10 +59,13 @@ import { RouterLink } from '@angular/router';
 `
 })
 export class Slider {
-  slides = [
-    { img: 'slide1.jpg', title: 'Big Sale on Electronics', desc: 'Up to 50% off on selected items', link: '/category/electronics' },
-    { img: 'slide2.jpg', title: 'Fashion Trends', desc: 'New arrivals for this season', link: '/category/fashion' },
-    { img: 'slide3.jpg', title: 'Home Essentials', desc: 'Upgrade your home today', link: '/category/home' },
-    { img: 'slide4.jpg', title: 'Home Essentials', desc: 'Upgrade your home today', link: '/category/home' }
-  ];
+  // slides = [
+  //   { img: 'slide1.jpg', title: 'Big Sale on Electronics', desc: 'Up to 50% off on selected items', link: '/category/electronics' },
+  //   { img: 'slide2.jpg', title: 'Fashion Trends', desc: 'New arrivals for this season', link: '/category/fashion' },
+  //   { img: 'slide3.jpg', title: 'Home Essentials', desc: 'Upgrade your home today', link: '/category/home' },
+  //   { img: 'slide4.jpg', title: 'Home Essentials', desc: 'Upgrade your home today', link: '/category/home' }
+  // ];
+
+  private banner=inject(SliderBannerService);
+  
 }
