@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Category } from '@app/domains/home/dto/category.dto';
+import { HomeService } from '@app/domains/home/services/home-service';
 
 @Component({
   selector: 'app-header',
@@ -31,10 +33,10 @@ import { RouterLink } from '@angular/router';
             </a>
 
             <ul class="dropdown-menu">
-              @for (item of categories; track $index) {
+              @for (item of categories(); track item.id) {
                 <li>
-                  <a class="dropdown-item" [routerLink]="['/category', item]">
-                    {{ item }}
+                  <a class="dropdown-item" [routerLink]="['/products']" [queryParams]="{ category_id: item.id}">
+                    {{ item.name }}
                   </a>
                 </li>
               }
@@ -87,5 +89,26 @@ import { RouterLink } from '@angular/router';
   `,
 })
 export class Header {
-  categories = ['Electronics', 'Fasion', 'home'];
+  // categories = ['Electronics', 'Fasion', 'home'];
+
+  private categoryService = inject(HomeService);
+  
+    categories = signal<Category[]>([]);
+    loading = signal(true);
+  
+    constructor() {
+      this.loadCategories();
+    }
+  
+    loadCategories() {
+      this.categoryService.getCategories().subscribe({
+        next: (res) => {
+          this.categories.set(res);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
+      });
+    }
 }
