@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';           // ← Fix 2
 import { WishlistService } from '@core/services/wishlist.service';
 import { WishlistCardComponent } from '../../components/wishlist-card/wishlist-card.component';
 import { WishlistItem } from '../../dto';
@@ -7,11 +8,10 @@ import { WishlistItem } from '../../dto';
   selector: 'app-wishlist-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WishlistCardComponent],
+  imports: [WishlistCardComponent, RouterLink],          // ← Fix 2
   template: `
     <div class="container py-4">
 
-      <!-- Header -->
       <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="fw-bold mb-0">
           <i class="bi bi-heart-fill text-danger me-2"></i>
@@ -32,7 +32,6 @@ import { WishlistItem } from '../../dto';
         }
       </div>
 
-      <!-- Loading -->
       @if (isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
@@ -41,14 +40,12 @@ import { WishlistItem } from '../../dto';
         </div>
       }
 
-      <!-- Error -->
       @if (error()) {
         <div class="alert alert-danger">
           <i class="bi bi-exclamation-triangle me-2"></i>{{ error() }}
         </div>
       }
 
-      <!-- Success Toast -->
       @if (successMsg()) {
         <div class="alert alert-success alert-dismissible">
           <i class="bi bi-check-circle me-2"></i>{{ successMsg() }}
@@ -56,7 +53,6 @@ import { WishlistItem } from '../../dto';
         </div>
       }
 
-      <!-- Empty State -->
       @if (!isLoading() && !error() && wishlist().length === 0) {
         <div class="text-center py-5">
           <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
@@ -68,7 +64,6 @@ import { WishlistItem } from '../../dto';
         </div>
       }
 
-      <!-- Wishlist Grid — same row-cols pattern as product-list -->
       @if (!isLoading() && wishlist().length > 0) {
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
           @for (item of wishlist(); track item.productId) {
@@ -116,7 +111,6 @@ export class WishlistListComponent implements OnInit {
   onRemove(productId: string): void {
     this.wishlistService.removeFromWishlist(productId).subscribe({
       next: () => {
-        // Remove from local signal instantly — no need to refetch
         this.wishlist.update(list => list.filter(i => i.productId !== productId));
         this.successMsg.set('Item removed from wishlist');
         setTimeout(() => this.successMsg.set(null), 3000);
@@ -125,21 +119,23 @@ export class WishlistListComponent implements OnInit {
     });
   }
 
+  // ← Fix 1: each delete updates UI immediately as it succeeds
   clearAll(): void {
     const ids = this.wishlist().map(i => i.productId);
-    let completed = 0;
 
     ids.forEach(id => {
       this.wishlistService.removeFromWishlist(id).subscribe({
         next: () => {
-          completed++;
-          if (completed === ids.length) {
-            this.wishlist.set([]);
+          this.wishlist.update(list => list.filter(i => i.productId !== id));
+
+          if (this.wishlist().length === 0) {
             this.successMsg.set('Wishlist cleared');
             setTimeout(() => this.successMsg.set(null), 3000);
           }
         },
-        error: (err) => this.error.set(err.message || 'Failed to clear wishlist'),
+        error: () => {
+          this.error.set('Failed to remove some items');
+        },
       });
     });
   }
