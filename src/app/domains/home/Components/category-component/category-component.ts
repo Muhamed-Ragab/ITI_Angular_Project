@@ -61,11 +61,6 @@ export class CategoryComponent {
       next: (res) => {
         this.categories.set(res);
         this.loading.set(false);
-  loadCategories() {
-    this.categoryService.getCategories().subscribe({
-      next: (res) => {
-        this.categories.set(res);
-        this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
@@ -73,4 +68,3 @@ export class CategoryComponent {
     });
   }
   }
-}

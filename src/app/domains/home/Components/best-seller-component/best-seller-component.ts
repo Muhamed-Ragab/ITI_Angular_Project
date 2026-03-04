@@ -73,11 +73,7 @@ export class BestSellerComponent {
     this.loadProduct();
   }
 
-  loadProduct() {
-    this.bestSellerService.getBestSellerProduct().subscribe({
-      next: (res) => {
-        this.product.set(res);
-        this.loading.set(false);
+
   loadProduct() {
     this.bestSellerService.getBestSellerProduct().subscribe({
       next: (res) => {
