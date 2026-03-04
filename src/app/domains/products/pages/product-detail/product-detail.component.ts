@@ -70,13 +70,12 @@ import { ProductDetail } from '../../dto';
               <div>
                 @for (star of [1, 2, 3, 4, 5]; track star) {
                   <i
-                    class="bi small"
+                    class="bi small text-warning"
                     [class.bi-star-fill]="star <= product()!.average_rating"
                     [class.bi-star-half]="
                       star > product()!.average_rating && star - 0.5 <= product()!.average_rating
                     "
                     [class.bi-star]="star - 0.5 > product()!.average_rating"
-                    class="text-warning"
                   >
                   </i>
                 }
