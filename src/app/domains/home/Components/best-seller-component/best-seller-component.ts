@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   imports: [CurrencyPipe],
   template: `
     <div class="container mt-4 my-5">
-  <h3 class="text-center my-4">Explore Some Product</h3>
+  <h3 class="text-center my-4">Explore Best Seller Product</h3>
   <div class="row g-4">
   @if (loading()) {
         <p class="text-center py-5">Loading...</p>
@@ -20,7 +20,7 @@ import { Router } from '@angular/router';
       <div class="card h-100 shadow-sm border-0">
           
           <img 
-            [src]="item.images" 
+            [src]="item.images[0]" 
             class="card-img-top p-3" 
             alt="{{item.title}}"
             style="height:200px; object-fit:contain;"
@@ -74,9 +74,14 @@ export class BestSellerComponent {
   }
 
   loadProduct() {
-    this.bestSellerService.getBestSellerProduct().subscribe(res => {
-      this.product.set(res);
-      this.loading.set(false);
+    this.bestSellerService.getBestSellerProduct().subscribe({
+      next: (res) => {
+        this.product.set(res);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
     });
   }
 

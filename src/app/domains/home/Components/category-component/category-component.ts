@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { HomeService } from '../../services/home-service';
-import { Category } from '../../dto/category';
+import { Category } from '../../dto/category.dto';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -57,9 +57,14 @@ export class CategoryComponent {
   }
 
   loadCategories() {
-    this.categoryService.getCategories().subscribe(res => {
-      this.categories.set(res);
-      this.loading.set(false);
+    this.categoryService.getCategories().subscribe({
+      next: (res) => {
+        this.categories.set(res);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
     });
   }
 }
