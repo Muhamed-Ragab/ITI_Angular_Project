@@ -78,6 +78,11 @@ export class BestSellerComponent {
       next: (res) => {
         this.product.set(res);
         this.loading.set(false);
+  loadProduct() {
+    this.bestSellerService.getBestSellerProduct().subscribe({
+      next: (res) => {
+        this.product.set(res);
+        this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
