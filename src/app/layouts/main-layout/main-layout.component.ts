@@ -19,7 +19,7 @@ import { Header } from './header';
         <router-outlet></router-outlet>
       </div>
     </main>
-
+    
     <!-- Footer -->
     <app-footer />
   `,
