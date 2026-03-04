@@ -25,6 +25,12 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadChildren: () => import('./domains/products/routes').then((m) => m.productRoutes),
       },
+      {
+  path: 'wishlist',
+  canActivate: [authGuard],   // ← requires login, same as products
+  loadChildren: () =>
+    import('./domains/wishlist/routes').then((m) => m.wishlistRoutes),
+},
     ],
   },
   { path: '**', redirectTo: 'home' },
