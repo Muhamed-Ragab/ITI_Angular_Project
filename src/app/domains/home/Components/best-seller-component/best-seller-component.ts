@@ -20,11 +20,11 @@ import { Router } from '@angular/router';
       <div class="card h-100 shadow-sm border-0">
           
           <img 
-            [src]="item.images[0]" 
-            class="card-img-top p-3" 
-            alt="{{item.title}}"
-            style="height:200px; object-fit:contain;"
-          >
+                    [src]="item.images[0]" 
+                    class="card-img-top p-3" 
+                    alt="{{item.title}}"
+                    style="height:200px; object-fit:contain;"
+                  >
 
           <div class="card-body d-flex flex-column">
 
