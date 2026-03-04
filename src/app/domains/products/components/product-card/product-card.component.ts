@@ -1,7 +1,7 @@
 import { CurrencyPipe, NgClass } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Product } from '../../dto';
+import { Product } from '../dto';
 
 @Component({
   selector: 'app-product-card',
