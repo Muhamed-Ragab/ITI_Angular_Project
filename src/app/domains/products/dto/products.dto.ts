@@ -41,6 +41,7 @@ export interface ProductFilters {
   inStock?: string;
   minRatingCount?: number;
   sort?: string;
+  categoryId?: number;
 }
 
 export interface ProductListResponse {

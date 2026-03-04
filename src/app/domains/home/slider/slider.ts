@@ -12,30 +12,49 @@ import { SliderBannerService } from './slider.banner.service';
   <!-- Indicators -->
   <div class="carousel-indicators">
     @for (slide of slides; track $index) {
-      <button 
-            type="button"
-            data-bs-target="#mainCarousel"
-            [attr.data-bs-slide-to]="$index"
-            [class.active]="$index === 0"
-            aria-current="true">
-    </button>
+      @if ($index === 0) {
+        <button 
+              type="button"
+              data-bs-target="#mainCarousel"
+              [attr.data-bs-slide-to]="$index"
+              class="active"
+              aria-current="true">
+        </button>
+      } @else {
+        <button 
+              type="button"
+              data-bs-target="#mainCarousel"
+              [attr.data-bs-slide-to]="$index">
+        </button>
+      }
     }
-    
+  
   </div>
 
   <!-- Slides -->
   <div class="carousel-inner">
     @for (slide of slides; track $index) {
-    <div class="carousel-item" [class.active]="$index === 0">
-      <img [src]="slide.img" class="d-block w-100 slider-img" [alt]="slide.title">
-      <div class="carousel-caption d-none d-md-block">
-        <h5 class="text-white">{{ slide.title }}</h5>
-        <p class="text-white">{{ slide.desc }}</p>
-        <a class="btn btn-warning" [routerLink]="slide.link">Shop Now</a>
-      </div>
-    </div>
+      @if ($index === 0) {
+        <div class="carousel-item active">
+          <img [src]="slide.img" class="d-block w-100 slider-img" [alt]="slide.title">
+          <div class="carousel-caption d-none d-md-block">
+            <h5 class="text-white">{{ slide.title }}</h5>
+            <p class="text-white">{{ slide.desc }}</p>
+            <a class="btn btn-warning" [routerLink]="slide.link">Shop Now</a>
+          </div>
+        </div>
+      } @else {
+        <div class="carousel-item">
+          <img [src]="slide.img" class="d-block w-100 slider-img" [alt]="slide.title">
+          <div class="carousel-caption d-none d-md-block">
+            <h5 class="text-white">{{ slide.title }}</h5>
+            <p class="text-white">{{ slide.desc }}</p>
+            <a class="btn btn-warning" [routerLink]="slide.link">Shop Now</a>
+          </div>
+        </div>
+      }
     }
-    
+  
   </div>
 
   <!-- Controls -->
