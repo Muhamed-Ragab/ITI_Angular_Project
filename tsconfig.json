@@ -23,7 +23,8 @@
       "@shared/*": ["app/shared/*"],
       "@layouts/*": ["app/layouts/*"],
       "@env/*": ["environments/*"]
-    }
+    },
+    "noImplicitAny": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
