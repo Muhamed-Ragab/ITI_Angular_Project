@@ -1,7 +1,10 @@
 export interface Category {
-  id: string;
+  _id: string;
+  id?: string;
   name: string;
+  slug?: string;
   description?: string;
-  parentId: string | null;
-  subcategories: Category[];
+  image?: string | null;
+  parentId?: string | null;
+  subcategories?: Category[];
 }

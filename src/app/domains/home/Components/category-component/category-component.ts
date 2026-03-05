@@ -16,7 +16,7 @@ import { HomeService } from '../../services/home-service';
     <h3 class="text-center my-4">What are you shopping for today?</h3>
 
     <div class="row">
-      @for (cat of categories(); track cat.id) {
+      @for (cat of categories(); track $index) {
         <div class="col-md-3 mb-3">
           <div class="card category-card">
             <img src="cat1.jpg" class="card-img-top" [alt]="cat.name" />
