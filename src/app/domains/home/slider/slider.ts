@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SliderBannerService } from './slider.banner.service';
+import { Banner } from '../dto/banner.dto';
 
 @Component({
   selector: 'app-slider',
@@ -10,7 +12,7 @@ import { RouterLink } from '@angular/router';
   
   <!-- Indicators -->
   <div class="carousel-indicators">
-    @for (slide of slides; track $index) {
+    @for (slide of sliders(); track $index) {
       @if ($index === 0) {
         <button 
               type="button"
@@ -32,22 +34,22 @@ import { RouterLink } from '@angular/router';
 
   <!-- Slides -->
   <div class="carousel-inner">
-    @for (slide of slides; track $index) {
+    @for (slide of sliders(); track slide.id) {
       @if ($index === 0) {
         <div class="carousel-item active">
-          <img [src]="slide.img" class="d-block w-100 slider-img" [alt]="slide.title">
+          <img [src]="slide.image_url" class="d-block w-100 slider-img" [alt]="slide.title">
           <div class="carousel-caption d-none d-md-block">
             <h5 class="text-white">{{ slide.title }}</h5>
-            <p class="text-white">{{ slide.desc }}</p>
+            <p class="text-white">{{ slide.content }}</p>
             <a class="btn btn-warning" [routerLink]="slide.link">Shop Now</a>
           </div>
         </div>
       } @else {
         <div class="carousel-item">
-          <img [src]="slide.img" class="d-block w-100 slider-img" [alt]="slide.title">
+          <img [src]="slide.image_url" class="d-block w-100 slider-img" [alt]="slide.title">
           <div class="carousel-caption d-none d-md-block">
             <h5 class="text-white">{{ slide.title }}</h5>
-            <p class="text-white">{{ slide.desc }}</p>
+            <p class="text-white">{{ slide.content }}</p>
             <a class="btn btn-warning" [routerLink]="slide.link">Shop Now</a>
           </div>
         </div>
@@ -71,16 +73,30 @@ import { RouterLink } from '@angular/router';
   styles:`
   .slider-img {
   height: 60vh;   
-  object-fit: cover;
-  width: 100%;
 }
 `
 })
 export class Slider {
-  slides = [
-    { img: 'slide1.jpg', title: 'Big Sale on Electronics', desc: 'Up to 50% off on selected items', link: '/category/electronics' },
-    { img: 'slide2.jpg', title: 'Fashion Trends', desc: 'New arrivals for this season', link: '/category/fashion' },
-    { img: 'slide3.jpg', title: 'Home Essentials', desc: 'Upgrade your home today', link: '/category/home' },
-    { img: 'slide4.jpg', title: 'Home Essentials', desc: 'Upgrade your home today', link: '/category/home' }
-  ];
+  private banner=inject(SliderBannerService);
+    // private router = inject(Router)
+    sliders = signal<Banner[]>([]);
+    loading = signal(true);
+    constructor() {
+      this.loadProduct();
+    }
+  
+    loadProduct() {
+      this.banner.getHomeBanner().subscribe({
+        next: (res) => {
+          this.sliders.set(res);
+          console.log(res)
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
+      });
+    }
+   
+ 
 }
