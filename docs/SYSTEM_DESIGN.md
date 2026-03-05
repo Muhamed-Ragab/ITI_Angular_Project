@@ -28,28 +28,31 @@
 
 ### Technology Stack
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Angular | v21+ | Core framework with standalone components |
-| TypeScript | 5.x | Type-safe development (strict mode) |
-| Bootstrap | 5.x | UI styling and responsive design |
-| RxJS | 7.x | Reactive programming for HTTP |
-| Angular Signals | Native | Fine-grained reactivity and state |
+| Technology      | Version | Purpose                                   |
+| --------------- | ------- | ----------------------------------------- |
+| Angular         | v21+    | Core framework with standalone components |
+| TypeScript      | 5.x     | Type-safe development (strict mode)       |
+| Bootstrap       | 5.x     | UI styling and responsive design          |
+| RxJS            | 7.x     | Reactive programming for HTTP             |
+| Angular Signals | Native  | Fine-grained reactivity and state         |
 
 ### Why This Stack?
 
 **Angular v21+ with Standalone Components:**
+
 - **No NgModules**: Standalone components reduce boilerplate by 50%+
 - **Better Performance**: Components are tree-shakable by default
 - **Modern Patterns**: Aligns with modern web development
 - **Future-Proof**: Angular team is investing heavily in standalone APIs
 
 **TypeScript Strict Mode:**
+
 - Catches 90% of bugs at compile time
 - Self-documenting code (types serve as documentation)
 - Better IDE support (IntelliSense, refactoring)
 
 **Bootstrap 5:**
+
 - Production-ready components
 - No build configuration needed
 - Consistent design system
@@ -88,6 +91,7 @@ src/app/
 ### Why DDD (Domain-Driven Design)?
 
 **Problem without DDD:**
+
 ```
 src/app/
 ├── components/
@@ -112,6 +116,7 @@ src/app/
 ```
 
 **Issues with this flat structure:**
+
 1. Hard to find related files
 2. Services become bloated
 3. No clear boundaries between features
@@ -119,6 +124,7 @@ src/app/
 5. Difficult to scale
 
 **Benefits of DDD:**
+
 ```
 src/app/domains/auth/
 ├── components/login/
@@ -149,6 +155,7 @@ src/app/domains/auth/
 We have two service layers:
 
 1. **AuthService (Core)** - Low-level HTTP operations
+
    ```typescript
    // src/app/core/services/auth.service.ts
    login(credentials: LoginRequestDto): Observable<AuthResponseDto> {
@@ -203,12 +210,12 @@ We have two service layers:
 
 #### Failure Flows
 
-| Error Code | Message | User Action |
-|------------|---------|-------------|
-| AUTH.EMAIL_EXISTS | "This email is already registered" | Show inline error on email field |
-| AUTH.INVALID_EMAIL | "Invalid email format" | Show inline error on email field |
+| Error Code         | Message                                  | User Action                         |
+| ------------------ | ---------------------------------------- | ----------------------------------- |
+| AUTH.EMAIL_EXISTS  | "This email is already registered"       | Show inline error on email field    |
+| AUTH.INVALID_EMAIL | "Invalid email format"                   | Show inline error on email field    |
 | AUTH.WEAK_PASSWORD | "Password must be at least 8 characters" | Show inline error on password field |
-| VALIDATION_ERROR | "Validation failed" | Show all form errors |
+| VALIDATION_ERROR   | "Validation failed"                      | Show all form errors                |
 
 #### Why Handle Each Error Separately?
 
@@ -233,7 +240,7 @@ Different errors require different user experiences:
 export class LoginComponent implements OnInit {
   isLoading = false;
   error: string | null = null;
-  
+
   login() {
     this.isLoading = true;
     this.error = null;
@@ -243,24 +250,24 @@ export class LoginComponent implements OnInit {
 ```
 
 **Problems with this approach:**
+
 - Not reactive (requires manual change detection)
 - Hard to track dependencies
 - No computed values
 - Performance issues with large apps
 
 **Signals approach (Angular 16+):**
+
 ```typescript
 export class LoginComponent {
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
-  
+
   // Computed - automatically updates
-  readonly canSubmit = computed(() => 
-    !this.isLoading() && 
-    this.email().length > 0 && 
-    this.password().length > 0
+  readonly canSubmit = computed(
+    () => !this.isLoading() && this.email().length > 0 && this.password().length > 0,
   );
-  
+
   login() {
     this.isLoading.set(true);
     this.error.set(null);
@@ -270,6 +277,7 @@ export class LoginComponent {
 ```
 
 **Benefits of Signals:**
+
 - Fine-grained reactivity (only updates what changed)
 - Automatic change detection
 - Computed values cached until dependencies change
@@ -291,12 +299,14 @@ export class LoginComponent {
 #### Why Store Token in localStorage?
 
 **Options analyzed:**
+
 1. **Session Storage** - Cleared on tab close ❌
 2. **localStorage** - Persists until cleared ✓
 3. **HttpOnly Cookie** - Most secure but requires backend support ❌
 4. **Memory only** - Lost on refresh ❌
 
 **We chose localStorage because:**
+
 - Backend sends JWT (stateless)
 - Frontend needs to persist session
 - Trade-off: XSS risk (mitigate with sanitization)
@@ -310,11 +320,11 @@ export class LoginComponent {
 
 #### Why Offer Multiple Login Methods?
 
-| Method | Use Case | Security |
-|--------|----------|----------|
-| Email/Password | Most common | Medium |
-| OTP | No password memorization | High (if email secure) |
-| Google OAuth | Quick login | High |
+| Method         | Use Case                 | Security               |
+| -------------- | ------------------------ | ---------------------- |
+| Email/Password | Most common              | Medium                 |
+| OTP            | No password memorization | High (if email secure) |
+| Google OAuth   | Quick login              | High                   |
 
 #### OTP Flow Details
 
@@ -336,6 +346,7 @@ export class LoginComponent {
 ```
 
 **Why Hash the OTP?**
+
 - If database is compromised, attackers can't use OTPs
 - Same principle as password hashing
 
@@ -355,6 +366,7 @@ Registration → Email Sent → User Clicks Link → Verified → Can Login
 ```
 
 **Benefits:**
+
 1. **Spam prevention**: Valid email required
 2. **Security**: Confirms user owns the email
 3. **Communication**: Can send important updates
@@ -379,6 +391,7 @@ Registration → Email Sent → User Clicks Link → Verified → Can Login
 ```
 
 **Why Use OAuth?**
+
 - Trust established OAuth providers
 - No password management
 - Higher conversion (fewer fields to fill)
@@ -394,15 +407,18 @@ Registration → Email Sent → User Clicks Link → Verified → Can Login
 #### Why Server-Side Logout?
 
 **Client-side only (INSECURE):**
+
 ```typescript
 logout() {
   localStorage.removeItem('token');
   this.router.navigate(['/login']);
 }
 ```
+
 Problem: Token still valid on server until expiry.
 
 **Server-side (SECURE):**
+
 ```typescript
 logout() {
   this.api.post('/auth/logout', {}).subscribe({
@@ -413,6 +429,7 @@ logout() {
   });
 }
 ```
+
 Backend increments `tokenVersion`, invalidating all existing tokens.
 
 ---
@@ -428,12 +445,14 @@ Backend increments `tokenVersion`, invalidating all existing tokens.
 #### Why Pagination?
 
 **Without pagination:**
+
 - Load 10,000 products at once
 - DOM becomes sluggish
 - Network time increases
 - Memory usage spikes
 
 **With pagination:**
+
 - Load 10-20 products at a time
 - Fast initial load
 - Progressive rendering
@@ -441,19 +460,20 @@ Backend increments `tokenVersion`, invalidating all existing tokens.
 
 #### Filter Parameters
 
-| Parameter | Type | Purpose |
-|-----------|------|---------|
-| page | number | Current page |
-| limit | number | Items per page |
-| category | string | Filter by category ID |
-| search | string | Full-text search |
-| minPrice/maxPrice | number | Price range |
-| minRating | number | Minimum rating |
-| sellerId | string | Filter by seller |
-| inStock | boolean | Stock availability |
-| sort | string | Sort order |
+| Parameter         | Type    | Purpose               |
+| ----------------- | ------- | --------------------- |
+| page              | number  | Current page          |
+| limit             | number  | Items per page        |
+| category          | string  | Filter by category ID |
+| search            | string  | Full-text search      |
+| minPrice/maxPrice | number  | Price range           |
+| minRating         | number  | Minimum rating        |
+| sellerId          | string  | Filter by seller      |
+| inStock           | boolean | Stock availability    |
+| sort              | string  | Sort order            |
 
 **Why So Many Filters?**
+
 - Users have different intents
 - Reduces cognitive load
 - Enables specific browsing
@@ -481,6 +501,7 @@ Related Products Request:
 ```
 
 **Benefits:**
+
 1. Parallel loading (faster perceived performance)
 2. Independent caching
 3. Separate analytics
@@ -510,6 +531,7 @@ Admin Flow:
 ```
 
 **Benefits:**
+
 - Clear permission boundaries
 - Different UI requirements
 - Audit trails
@@ -527,11 +549,13 @@ Admin Flow:
 #### Why Server-Side Cart?
 
 **Client-side cart (NOT USED):**
+
 - Lost on browser clear
 - Doesn't sync across devices
 - Inventory not checked in real-time
 
 **Server-side cart (USED):**
+
 - Persists across devices
 - Real-time inventory check
 - Abandoned cart recovery
@@ -574,6 +598,7 @@ debouncedUpdate() {
 ```
 
 **Benefits:**
+
 - Reduces API calls by 90%
 - Prevents race conditions
 - Smoother UX
@@ -582,13 +607,13 @@ debouncedUpdate() {
 
 ### 5.3 Wishlist vs Cart
 
-| Feature | Cart | Wishlist |
-|---------|------|----------|
-| Purpose | Immediate purchase | Save for later |
-| Quantity | Multiple items | Single item |
-| Checkout | ✓ | ✗ |
-| Stock tracking | Real-time | Optional |
-| Persistence | Session | Permanent |
+| Feature        | Cart               | Wishlist       |
+| -------------- | ------------------ | -------------- |
+| Purpose        | Immediate purchase | Save for later |
+| Quantity       | Multiple items     | Single item    |
+| Checkout       | ✓                  | ✗              |
+| Stock tracking | Real-time          | Optional       |
+| Persistence    | Session            | Permanent      |
 
 ---
 
@@ -624,6 +649,7 @@ debouncedUpdate() {
 ```
 
 **Benefits:**
+
 1. Lower cart abandonment (30% reduction)
 2. Progress indication
 3. Error isolation (one step at a time)
@@ -639,6 +665,7 @@ debouncedUpdate() {
 #### Why Allow Guest Checkout?
 
 **Registration wall (loses 25% of customers):**
+
 ```
 Checkout Flow:
   1. Add to cart
@@ -649,6 +676,7 @@ Checkout Flow:
 ```
 
 **Guest checkout (higher conversion):**
+
 ```
 Checkout Flow:
   1. Add to cart
@@ -674,6 +702,7 @@ Checkout Flow:
 ```
 
 **Benefits:**
+
 1. Full audit trail
 2. Customer confidence
 3. Dispute resolution
@@ -702,6 +731,7 @@ Profile Edit:
 ```
 
 **Benefits:**
+
 1. Clear separation of concerns
 2. Different layouts
 3. Easier to test
@@ -731,11 +761,11 @@ Primary Use Cases:
 
 #### Why Loyalty Program?
 
-| Benefit | User | Business |
-|---------|------|----------|
-| Points earning | Discounts | Repeat purchases |
-| Referral bonuses | Rewards | New customer acquisition |
-| Tier system | Exclusive perks | Customer retention |
+| Benefit          | User            | Business                 |
+| ---------------- | --------------- | ------------------------ |
+| Points earning   | Discounts       | Repeat purchases         |
+| Referral bonuses | Rewards         | New customer acquisition |
+| Tier system      | Exclusive perks | Customer retention       |
 
 ---
 
@@ -781,6 +811,7 @@ export const adminGuard = () => {
 ```
 
 **Why Approval Required?**
+
 - Verify seller legitimacy
 - Prevent fraud
 - Quality control
@@ -809,6 +840,7 @@ Electronics
 ```
 
 **Benefits:**
+
 1. Better navigation
 2. Faceted search
 3. Targeted marketing
@@ -819,6 +851,7 @@ Electronics
 ### 9.2 Coupon System
 
 **Validation Rules:**
+
 - Code exists
 - Not expired
 - Has started (not future)
@@ -828,11 +861,13 @@ Electronics
 **Why Server-Side Validation?**
 
 Client can be manipulated:
+
 - Modify JavaScript
 - Inspect requests
 - Replay attacks
 
 Server is authoritative:
+
 - Single source of truth
 - Real-time inventory
 - Fraud detection
@@ -856,15 +891,15 @@ Server is authoritative:
 
 ### HTTP Status Codes
 
-| Status | Meaning | Handling |
-|--------|---------|----------|
-| 200 | Success | Process response |
-| 400 | Bad Request | Show validation errors |
-| 401 | Unauthorized | Redirect to login |
-| 403 | Forbidden | Show access denied |
-| 404 | Not Found | Show not found message |
-| 422 | Business Error | Show specific error |
-| 500 | Server Error | Show retry option |
+| Status | Meaning        | Handling               |
+| ------ | -------------- | ---------------------- |
+| 200    | Success        | Process response       |
+| 400    | Bad Request    | Show validation errors |
+| 401    | Unauthorized   | Redirect to login      |
+| 403    | Forbidden      | Show access denied     |
+| 404    | Not Found      | Show not found message |
+| 422    | Business Error | Show specific error    |
+| 500    | Server Error   | Show retry option      |
 
 ### Error Interceptor
 
@@ -874,11 +909,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       let errorMessage = 'An error occurred';
       let errorCode = 'UNKNOWN_ERROR';
-      
+
       if (error.error?.code) {
         errorCode = error.error.code;
       }
-      
+
       switch (error.status) {
         case 401:
           // Trigger logout
@@ -889,9 +924,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           break;
         // ... other cases
       }
-      
+
       return throwError(() => ({ code: errorCode, message: errorMessage }));
-    })
+    }),
   );
 };
 ```
@@ -899,6 +934,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 #### Why Centralized Error Handling?
 
 **Without interceptor (scattered):**
+
 ```typescript
 // Every component does this
 login() {
@@ -916,6 +952,7 @@ login() {
 ```
 
 **With interceptor (centralized):**
+
 ```typescript
 // One place to handle all errors
 errorInterceptor(req, next) {
@@ -925,6 +962,7 @@ errorInterceptor(req, next) {
 ```
 
 **Benefits:**
+
 1. DRY (Don't Repeat Yourself)
 2. Consistent error handling
 3. Easy to modify
@@ -940,16 +978,16 @@ errorInterceptor(req, next) {
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly api = inject(ApiService);
-  
+
   // State as signals
   readonly products = signal<Product[]>([]);
   readonly isLoading = signal(false);
   readonly error = signal<ApiError | null>(null);
-  
+
   getProducts(filters: ProductFilters): void {
     this.isLoading.set(true);
     this.error.set(null);
-    
+
     this.api.getProducts(filters).subscribe({
       next: (response) => {
         this.products.set(response.data.products);
@@ -958,7 +996,7 @@ export class ProductService {
       error: (err) => {
         this.error.set(err);
         this.isLoading.set(false);
-      }
+      },
     });
   }
 }
@@ -966,13 +1004,13 @@ export class ProductService {
 
 **Why Signals for State?**
 
-| Feature | RxJS BehaviorSubject | Angular Signals |
-|---------|---------------------|-----------------|
-| Syntax | verbose (`valueChanges`) | simple (`value`) |
-| Update | imperative only | imperative + `update` |
-| Computed | `.pipe(map())` | `computed()` |
-| OnPush | requires async pipe | automatic |
-| Memory leaks | common | prevented |
+| Feature      | RxJS BehaviorSubject     | Angular Signals       |
+| ------------ | ------------------------ | --------------------- |
+| Syntax       | verbose (`valueChanges`) | simple (`value`)      |
+| Update       | imperative only          | imperative + `update` |
+| Computed     | `.pipe(map())`           | `computed()`          |
+| OnPush       | requires async pipe      | automatic             |
+| Memory leaks | common                   | prevented             |
 
 ---
 
@@ -983,26 +1021,26 @@ export class ProductService {
 export class ProductFacadeService {
   private readonly productService = inject(ProductService);
   private readonly router = inject(Router);
-  
+
   // Expose state (read-only)
   readonly products = this.productService.products;
   readonly isLoading = this.productService.isLoading;
   readonly error = this.productService.error;
-  
+
   // Computed values
   readonly hasProducts = computed(() => this.products().length > 0);
   readonly productCount = computed(() => this.products().length);
-  
+
   // Actions with side effects
   loadProducts(filters: ProductFilters): void {
     this.productService.getProducts(filters);
   }
-  
+
   deleteProduct(id: string): Observable<boolean> {
     return this.productService.deleteProduct(id).pipe(
       tap(() => this.router.navigate(['/products'])),
       map(() => true),
-      catchError(() => of(false))
+      catchError(() => of(false)),
     );
   }
 }
@@ -1026,7 +1064,7 @@ For complex features, use a dedicated store:
 @Injectable({ providedIn: 'root' })
 export class CartStore {
   private readonly api = inject(ApiService);
-  
+
   // Complete state in one object
   private readonly state = signalStore(
     withState({
@@ -1036,19 +1074,15 @@ export class CartStore {
       shipping: 0,
       total: 0,
       isLoading: false,
-      error: null as ApiError | null
-    })
+      error: null as ApiError | null,
+    }),
   );
-  
+
   // Selectors
   readonly items = this.state.items;
-  readonly total = computed(() => 
-    this.state.subtotal() + 
-    this.state.tax() + 
-    this.state.shipping()
-  );
+  readonly total = computed(() => this.state.subtotal() + this.state.tax() + this.state.shipping());
   readonly isEmpty = computed(() => this.state.items().length === 0);
-  
+
   // Actions
   addToCart(productId: string, quantity: number): void {
     this.state.isLoading.set(true);
@@ -1061,7 +1095,7 @@ export class CartStore {
       error: (err) => {
         this.state.error.set(err);
         this.state.isLoading.set(false);
-      }
+      },
     });
   }
 }
@@ -1073,15 +1107,15 @@ export class CartStore {
 
 ### Summary Table
 
-| Pattern | Why Used | Benefits |
-|---------|----------|----------|
-| **DDD** | Scalable codebase | Findability, testability, encapsulation |
-| **Facade** | Service composition | Abstraction, reusability |
-| **Signals** | Modern reactivity | Performance, simplicity, computed values |
-| **Interceptors** | Cross-cutting concerns | DRY, consistency |
-| **Guards** | Security | Route protection, UX |
-| **Lazy Loading** | Performance | Faster initial load |
-| **Standalone** | Modern Angular | Less boilerplate, tree-shaking |
+| Pattern          | Why Used               | Benefits                                 |
+| ---------------- | ---------------------- | ---------------------------------------- |
+| **DDD**          | Scalable codebase      | Findability, testability, encapsulation  |
+| **Facade**       | Service composition    | Abstraction, reusability                 |
+| **Signals**      | Modern reactivity      | Performance, simplicity, computed values |
+| **Interceptors** | Cross-cutting concerns | DRY, consistency                         |
+| **Guards**       | Security               | Route protection, UX                     |
+| **Lazy Loading** | Performance            | Faster initial load                      |
+| **Standalone**   | Modern Angular         | Less boilerplate, tree-shaking           |
 
 ### Design Principles Applied
 
@@ -1093,20 +1127,21 @@ export class CartStore {
 
 ### Performance Considerations
 
-| Optimization | Implementation |
-|--------------|----------------|
-| Lazy Loading | Route-based code splitting |
-| OnPush | ChangeDetectionStrategy.OnPush |
-| Signals | Fine-grained reactivity |
-| Caching | HTTP caching headers |
-| Debouncing | Search, quantity changes |
-| Preloading | Preload strategy for routes |
+| Optimization | Implementation                 |
+| ------------ | ------------------------------ |
+| Lazy Loading | Route-based code splitting     |
+| OnPush       | ChangeDetectionStrategy.OnPush |
+| Signals      | Fine-grained reactivity        |
+| Caching      | HTTP caching headers           |
+| Debouncing   | Search, quantity changes       |
+| Preloading   | Preload strategy for routes    |
 
 ---
 
 ## Component Checklist
 
 ### Authentication (7)
+
 - [ ] LoginComponent
 - [ ] RegisterComponent
 - [ ] OtpRequestComponent
@@ -1116,6 +1151,7 @@ export class CartStore {
 - [ ] ResetPasswordComponent
 
 ### Products (8)
+
 - [ ] ProductListComponent
 - [ ] ProductCardComponent
 - [ ] ProductDetailComponent
@@ -1126,12 +1162,14 @@ export class CartStore {
 - [ ] ProductImageGalleryComponent
 
 ### Cart & Wishlist (4)
+
 - [ ] CartComponent
 - [ ] CartItemComponent
 - [ ] WishlistComponent
 - [ ] WishlistItemComponent
 
 ### Orders (7)
+
 - [ ] CheckoutComponent
 - [ ] GuestCheckoutComponent
 - [ ] OrderListComponent
@@ -1141,6 +1179,7 @@ export class CartStore {
 - [ ] OrderTimelineComponent
 
 ### User Profile (10)
+
 - [ ] ProfileComponent
 - [ ] ProfileEditComponent
 - [ ] AddressesComponent
@@ -1153,6 +1192,7 @@ export class CartStore {
 - [ ] SellerOnboardingComponent
 
 ### Admin (10)
+
 - [ ] AdminDashboardComponent
 - [ ] AdminUsersComponent
 - [ ] UserDetailComponent
@@ -1165,6 +1205,7 @@ export class CartStore {
 - [ ] SystemSettingsComponent
 
 ### Marketing (5)
+
 - [ ] CategoriesComponent
 - [ ] CategorySidebarComponent
 - [ ] CouponInputComponent
@@ -1172,6 +1213,7 @@ export class CartStore {
 - [ ] ReviewFormComponent
 
 ### Shared (10)
+
 - [ ] PaginationComponent
 - [ ] SearchInputComponent
 - [ ] FilterSidebarComponent
@@ -1184,6 +1226,7 @@ export class CartStore {
 - [ ] AddressCardComponent
 
 ### Layouts (2)
+
 - [ ] MainLayoutComponent
 - [ ] AuthLayoutComponent
 
@@ -1199,13 +1242,35 @@ export const routes: Routes = [
     component: AuthLayoutComponent,
     canActivate: [guestGuard],
     children: [
-      { path: 'login', loadComponent: () => import('./domains/auth/components/login/login.component').then(m => m.LoginComponent) },
-      { path: 'register', loadComponent: () => import('./domains/auth/components/register/register.component').then(m => m.RegisterComponent) },
-      { path: 'otp-login', loadComponent: () => import('./domains/auth/components/otp-login/otp-login.component').then(m => m.OtpLoginComponent) },
-      { path: 'verify-email', loadComponent: () => import('./domains/auth/components/verify-email/verify-email.component').then(m => m.VerifyEmailComponent) },
-    ]
+      {
+        path: 'login',
+        loadComponent: () =>
+          import('./domains/auth/components/login/login.component').then((m) => m.LoginComponent),
+      },
+      {
+        path: 'register',
+        loadComponent: () =>
+          import('./domains/auth/components/register/register.component').then(
+            (m) => m.RegisterComponent,
+          ),
+      },
+      {
+        path: 'otp-login',
+        loadComponent: () =>
+          import('./domains/auth/components/otp-login/otp-login.component').then(
+            (m) => m.OtpLoginComponent,
+          ),
+      },
+      {
+        path: 'verify-email',
+        loadComponent: () =>
+          import('./domains/auth/components/verify-email/verify-email.component').then(
+            (m) => m.VerifyEmailComponent,
+          ),
+      },
+    ],
   },
-  
+
   // Main - Authenticated
   {
     path: '',
@@ -1213,61 +1278,218 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       // Home
-      { path: 'home', loadComponent: () => import('./domains/home/home.component').then(m => m.HomeComponent) },
-      
+      {
+        path: 'home',
+        loadComponent: () => import('./domains/home/home.component').then((m) => m.HomeComponent),
+      },
+
       // Products
-      { path: 'products', loadComponent: () => import('./domains/products/components/product-list/product-list.component').then(m => m.ProductListComponent) },
-      { path: 'products/:id', loadComponent: () => import('./domains/products/components/product-detail/product-detail.component').then(m => m.ProductDetailComponent) },
-      { path: 'best-sellers', loadComponent: () => import('./domains/products/components/best-sellers/best-sellers.component').then(m => m.BestSellersComponent) },
-      
+      {
+        path: 'products',
+        loadComponent: () =>
+          import('./domains/products/components/product-list/product-list.component').then(
+            (m) => m.ProductListComponent,
+          ),
+      },
+      {
+        path: 'products/:id',
+        loadComponent: () =>
+          import('./domains/products/components/product-detail/product-detail.component').then(
+            (m) => m.ProductDetailComponent,
+          ),
+      },
+      {
+        path: 'best-sellers',
+        loadComponent: () =>
+          import('./domains/products/components/best-sellers/best-sellers.component').then(
+            (m) => m.BestSellersComponent,
+          ),
+      },
+
       // Cart & Wishlist
-      { path: 'cart', loadComponent: () => import('./domains/users/components/cart/cart.component').then(m => m.CartComponent) },
-      { path: 'wishlist', loadComponent: () => import('./domains/users/components/wishlist/wishlist.component').then(m => m.WishlistComponent) },
-      
+      {
+        path: 'cart',
+        loadComponent: () =>
+          import('./domains/users/components/cart/cart.component').then((m) => m.CartComponent),
+      },
+      {
+        path: 'wishlist',
+        loadComponent: () =>
+          import('./domains/users/components/wishlist/wishlist.component').then(
+            (m) => m.WishlistComponent,
+          ),
+      },
+
       // Orders
-      { path: 'checkout', loadComponent: () => import('./domains/orders/components/checkout/checkout.component').then(m => m.CheckoutComponent) },
-      { path: 'orders', loadComponent: () => import('./domains/orders/components/order-list/order-list.component').then(m => m.OrderListComponent) },
-      { path: 'orders/:id', loadComponent: () => import('./domains/orders/components/order-detail/order-detail.component').then(m => m.OrderDetailComponent) },
-      { path: 'orders/:id/success', loadComponent: () => import('./domains/orders/components/order-success/order-success.component').then(m => m.OrderSuccessComponent) },
-      
+      {
+        path: 'checkout',
+        loadComponent: () =>
+          import('./domains/orders/components/checkout/checkout.component').then(
+            (m) => m.CheckoutComponent,
+          ),
+      },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('./domains/orders/components/order-list/order-list.component').then(
+            (m) => m.OrderListComponent,
+          ),
+      },
+      {
+        path: 'orders/:id',
+        loadComponent: () =>
+          import('./domains/orders/components/order-detail/order-detail.component').then(
+            (m) => m.OrderDetailComponent,
+          ),
+      },
+      {
+        path: 'orders/:id/success',
+        loadComponent: () =>
+          import('./domains/orders/components/order-success/order-success.component').then(
+            (m) => m.OrderSuccessComponent,
+          ),
+      },
+
       // User Profile
-      { path: 'profile', loadComponent: () => import('./domains/users/components/profile/profile.component').then(m => m.ProfileComponent) },
-      { path: 'profile/edit', loadComponent: () => import('./domains/users/components/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent) },
-      { path: 'profile/addresses', loadComponent: () => import('./domains/users/components/addresses/addresses.component').then(m => m.AddressesComponent) },
-      { path: 'profile/payment-methods', loadComponent: () => import('./domains/users/components/payment-methods/payment-methods.component').then(m => m.PaymentMethodsComponent) },
-      { path: 'profile/loyalty', loadComponent: () => import('./domains/users/components/loyalty/loyalty.component').then(m => m.LoyaltyComponent) },
-      
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/users/components/profile/profile.component').then(
+            (m) => m.ProfileComponent,
+          ),
+      },
+      {
+        path: 'profile/edit',
+        loadComponent: () =>
+          import('./domains/users/components/profile-edit/profile-edit.component').then(
+            (m) => m.ProfileEditComponent,
+          ),
+      },
+      {
+        path: 'profile/address',
+        loadComponent: () =>
+          import('./domains/users/components/address/address.component').then(
+            (m) => m.AddressesComponent,
+          ),
+      },
+      {
+        path: 'profile/payment-methods',
+        loadComponent: () =>
+          import('./domains/users/components/payment-methods/payment-methods.component').then(
+            (m) => m.PaymentMethodsComponent,
+          ),
+      },
+      {
+        path: 'profile/loyalty',
+        loadComponent: () =>
+          import('./domains/users/components/loyalty/loyalty.component').then(
+            (m) => m.LoyaltyComponent,
+          ),
+      },
+
       // Seller (Seller/Admin only)
       {
         path: 'seller',
         canActivate: [sellerGuard],
         children: [
-          { path: 'products', loadComponent: () => import('./domains/products/components/seller-product-list/seller-product-list.component').then(m => m.SellerProductListComponent) },
-          { path: 'products/new', loadComponent: () => import('./domains/products/components/product-form/product-form.component').then(m => m.ProductFormComponent) },
-          { path: 'products/:id/edit', loadComponent: () => import('./domains/products/components/product-form/product-form.component').then(m => m.ProductFormComponent) },
-          { path: 'orders', loadComponent: () => import('./domains/orders/components/seller-orders/seller-orders.component').then(m => m.SellerOrdersComponent) },
-          { path: 'payouts', loadComponent: () => import('./domains/users/components/seller-payouts/seller-payouts.component').then(m => m.SellerPayoutsComponent) },
-        ]
+          {
+            path: 'products',
+            loadComponent: () =>
+              import('./domains/products/components/seller-product-list/seller-product-list.component').then(
+                (m) => m.SellerProductListComponent,
+              ),
+          },
+          {
+            path: 'products/new',
+            loadComponent: () =>
+              import('./domains/products/components/product-form/product-form.component').then(
+                (m) => m.ProductFormComponent,
+              ),
+          },
+          {
+            path: 'products/:id/edit',
+            loadComponent: () =>
+              import('./domains/products/components/product-form/product-form.component').then(
+                (m) => m.ProductFormComponent,
+              ),
+          },
+          {
+            path: 'orders',
+            loadComponent: () =>
+              import('./domains/orders/components/seller-orders/seller-orders.component').then(
+                (m) => m.SellerOrdersComponent,
+              ),
+          },
+          {
+            path: 'payouts',
+            loadComponent: () =>
+              import('./domains/users/components/seller-payouts/seller-payouts.component').then(
+                (m) => m.SellerPayoutsComponent,
+              ),
+          },
+        ],
       },
-      
+
       // Admin (Admin only)
       {
         path: 'admin',
         canActivate: [adminGuard],
         children: [
-          { path: 'dashboard', loadComponent: () => import('./domains/admin/components/dashboard/dashboard.component').then(m => m.DashboardComponent) },
-          { path: 'users', loadComponent: () => import('./domains/admin/components/users/users.component').then(m => m.AdminUsersComponent) },
-          { path: 'users/:id', loadComponent: () => import('./domains/admin/components/user-detail/user-detail.component').then(m => m.UserDetailComponent) },
-          { path: 'seller-requests', loadComponent: () => import('./domains/admin/components/seller-requests/seller-requests.component').then(m => m.SellerRequestsComponent) },
-          { path: 'payout-requests', loadComponent: () => import('./domains/admin/components/payout-requests/payout-requests.component').then(m => m.PayoutRequestsComponent) },
-          { path: 'products', loadComponent: () => import('./domains/admin/components/products/products.component').then(m => m.AdminProductsComponent) },
-          { path: 'orders', loadComponent: () => import('./domains/admin/components/orders/orders.component').then(m => m.AdminOrdersComponent) },
-        ]
+          {
+            path: 'dashboard',
+            loadComponent: () =>
+              import('./domains/admin/components/dashboard/dashboard.component').then(
+                (m) => m.DashboardComponent,
+              ),
+          },
+          {
+            path: 'users',
+            loadComponent: () =>
+              import('./domains/admin/components/users/users.component').then(
+                (m) => m.AdminUsersComponent,
+              ),
+          },
+          {
+            path: 'users/:id',
+            loadComponent: () =>
+              import('./domains/admin/components/user-detail/user-detail.component').then(
+                (m) => m.UserDetailComponent,
+              ),
+          },
+          {
+            path: 'seller-requests',
+            loadComponent: () =>
+              import('./domains/admin/components/seller-requests/seller-requests.component').then(
+                (m) => m.SellerRequestsComponent,
+              ),
+          },
+          {
+            path: 'payout-requests',
+            loadComponent: () =>
+              import('./domains/admin/components/payout-requests/payout-requests.component').then(
+                (m) => m.PayoutRequestsComponent,
+              ),
+          },
+          {
+            path: 'products',
+            loadComponent: () =>
+              import('./domains/admin/components/products/products.component').then(
+                (m) => m.AdminProductsComponent,
+              ),
+          },
+          {
+            path: 'orders',
+            loadComponent: () =>
+              import('./domains/admin/components/orders/orders.component').then(
+                (m) => m.AdminOrdersComponent,
+              ),
+          },
+        ],
       },
-    ]
+    ],
   },
-  
-  { path: '**', redirectTo: 'home' }
+
+  { path: '**', redirectTo: 'home' },
 ];
 ```
 
@@ -1292,7 +1514,7 @@ export const guestGuard = () => {
 export const sellerGuard = () => {
   const authService = inject(AuthService);
   const role = authService.getUserRole();
-  return (role === 'seller' || role === 'admin') ? true : ['/home'];
+  return role === 'seller' || role === 'admin' ? true : ['/home'];
 };
 
 // admin.guard.ts - Protects admin routes
@@ -1333,20 +1555,20 @@ The application uses **cookies** instead of localStorage for token storage, whic
 @Injectable({ providedIn: 'root' })
 export class CookieService {
   private readonly cookies = inject(CookiesService);
-  
+
   getToken(): string | null {
     return this.cookies.get('token') ?? null;
   }
-  
+
   setToken(token: string, expires?: Date): void {
     const options: CookieOptions = {
       expires: expires ?? new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
       secure: true,
-      sameSite: 'strict'
+      sameSite: 'strict',
     };
     this.cookies.put('token', token, options);
   }
-  
+
   removeToken(): void {
     this.cookies.delete('token');
   }
@@ -1355,13 +1577,13 @@ export class CookieService {
 
 ### Why Cookies Over localStorage?
 
-| Aspect | localStorage | Cookies | Winner |
-|--------|-------------|---------|--------|
-| **XSS Vulnerable** | Yes - JavaScript can read | No - HttpOnly blocks JS | ✅ Cookies |
-| **CSRF Vulnerable** | No | Yes - but mitigatable | ⚠️ Draw |
-| **Automatic Send** | Manual - need interceptor | Automatic with requests | ✅ Cookies |
-| **Size Limit** | 5MB | 4KB | ⚠️ localStorage |
-| **Mobile Support** | Good | Good | Tie |
+| Aspect              | localStorage              | Cookies                 | Winner          |
+| ------------------- | ------------------------- | ----------------------- | --------------- |
+| **XSS Vulnerable**  | Yes - JavaScript can read | No - HttpOnly blocks JS | ✅ Cookies      |
+| **CSRF Vulnerable** | No                        | Yes - but mitigatable   | ⚠️ Draw         |
+| **Automatic Send**  | Manual - need interceptor | Automatic with requests | ✅ Cookies      |
+| **Size Limit**      | 5MB                       | 4KB                     | ⚠️ localStorage |
+| **Mobile Support**  | Good                      | Good                    | Tie             |
 
 ### Security Benefits of Our Approach
 
@@ -1400,7 +1622,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // No need to add Authorization header
   // Browser sends cookies automatically for same-origin requests
   // This is more secure than manual token handling
-  
+
   return next(req);
 };
 ```
@@ -1427,11 +1649,11 @@ logout(): void {
 
 ### When to Use What?
 
-| Token Storage | Use Case |
-|---------------|----------|
-| **HttpOnly Cookies** | Most secure - recommended for production |
-| **localStorage** | Simpler setup, acceptable for low-security apps |
-| **Memory Only** | Very short-lived tokens, high security needs |
+| Token Storage        | Use Case                                        |
+| -------------------- | ----------------------------------------------- |
+| **HttpOnly Cookies** | Most secure - recommended for production        |
+| **localStorage**     | Simpler setup, acceptable for low-security apps |
+| **Memory Only**      | Very short-lived tokens, high security needs    |
 
 ### CSRF Protection
 
@@ -1448,29 +1670,28 @@ Set-Cookie: token=xyz; SameSite=Strict; Secure
 // error.interceptor.ts - already handles this
 export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
   const csrfToken = inject(CookieService).getCsrfToken();
-  
+
   if (csrfToken && req.method !== 'GET') {
     req = req.clone({
       setHeaders: { 'X-XSRF-TOKEN': csrfToken }
     });
   }
-  
+
   return next(req);
 };
 ```
 
 ### Comparison Summary
 
-| Feature | localStorage (Old) | Cookies (Current) |
-|---------|-------------------|-------------------|
-| XSS Protection | ❌ Vulnerable | ✅ Protected |
-| CSRF Protection | ✅ Not vulnerable | ⚠️ Needs SameSite |
-| Auto-send with requests | ❌ Manual | ✅ Automatic |
-| Implementation complexity | Low | Medium |
-| Security level | Medium | High |
+| Feature                   | localStorage (Old) | Cookies (Current) |
+| ------------------------- | ------------------ | ----------------- |
+| XSS Protection            | ❌ Vulnerable      | ✅ Protected      |
+| CSRF Protection           | ✅ Not vulnerable  | ⚠️ Needs SameSite |
+| Auto-send with requests   | ❌ Manual          | ✅ Automatic      |
+| Implementation complexity | Low                | Medium            |
+| Security level            | Medium             | High              |
 
 **Current implementation is more secure and follows industry best practices!**
-
 
 ---
 
@@ -1518,17 +1739,16 @@ export class CookieService {
   setCookie(token: string): void {
     const expires = new Date();
     expires.setSeconds(expires.getSeconds() + this.expiresInSeconds);
-    
+
     // Set cookie with security attributes
-    document.cookie = 
-      `${this.tokenCookieName}=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
+    document.cookie = `${this.tokenCookieName}=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
   }
 
   getCookie(): string | null {
     const name = `${this.tokenCookieName}=`;
     const decodedCookie = decodeURIComponent(document.cookie);
     const ca = decodedCookie.split(';');
-    
+
     for (let c of ca) {
       c = c.trim();
       if (c.indexOf(name) === 0) {
@@ -1546,11 +1766,11 @@ export class CookieService {
 
 **Cookie Configuration Explained:**
 
-| Attribute | Value | Purpose |
-|-----------|-------|---------|
-| `expires` | 24 hours | Session persistence |
-| `path` | `/` | Available across all routes |
-| `SameSite` | `Strict` | CSRF protection |
+| Attribute  | Value    | Purpose                     |
+| ---------- | -------- | --------------------------- |
+| `expires`  | 24 hours | Session persistence         |
+| `path`     | `/`      | Available across all routes |
+| `SameSite` | `Strict` | CSRF protection             |
 
 ### StorageService Implementation
 
@@ -1609,13 +1829,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
 **Why Both Cookie + Bearer Token?**
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Cookie only** | Simpler, HttpOnly possible | May need CSRF token |
-| **Bearer only** | No CSRF worry | XSS vulnerable |
-| **Both (current)** | ✅ Best of both | Slightly more code |
+| Approach           | Pros                       | Cons                |
+| ------------------ | -------------------------- | ------------------- |
+| **Cookie only**    | Simpler, HttpOnly possible | May need CSRF token |
+| **Bearer only**    | No CSRF worry              | XSS vulnerable      |
+| **Both (current)** | ✅ Best of both            | Slightly more code  |
 
 **Your implementation adds the token to:**
+
 1. **Cookies**: Persistence across sessions, browser auto-send capability
 2. **Authorization Header**: Explicit, works with any API
 
@@ -1637,34 +1858,36 @@ HttpOnly cookies cannot be read by JavaScript, which provides the best XSS prote
 // 2. Auth interceptor (browser sends cookie automatically)
 
 // But you'd need:
-// 1. CORS with credentials: 
+// 1. CORS with credentials:
 //    - Access-Control-Allow-Credentials: true
 // 2. CSRF token protection
 ```
 
 ### Comparison: Your Implementation vs Alternatives
 
-| Feature | localStorage | HttpOnly Cookie | Your Implementation |
-|---------|-------------|-----------------|---------------------|
-| XSS Protection | ❌ | ✅ | ⚠️ Partial |
-| CSRF Protection | ✅ | ❌ | ✅ (SameSite) |
-| Auto-send | ❌ | ✅ | ✅ (with header) |
-| Server changes | None | Required | Minimal |
-| **Security Score** | 5/10 | 9/10 | 7/10 |
+| Feature            | localStorage | HttpOnly Cookie | Your Implementation |
+| ------------------ | ------------ | --------------- | ------------------- |
+| XSS Protection     | ❌           | ✅              | ⚠️ Partial          |
+| CSRF Protection    | ✅           | ❌              | ✅ (SameSite)       |
+| Auto-send          | ❌           | ✅              | ✅ (with header)    |
+| Server changes     | None         | Required        | Minimal             |
+| **Security Score** | 5/10         | 9/10            | 7/10                |
 
 ### Recommendations for Future
 
 **Option 1: Stay Current (Good)**
+
 - Current implementation is solid
 - Consider adding CSRF token if concerned
 
 **Option 2: Upgrade to HttpOnly (Better)**
+
 - Requires backend changes
 - Maximum security
 - Eliminates XSS token theft
 
 **Option 3: Add CSRF Layer (Quick Win)**
+
 - Add XSRF-TOKEN cookie
 - Send in X-XSRF-TOKEN header
 - Better CSRF protection
-
