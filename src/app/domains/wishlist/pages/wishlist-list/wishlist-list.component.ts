@@ -121,21 +121,22 @@ export class WishlistListComponent implements OnInit {
 
   // ← Fix 1: each delete updates UI immediately as it succeeds
   clearAll(): void {
+  clearAll(): void {
     const ids = this.wishlist().map(i => i.productId);
+    let completed = 0;
 
     ids.forEach(id => {
       this.wishlistService.removeFromWishlist(id).subscribe({
         next: () => {
-          this.wishlist.update(list => list.filter(i => i.productId !== id));
-
-          if (this.wishlist().length === 0) {
+          // Keep local state in sync as each item is removed successfully
+          this.wishlist.update(list => list.filter(item => item.productId !== id));
+          completed++;
+          if (completed === ids.length && this.wishlist().length === 0) {
             this.successMsg.set('Wishlist cleared');
             setTimeout(() => this.successMsg.set(null), 3000);
           }
         },
-        error: () => {
-          this.error.set('Failed to remove some items');
-        },
+        error: (err) => this.error.set(err.message || 'Failed to clear wishlist'),
       });
     });
   }
