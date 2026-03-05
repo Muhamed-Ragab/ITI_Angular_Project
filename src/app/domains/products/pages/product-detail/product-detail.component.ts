@@ -201,11 +201,13 @@ export class ProductDetailComponent implements OnInit {
         
         if (this.authService.isAuthenticated()) {
           this.wishlistService.getWishlist().subscribe({
-            next: (wishlistRes) => {
-              const inWishlist = wishlistRes.data.some(item => item.productId === this.id());
-              this.inWishlist.set(inWishlist);
-            }
-          });
+  next: (wishlistRes) => {
+    const inWishlist = wishlistRes.data.wishlist.some(
+      item => item.productId === this.id()
+    );
+    this.inWishlist.set(inWishlist);
+  }
+});
         } else {
            this.inWishlist.set(this.guestWishlistService.isInWishlist(this.id()));
         }
