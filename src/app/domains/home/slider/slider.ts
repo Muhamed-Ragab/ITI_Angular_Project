@@ -50,7 +50,7 @@ import { Banner } from '../dto/banner.dto';
           <div class="carousel-caption d-none d-md-block">
             <h5 class="text-white">{{ slide.title }}</h5>
             <p class="text-white">{{ slide.content }}</p>
-            <a class="btn btn-warning" [routerLink]="['/products']">Shop Now</a>
+            <a class="btn btn-warning" [routerLink]="slide.link">Shop Now</a>
           </div>
         </div>
       }
