@@ -76,5 +76,8 @@ export const routes: Routes = [
     }
     ],
   },
-  { path: '**', redirectTo: 'home' },
+  { path: '**', 
+    loadComponent: () =>
+    import('./shared/pages/not-found.component/not-found.component')
+      .then(m => m.NotFoundComponent), },
 ];
