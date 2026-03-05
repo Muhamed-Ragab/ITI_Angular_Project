@@ -8,7 +8,10 @@ export interface WishlistItem {
 
 export interface WishlistResponse {
   success: boolean;
-  data: WishlistItem[];
+  data: {
+    wishlist: WishlistItem[];
+    count: number;
+  };
 }
 
 export interface AddToWishlistDto {
