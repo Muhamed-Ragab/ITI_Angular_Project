@@ -2,12 +2,12 @@ import { Injectable, inject, signal } from '@angular/core';
 import { OrderService } from '@core/services/order.service';
 import { Observable, catchError, of, tap } from 'rxjs';
 import {
-    CreateOrderRequest,
-    GuestCheckoutRequest,
-    Order,
-    OrderDetailResponse,
-    OrderListResponse,
-    OrderResponse,
+  CreateOrderRequest,
+  GuestCheckoutRequest,
+  Order,
+  OrderDetailResponse,
+  OrderListResponse,
+  OrderResponse,
 } from '../dto/order.dto';
 
 export interface PaginationState {
@@ -47,12 +47,16 @@ export class OrdersFacadeService {
     this.isLoading.set(true);
     this.error.set(null);
 
-    const requestParams = {
-      page: this.pagination().page,
-      limit: 10,
-      ...params,
-      status: this.statusFilter() || params?.status,
+    const currentStatus = this.statusFilter() || params?.status;
+    const requestParams: any = {
+      page: params?.page ?? this.pagination().page,
+      limit: params?.limit ?? 10,
     };
+
+    // Only add status if it's not empty
+    if (currentStatus && currentStatus.trim() !== '') {
+      requestParams.status = currentStatus;
+    }
 
     return this.orderService.getMyOrders(requestParams).pipe(
       tap((response) => {
@@ -104,7 +108,7 @@ export class OrdersFacadeService {
    * Create order for authenticated users
    * @param request - Order creation request
    */
-  createOrder$(request: CreateOrderRequest): Observable<OrderResponse | null> {
+  createOrder$(request: Omit<CreateOrderRequest, 'items'>): Observable<OrderResponse | null> {
     this.isProcessingCheckout.set(true);
     this.error.set(null);
 

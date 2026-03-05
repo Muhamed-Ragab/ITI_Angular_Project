@@ -32,17 +32,46 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
             <!-- Order Header -->
             <div class="card mb-4">
               <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                   <div>
-                    <h4 class="mb-1">Order #{{ ordersFacade.currentOrder()!.orderNumber }}</h4>
+                    <h4 class="mb-1">Order #{{ ordersFacade.currentOrder()!.orderNumber || getOrderId() }}</h4>
                     <small class="text-muted"
                       >Placed on {{ formatDate(ordersFacade.currentOrder()!.createdAt) }}</small
                     >
+                    @if (ordersFacade.currentOrder()!.updatedAt) {
+                      <br />
+                      <small class="text-muted"
+                        >Last updated: {{ formatDate(ordersFacade.currentOrder()!.updatedAt!) }}</small
+                      >
+                    }
                   </div>
                   <span [class]="getStatusClass(ordersFacade.currentOrder()!.status)">
                     {{ ordersFacade.currentOrder()!.status | titlecase }}
                   </span>
                 </div>
+
+                <!-- Guest Info (if guest order) -->
+                @if (ordersFacade.currentOrder()!.guest_info) {
+                  <div class="alert alert-info mb-0">
+                    <h6 class="alert-heading">
+                      <i class="bi bi-person me-2"></i>Guest Order
+                    </h6>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <small class="text-muted d-block">Name</small>
+                        <strong>{{ ordersFacade.currentOrder()!.guest_info!.name }}</strong>
+                      </div>
+                      <div class="col-md-4">
+                        <small class="text-muted d-block">Email</small>
+                        <strong>{{ ordersFacade.currentOrder()!.guest_info!.email }}</strong>
+                      </div>
+                      <div class="col-md-4">
+                        <small class="text-muted d-block">Phone</small>
+                        <strong>{{ ordersFacade.currentOrder()!.guest_info!.phone || 'N/A' }}</strong>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
             </div>
 
@@ -94,7 +123,7 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
             <div class="card mb-4">
               <div class="card-body">
                 <h5 class="card-title">Order Items</h5>
-                @for (item of ordersFacade.currentOrder()!.items; track getItemId(item)) {
+                @for (item of ordersFacade.currentOrder()!.items; track $index) {
                   <div class="d-flex align-items-center mb-3">
                     <div class="shrink-0">
                       @if (getItemImage(item)) {
@@ -132,14 +161,46 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
               <div class="card-body">
                 <h5 class="card-title">Shipping Address</h5>
                 <address class="mb-0">
-                  {{ ordersFacade.currentOrder()!.shippingAddress.street }}<br />
-                  {{ ordersFacade.currentOrder()!.shippingAddress.city }},
-                  {{ ordersFacade.currentOrder()!.shippingAddress.state }}<br />
-                  {{ ordersFacade.currentOrder()!.shippingAddress.country }}
-                  {{ ordersFacade.currentOrder()!.shippingAddress.zip }}
+                  {{ getShippingAddress().street }}<br />
+                  {{ getShippingAddress().city }}@if (getShippingAddress().state) {, {{ getShippingAddress().state }}}<br />
+                  {{ getShippingAddress().country }}
+                  {{ getShippingAddress().zip }}
                 </address>
               </div>
             </div>
+
+            <!-- Complete Status Timeline -->
+            @if (ordersFacade.currentOrder()!.status_timeline && ordersFacade.currentOrder()!.status_timeline.length > 0) {
+              <div class="card mb-4">
+                <div class="card-body">
+                  <h5 class="card-title">Complete Order History</h5>
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Status</th>
+                          <th>Date & Time</th>
+                          <th>Note</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (timeline of ordersFacade.currentOrder()!.status_timeline; track $index) {
+                          <tr>
+                            <td>
+                              <span [class]="getStatusClass(timeline.status)">
+                                {{ timeline.status | titlecase }}
+                              </span>
+                            </td>
+                            <td>{{ formatDate(timeline.timestamp) }}</td>
+                            <td>{{ timeline.note || '-' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
 
           <!-- Order Summary Sidebar -->
@@ -150,15 +211,15 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
 
                 <div class="d-flex justify-content-between mb-2">
                   <span class="text-muted">Subtotal</span>
-                  <span>{{ formatCurrency(ordersFacade.currentOrder()!.subtotal) }}</span>
+                  <span>{{ formatCurrency(getOrderSubtotal()) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                   <span class="text-muted">Tax</span>
-                  <span>{{ formatCurrency(ordersFacade.currentOrder()!.tax) }}</span>
+                  <span>{{ formatCurrency(getOrderTax()) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                   <span class="text-muted">Shipping</span>
-                  <span>{{ formatCurrency(ordersFacade.currentOrder()!.shipping) }}</span>
+                  <span>{{ formatCurrency(getOrderShipping()) }}</span>
                 </div>
                 @if (hasDiscount()) {
                   <div class="d-flex justify-content-between mb-2 text-success">
@@ -169,34 +230,61 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
                 <hr />
                 <div class="d-flex justify-content-between fw-bold fs-5">
                   <span>Total</span>
-                  <span>{{ formatCurrency(ordersFacade.currentOrder()!.total) }}</span>
+                  <span>{{ formatCurrency(getOrderTotal()) }}</span>
                 </div>
 
-                @if (ordersFacade.currentOrder()!.payment) {
+                @if (ordersFacade.currentOrder()!.payment || ordersFacade.currentOrder()!.payment_info) {
                   <hr />
                   <h6>Payment Information</h6>
                   <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Method</span>
                     <span class="text-capitalize">{{
-                      ordersFacade.currentOrder()!.payment!.method
+                      getPaymentMethod()
                     }}</span>
                   </div>
                   <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Status</span>
                     <span
-                      [class]="getPaymentStatusClass(ordersFacade.currentOrder()!.payment!.status)"
+                      [class]="getPaymentStatusClass(getPaymentStatus())"
                     >
-                      {{ ordersFacade.currentOrder()!.payment!.status | titlecase }}
+                      {{ getPaymentStatus() | titlecase }}
                     </span>
                   </div>
-                  @if (ordersFacade.currentOrder()!.payment!.transactionId) {
-                    <div class="d-flex justify-content-between">
+                  @if (getPaymentTransactionId()) {
+                    <div class="d-flex justify-content-between mb-2">
                       <span class="text-muted">Transaction ID</span>
                       <small class="text-break">{{
-                        ordersFacade.currentOrder()!.payment!.transactionId
+                        getPaymentTransactionId()
                       }}</small>
                     </div>
                   }
+                  @if (getStripePaymentIntentId()) {
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Stripe Payment Intent</span>
+                      <small class="text-break">{{
+                        getStripePaymentIntentId()
+                      }}</small>
+                    </div>
+                  }
+                }
+
+                @if (hasCoupon()) {
+                  <hr />
+                  <h6>Coupon Applied</h6>
+                  <div class="alert alert-success py-2 mb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <i class="bi bi-tag-fill me-2"></i>
+                        <strong>{{ getCouponCode() }}</strong>
+                      </div>
+                      <span class="badge bg-success">{{ getCouponType() }}</span>
+                    </div>
+                    @if (getCouponValue()) {
+                      <small class="text-muted d-block mt-1">
+                        Value: {{ getCouponValue() }}
+                      </small>
+                    }
+                  </div>
                 }
 
                 @if (ordersFacade.currentOrder()!.tracking?.number) {
@@ -354,7 +442,7 @@ export class OrderDetailComponent implements OnInit {
   }
 
   isOrderItem(item: OrderItem | GuestOrderItem): item is OrderItem {
-    return 'productId' in item && 'name' in item;
+    return 'product_id' in item && 'name' in item;
   }
 
   getItemName(item: OrderItem | GuestOrderItem): string {
@@ -384,7 +472,7 @@ export class OrderDetailComponent implements OnInit {
 
   getItemId(item: OrderItem | GuestOrderItem): string {
     if (this.isOrderItem(item)) {
-      return item.productId;
+      return item.product_id;
     }
     return item.product;
   }
@@ -393,5 +481,92 @@ export class OrderDetailComponent implements OnInit {
     const discount = this.ordersFacade.currentOrder()?.discount;
     if (!discount) return this.formatCurrency(0);
     return this.formatCurrency(discount);
+  }
+
+  getOrderTotal(): number {
+    const order = this.ordersFacade.currentOrder();
+    return order?.total ?? order?.total_amount ?? 0;
+  }
+
+  getOrderSubtotal(): number {
+    const order = this.ordersFacade.currentOrder();
+    return order?.subtotal ?? order?.subtotal_amount ?? 0;
+  }
+
+  getOrderTax(): number {
+    const order = this.ordersFacade.currentOrder();
+    return order?.tax ?? order?.tax_amount ?? 0;
+  }
+
+  getOrderShipping(): number {
+    const order = this.ordersFacade.currentOrder();
+    return order?.shipping ?? order?.shipping_amount ?? 0;
+  }
+
+  getOrderId(): string {
+    const order = this.ordersFacade.currentOrder();
+    return order?.id ?? order?._id ?? 'N/A';
+  }
+
+  getPaymentMethod(): string {
+    const order = this.ordersFacade.currentOrder();
+    return order?.payment?.method ?? order?.payment_info?.method ?? 'N/A';
+  }
+
+  getPaymentStatus(): string {
+    const order = this.ordersFacade.currentOrder();
+    return order?.payment?.status ?? order?.payment_info?.status ?? 'pending';
+  }
+
+  getPaymentTransactionId(): string | null {
+    const order = this.ordersFacade.currentOrder();
+    return order?.payment?.transactionId ?? null;
+  }
+
+  getStripePaymentIntentId(): string | null {
+    const order = this.ordersFacade.currentOrder();
+    return order?.payment_info?.stripe_payment_intent_id ?? null;
+  }
+
+  hasCoupon(): boolean {
+    const order = this.ordersFacade.currentOrder();
+    return !!order?.coupon_info && Object.keys(order.coupon_info).length > 0;
+  }
+
+  getCouponCode(): string {
+    const order = this.ordersFacade.currentOrder();
+    const couponInfo = order?.coupon_info as any;
+    return couponInfo?.code ?? 'N/A';
+  }
+
+  getCouponType(): string {
+    const order = this.ordersFacade.currentOrder();
+    const couponInfo = order?.coupon_info as any;
+    const type = couponInfo?.type ?? couponInfo?.discountType;
+    return type ? type.toUpperCase() : 'N/A';
+  }
+
+  getCouponValue(): string {
+    const order = this.ordersFacade.currentOrder();
+    const couponInfo = order?.coupon_info as any;
+    const value = couponInfo?.value ?? couponInfo?.discountValue;
+    const type = couponInfo?.type ?? couponInfo?.discountType;
+
+    if (!value) return '';
+
+    if (type === 'percentage') {
+      return `${value}% off`;
+    }
+    return `${this.formatCurrency(value)} off`;
+  }
+
+  getShippingAddress(): any {
+    const order = this.ordersFacade.currentOrder();
+    return order?.shippingAddress ?? order?.shipping_address ?? {
+      street: 'N/A',
+      city: 'N/A',
+      country: 'N/A',
+      zip: 'N/A'
+    };
   }
 }

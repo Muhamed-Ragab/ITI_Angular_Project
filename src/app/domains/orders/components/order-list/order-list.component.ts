@@ -23,13 +23,8 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
           {{ error() }}
           <button class="btn btn-link" (click)="loadOrders()">Try again</button>
         </div>
-      } @else if (orders().length === 0) {
-        <div class="alert alert-info">
-          You haven't placed any orders yet.
-          <a routerLink="/products">Start shopping</a>
-        </div>
       } @else {
-        <!-- Filter -->
+        <!-- Filter - Always visible -->
         <div class="mb-4">
           <div class="btn-group">
             <button
@@ -48,10 +43,10 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
             </button>
             <button
               class="btn btn-outline-primary"
-              [class.active]="statusFilter() === 'processing'"
-              (click)="filterByStatus('processing')"
+              [class.active]="statusFilter() === 'paid'"
+              (click)="filterByStatus('paid')"
             >
-              Processing
+              Paid
             </button>
             <button
               class="btn btn-outline-primary"
@@ -67,87 +62,112 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
             >
               Delivered
             </button>
+            <button
+              class="btn btn-outline-primary"
+              [class.active]="statusFilter() === 'cancelled'"
+              (click)="filterByStatus('cancelled')"
+            >
+              Cancelled
+            </button>
           </div>
         </div>
 
-        <!-- Orders List -->
-        <div class="row">
-          @for (order of orders(); track order.id) {
-            <div class="col-12 mb-3">
-              <div class="card">
-                <div class="card-body">
-                  <div class="row align-items-center">
-                    <!--="row align-items Order Info -->
-                    <div class="col-md-3">
-                      <div class="fw-bold">Order #{{ order.orderNumber }}</div>
-                      <small class="text-muted">{{ formatOrderDate(order.createdAt) }}</small>
+        @if (orders().length === 0) {
+          <!-- Empty state with filter context -->
+          <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+            @if (statusFilter()) {
+              <h4 class="mt-3">No {{ statusFilter() }} orders found</h4>
+              <p class="text-muted">You don't have any orders with status "{{ statusFilter() }}"</p>
+              <button class="btn btn-primary" (click)="filterByStatus('')">
+                View All Orders
+              </button>
+            } @else {
+              <h4 class="mt-3">No orders yet</h4>
+              <p class="text-muted">You haven't placed any orders yet.</p>
+              <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
+            }
+          </div>
+        } @else {
+          <!-- Orders List -->
+          <div class="row">
+            @for (order of orders(); track $index) {
+              <div class="col-12 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <!-- Order Info -->
+                      <div class="col-md-3">
+                        <div class="fw-bold">Order #{{ order.orderNumber }}</div>
+                        <small class="text-muted">{{ formatOrderDate(order.createdAt) }}</small>
+                      </div>
+
+                      <!-- Items Count -->
+                      <div class="col-md-2">
+                        <small class="text-muted d-block">Items</small>
+                        <span>{{ order.items.length }} product(s)</span>
+                      </div>
+
+                      <!-- Total -->
+                      <div class="col-md-2">
+                        <small class="text-muted d-block">Total</small>
+                        <span class="fw-bold">EGP {{ getOrderTotal(order).toFixed(2) }}</span>
+                      </div>
+
+                      <!-- Status -->
+                      <div class="col-md-2">
+                        <small class="text-muted d-block">Status</small>
+                        <span [class]="getStatusClass(order.status)">
+                          {{ order.status | titlecase }}
+                        </span>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="col-md-3 text-md-end">
+                        <a
+                          [routerLink]="['/orders', getOrderId(order)]"
+                          class="btn btn-sm btn-outline-primary"
+                        >
+                          View Details
+                        </a>
+                      </div>
                     </div>
 
-                    <!-- Items Count -->
-                    <div class="col-md-2">
-                      <small class="text-muted d-block">Items</small>
-                      <span>{{ order.items.length }} product(s)</span>
-                    </div>
-
-                    <!-- Total -->
-                    <div class="col-md-2">
-                      <small class="text-muted d-block">Total</small>
-                      <span class="fw-bold">EGP {{ order.total.toFixed(2) }}</span>
-                    </div>
-
-                    <!-- Status -->
-                    <div class="col-md-2">
-                      <small class="text-muted d-block">Status</small>
-                      <span [class]="getStatusClass(order.status)">
-                        {{ order.status | titlecase }}
-                      </span>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="col-md-3 text-md-end">
-                      <a
-                        [routerLink]="['/orders', order.id]"
-                        class="btn btn-sm btn-outline-primary"
-                      >
-                        View Details
-                      </a>
-                    </div>
+                    <!-- Tracking Info -->
+                    @if (order.tracking?.number) {
+                      <div class="mt-3 pt-3 border-top">
+                        <small class="text-muted">
+                          <i class="bi bi-truck me-2"></i>
+                          Tracking: {{ order.tracking?.carrier }} - {{ order.tracking?.number }}
+                        </small>
+                      </div>
+                    }
                   </div>
-
-                  <!-- Tracking Info -->
-                  @if (order.tracking?.number) {
-                    <div class="mt-3 pt-3 border-top">
-                      <small class="text-muted">
-                        <i class="bi bi-truck me-2"></i>
-                        Tracking: {{ order.tracking?.carrier }} - {{ order.tracking?.number }}
-                      </small>
-                    </div>
-                  }
                 </div>
               </div>
-            </div>
-          }
-        </div>
+            }
+          </div>
 
-        <!-- Pagination -->
-        @if (pagination().pages > 1) {
-          <nav aria-label="Orders pagination" class="mt-4">
-            <ul class="pagination justify-content-center">
-              <li class="page-item" [class.disabled]="pagination().page === 1">
-                <button class="page-link" (click)="goToPage(pagination().page - 1)">
-                  Previous
-                </button>
-              </li>
-              @for (page of getPageNumbers(); track page) {
-                <li class="page-item" [class.active]="page === pagination().page">
-                  <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+          <!-- Pagination -->
+          @if (pagination().pages > 1) {
+            <nav aria-label="Orders pagination" class="mt-4">
+              <ul class="pagination justify-content-center">
+                <li class="page-item" [class.disabled]="pagination().page === 1">
+                  <button class="page-link" (click)="goToPage(pagination().page - 1)">
+                    Previous
+                  </button>
                 </li>
-              }
-              <li class="page-item" [class.disabled]="pagination().page === pagination().pages">
-                <button class="page-link" (click)="goToPage(pagination().page + 1)">Next</button>
-              </li>
-            </ul>
-          </nav>
+                @for (page of getPageNumbers(); track $index) {
+                  <li class="page-item" [class.active]="page === pagination().page">
+                    <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+                  </li>
+                }
+                <li class="page-item" [class.disabled]="pagination().page === pagination().pages">
+                  <button class="page-link" (click)="goToPage(pagination().page + 1)">Next</button>
+                </li>
+              </ul>
+            </nav>
+          }
         }
       }
     </div>
@@ -193,13 +213,22 @@ export class OrderListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const classes: Record<string, string> = {
-      pending: 'badge bg-warning',
+      pending: 'badge bg-warning text-dark',
       paid: 'badge bg-info',
-      processing: 'badge bg-primary',
-      shipped: 'badge bg-info',
+      shipped: 'badge bg-primary',
       delivered: 'badge bg-success',
       cancelled: 'badge bg-danger',
     };
     return classes[status] || 'badge bg-secondary';
+  }
+
+  getOrderTotal(order: any): number {
+    // Handle both total and total_amount field names
+    return order.total ?? order.total_amount ?? 0;
+  }
+
+  getOrderId(order: any): string {
+    // Handle both id and _id field names
+    return order.id ?? order._id ?? '';
   }
 }
