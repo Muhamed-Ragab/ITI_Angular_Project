@@ -1,4 +1,4 @@
-export interface UeserProfileDto {
+user-profile.dto.ts
     id: string;
     name: string;
     email: string;
