@@ -67,6 +67,13 @@ export const routes: Routes = [
         path: 'payment',
         loadChildren: () => import('./domains/payment/routes').then((m) => m.paymentRoutes),
       },
+      {
+      path: 'profile',
+      loadComponent: () =>
+        import('./domains/profile/Components/userprofile.component/userprofile.component')
+          .then(m => m.UserprofileComponent),
+      canActivate: [authGuard] 
+    }
     ],
   },
   { path: '**', redirectTo: 'home' },
