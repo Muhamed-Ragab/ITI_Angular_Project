@@ -56,9 +56,20 @@ export class PaymentFacadeService {
       tap((response) => {
         if (response.success && response.data) {
           if (response.data.clientSecret) {
+            // Stripe payment - redirect to Stripe payment page
             this.clientSecret.set(response.data.clientSecret);
-          } else if (response.data.paymentStatus === 'paid' || response.data.paymentStatus === 'pending') {
+            this.router.navigate(['/payment/stripe'], {
+              queryParams: {
+                clientSecret: response.data.clientSecret,
+                orderId: request.orderId,
+              },
+            });
+          } else if (response.data.paymentStatus === 'paid' || response.data.status === 'paid') {
+            // Wallet/COD - payment completed immediately
             this.cartService.getCart().subscribe(); // Refresh cart
+            this.router.navigate(['/payment/success', request.orderId]);
+          } else if (response.data.status === 'pending') {
+            // COD or other pending payment methods
             this.router.navigate(['/payment/success', request.orderId]);
           }
         }
@@ -83,8 +94,19 @@ export class PaymentFacadeService {
       tap((response) => {
         if (response.success && response.data) {
           if (response.data.clientSecret) {
+            // Stripe payment - redirect to Stripe payment page
             this.clientSecret.set(response.data.clientSecret);
-          } else if (response.data.paymentStatus === 'paid' || response.data.paymentStatus === 'pending') {
+            this.router.navigate(['/payment/stripe'], {
+              queryParams: {
+                clientSecret: response.data.clientSecret,
+                orderId: request.orderId,
+              },
+            });
+          } else if (response.data.paymentStatus === 'paid' || response.data.status === 'paid') {
+            // COD or other completed payment
+            this.router.navigate(['/payment/success', request.orderId]);
+          } else if (response.data.status === 'pending') {
+            // COD or other pending payment methods
             this.router.navigate(['/payment/success', request.orderId]);
           }
         }
