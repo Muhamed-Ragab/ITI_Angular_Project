@@ -2,15 +2,24 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import type { UserAddress } from '@app/domains/auth/types';
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
 import { GuestCart, GuestCartService } from '@core/services/guest-cart.service';
+import { OrderService } from '@core/services/order.service';
 import { ProductService } from '@core/services/product.service';
 import { formatCurrency } from '@core/utils';
 import { CreateOrderRequest, GuestCheckoutRequest } from '@domains/orders/dto';
 import { OrdersFacadeService } from '@domains/orders/services/orders-facade.service';
 import { PaymentMethod, ValidateCouponResponse } from '@domains/payment/dto';
 import { PaymentFacadeService } from '@domains/payment/services/payment-facade.service';
+
+type CheckoutShippingAddressForm = Pick<UserAddress, 'street' | 'city' | 'country' | 'zip'> &
+  Partial<Pick<UserAddress, '_id' | 'state' | 'isDefault'>>;
+
+type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
+  shippingAddressIndex: number;
+};
 
 @Component({
   selector: 'app-checkout',
@@ -37,6 +46,85 @@ import { PaymentFacadeService } from '@domains/payment/services/payment-facade.s
       } @else if (!hasCartItems()) {
         <div class="alert alert-warning">
           Your cart is empty. <a routerLink="/products">Continue shopping</a>
+        </div>
+      } @else if (isLoadingUserData()) {
+        <!-- Loading user data for authenticated checkout -->
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading user data...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading your information...</p>
+        </div>
+      } @else if (requiresAddress() && !isGuestMode()) {
+        <!-- No address available - require user to add one -->
+        <div class="alert alert-warning">
+          <i class="bi bi-geo-alt me-2"></i>
+          <strong>Shipping address required</strong>
+          <p class="mb-0 mt-2">
+            You need to add a shipping address before proceeding with checkout.
+          </p>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Add Shipping Address</h5>
+
+            @if (userDataError()) {
+              <div class="alert alert-danger">
+                {{ userDataError() }}
+              </div>
+            }
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Street</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="shippingAddress.street"
+                  placeholder="Enter your street address"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">City</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="shippingAddress.city"
+                  placeholder="Enter city"
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Country</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="shippingAddress.country"
+                  placeholder="Enter country"
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">ZIP Code</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="shippingAddress.zip"
+                  placeholder="Enter ZIP code"
+                />
+              </div>
+            </div>
+
+            <button
+              class="btn btn-primary mt-3"
+              (click)="addAddress()"
+              [disabled]="isLoadingUserData()"
+            >
+              @if (isLoadingUserData()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Save Address
+            </button>
+          </div>
         </div>
       } @else {
         <div class="row">
@@ -68,6 +156,13 @@ import { PaymentFacadeService } from '@domains/payment/services/payment-facade.s
             <div class="card mb-4">
               <div class="card-body">
                 <h5 class="card-title">Shipping Address</h5>
+
+                @if (userDataError() && !requiresAddress()) {
+                  <div class="alert alert-danger mb-3">
+                    {{ userDataError() }}
+                  </div>
+                }
+
                 @if (hasSavedAddresses() && !shouldShowGuestInfo()) {
                   <div class="mb-3">
                     <select
@@ -225,14 +320,11 @@ import { PaymentFacadeService } from '@domains/payment/services/payment-facade.s
               <div class="card-body">
                 <h5 class="card-title">Order Summary</h5>
 
-                @for (
-                  item of isGuestMode() ? guestCart()!.items : cartService.cart()!.items;
-                  track item.productId
-                ) {
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="flex-grow-1">
-                      <div class="fw-medium">{{ item.name }}</div>
-                      @if (isGuestMode()) {
+                @if (isGuestMode()) {
+                  @for (item of guestCart()!.items; track $index) {
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="grow">
+                        <div class="fw-medium">{{ item.name }}</div>
                         <div class="quantity-controls d-flex align-items-center gap-2 mt-1">
                           <button
                             class="btn btn-sm btn-outline-secondary"
@@ -255,12 +347,43 @@ import { PaymentFacadeService } from '@domains/payment/services/payment-facade.s
                             <i class="bi bi-trash"></i>
                           </button>
                         </div>
-                      } @else {
-                        <small class="text-muted">Qty: {{ item.quantity }}</small>
-                      }
+                      </div>
+                      <div class="text-end">{{ formatCurrency(item.price * item.quantity) }}</div>
                     </div>
-                    <div class="text-end">{{ formatCurrency(item.subtotal) }}</div>
-                  </div>
+                  }
+                } @else {
+                  @for (item of cartService.cart()!.items; track item.productId) {
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="grow">
+                        <div class="fw-medium">{{ item.name }}</div>
+                        <div class="quantity-controls d-flex align-items-center gap-2 mt-1">
+                          <button
+                            class="btn btn-sm btn-outline-secondary"
+                            (click)="updateQuantity(item.productId, item.quantity - 1)"
+                            [disabled]="item.quantity <= 1"
+                          >
+                            <i class="bi bi-dash"></i>
+                          </button>
+                          <span class="mx-2">{{ item.quantity }}</span>
+                          <button
+                            class="btn btn-sm btn-outline-secondary"
+                            (click)="updateQuantity(item.productId, item.quantity + 1)"
+                          >
+                            <i class="bi bi-plus"></i>
+                          </button>
+                          <button
+                            class="btn btn-sm btn-outline-danger ms-2"
+                            (click)="removeItem(item.productId)"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        {{ formatCurrency(item.subtotal) }}
+                      </div>
+                    </div>
+                  }
                 }
 
                 <hr />
@@ -317,6 +440,11 @@ import { PaymentFacadeService } from '@domains/payment/services/payment-facade.s
                     {{ paymentFacade.error() }}
                   </div>
                 }
+                @if (checkoutError()) {
+                  <div class="alert alert-danger mt-3 mb-0">
+                    {{ checkoutError() }}
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -333,6 +461,7 @@ export class CheckoutComponent implements OnInit {
   private readonly ordersFacade = inject(OrdersFacadeService);
   private readonly authService = inject(AuthService);
   private readonly productService = inject(ProductService);
+  private readonly orderService = inject(OrderService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -341,11 +470,15 @@ export class CheckoutComponent implements OnInit {
   readonly isLoading = signal(false);
   readonly guestCart = signal<GuestCart | null>(null);
 
+  // User data for authenticated users
+  readonly isLoadingUserData = signal(false);
+  readonly userDataError = signal<string | null>(null);
+  readonly requiresAddress = signal(false);
+  readonly checkoutError = signal<string | null>(null);
+
   // Form signals
-  readonly savedAddresses = signal<
-    Array<{ street: string; city: string; country: string; zip: string }>
-  >([]);
-  selectedAddressIndex: number = -1;
+  readonly savedAddresses = signal<UserAddress[]>([]);
+  readonly selectedAddressIndex = signal<number>(-1);
   couponCodeValue: string = '';
   readonly couponMessage = signal('');
   readonly couponError = signal('');
@@ -360,14 +493,15 @@ export class CheckoutComponent implements OnInit {
   };
 
   // Shipping address
-  shippingAddress = {
+  shippingAddress: CheckoutShippingAddressForm = {
     street: '',
     city: '',
     country: '',
     zip: '',
   };
 
-  // Payment method
+  // Payment method - Using Stripe for secure payment processing
+  // Options: 'stripe' (default), 'wallet', 'cod', 'paypal'
   paymentMethodValue: PaymentMethod = 'stripe';
 
   shouldShowGuestInfo(): boolean {
@@ -375,24 +509,134 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check if this is guest checkout mode
-    const url = this.router.url;
-    this.isGuestMode.set(url.includes('/guest-checkout'));
+    if (this.authService.isAuthenticated()) {
+      this.isGuestMode.set(false);
+      this.loadUserData();
+    } else {
+      this.isGuestMode.set(true);
+    }
 
     this.loadCart();
+  }
+
+  /**
+   * Load authenticated user's profile data and addresses
+   * Pre-populates the form and validates address availability
+   */
+  loadUserData(): void {
+    this.isLoadingUserData.set(true);
+    this.userDataError.set(null);
+
+    // Get user profile data from AuthService (already loaded)
+    const user = this.authService.currentUser();
+    if (!user) {
+      this.userDataError.set('User data not available. Please log in again.');
+      this.isLoadingUserData.set(false);
+      return;
+    }
+
+    // Fetch user addresses from API
+    this.orderService.getUserAddresses().subscribe({
+      next: (response) => {
+        this.isLoadingUserData.set(false);
+
+        if (response.success && response.data && response.data.length > 0) {
+          const validAddresses = response.data.filter(
+            (address) => this.orderService.validateShippingAddress(address).isValid,
+          );
+
+          if (!validAddresses.length) {
+            this.requiresAddress.set(true);
+            this.userDataError.set(
+              'No complete shipping address found in your profile. Please add a complete address.',
+            );
+            return;
+          }
+
+          // User has saved addresses
+          this.savedAddresses.set(validAddresses);
+          this.selectedAddressIndex.set(0);
+
+          // Pre-select the default address if available
+          const defaultAddress = validAddresses.find((addr) => addr.isDefault);
+          if (defaultAddress) {
+            const index = validAddresses.indexOf(defaultAddress);
+            this.onAddressChange(index);
+          } else {
+            this.onAddressChange(0);
+          }
+        } else {
+          // No saved addresses - require user to add one
+          this.requiresAddress.set(true);
+          this.userDataError.set(
+            'No shipping address found in your profile. Please add a complete address.',
+          );
+        }
+      },
+      error: (err) => {
+        this.isLoadingUserData.set(false);
+        // If we can't fetch addresses, treat as if user needs to add one
+        this.requiresAddress.set(true);
+        console.error('Error fetching user addresses:', err);
+      },
+    });
+  }
+
+  /**
+   * Add a new shipping address for authenticated user
+   */
+  addAddress(): void {
+    const addr = this.shippingAddress;
+
+    // Validate address fields
+    if (!addr.street || !addr.city || !addr.country || !addr.zip) {
+      this.userDataError.set('Please fill in all address fields');
+      return;
+    }
+
+    this.isLoadingUserData.set(true);
+    this.userDataError.set(null);
+
+    this.orderService
+      .addUserAddress({
+        street: addr.street,
+        city: addr.city,
+        country: addr.country,
+        zip: addr.zip,
+        isDefault: true,
+      })
+      .subscribe({
+        next: (response) => {
+          this.isLoadingUserData.set(false);
+
+          if (response.success && response.data) {
+            this.savedAddresses.set(response.data);
+            this.requiresAddress.set(false);
+            this.selectedAddressIndex.set(response.data.length - 1);
+            // Pre-populate from the new address
+            if (response.data.length > 0) {
+              this.shippingAddress = { ...response.data[0] };
+            }
+          }
+        },
+        error: (err) => {
+          this.isLoadingUserData.set(false);
+          this.userDataError.set(err.error?.message || 'Failed to add address');
+        },
+      });
   }
 
   loadCart(): void {
     if (this.isGuestMode()) {
       this.route.queryParams.subscribe((params) => {
-        const productId = params['productId'];
+        const product_id = params['product_id'];
 
-        if (productId) {
+        if (product_id) {
           this.isLoading.set(true);
-          this.productService.getProductById(productId).subscribe({
+          this.productService.getProductById(product_id).subscribe({
             next: (response) => {
               const existingCart = this.guestCartService.getCart();
-              if (!existingCart || !existingCart.items.find((i) => i.productId === productId)) {
+              if (!existingCart || !existingCart.items.find((i) => i.productId === product_id)) {
                 this.guestCartService.addItem({
                   productId: response.data._id,
                   name: response.data.title,
@@ -416,7 +660,15 @@ export class CheckoutComponent implements OnInit {
       });
     } else {
       this.cartService.getCart().subscribe({
-        error: () => {},
+        next: (response) => {
+          console.log('=== CART RESPONSE ===');
+          console.log('Full response:', JSON.stringify(response, null, 2));
+          console.log('Cart items:', response.data.items);
+          if (response.data.items.length > 0) {
+            console.log('First item structure:', JSON.stringify(response.data.items[0], null, 2));
+          }
+        },
+        error: () => { },
       });
     }
   }
@@ -434,11 +686,11 @@ export class CheckoutComponent implements OnInit {
   }
 
   hasSelectedAddress(): boolean {
-    return this.selectedAddressIndex >= 0 && this.hasSavedAddresses();
+    return this.selectedAddressIndex() >= 0 && this.hasSavedAddresses();
   }
 
   onAddressChange(index: number): void {
-    this.selectedAddressIndex = index;
+    this.selectedAddressIndex.set(index);
     if (index >= 0 && this.savedAddresses().length > 0) {
       const address = this.savedAddresses()[index];
       this.shippingAddress = { ...address };
@@ -552,18 +804,45 @@ export class CheckoutComponent implements OnInit {
     return total - this.getDiscountAmount();
   }
 
-  updateQuantity(productId: string, newQuantity: number): void {
+  updateQuantity(product_id: string, newQuantity: number): void {
+    if (newQuantity < 0) {
+      return;
+    }
+
     if (this.isGuestMode()) {
-      this.guestCartService.updateQuantity(productId, newQuantity);
+      this.guestCartService.updateQuantity(product_id, newQuantity);
       this.guestCart.set(this.guestCartService.getCart());
     } else {
-      this.cartService.addToCart(productId, newQuantity).subscribe();
+      this.cartService.addToCart(product_id, newQuantity).subscribe({
+        next: (response) => {
+          this.cartService.cart.set(response.data);
+        },
+      });
     }
   }
 
-  removeItem(productId: string): void {
+  removeItem(product_id: any): void {
+    console.log('=== removeItem called ===');
+    console.log('Received:', product_id);
+    console.log('Type:', typeof product_id);
+
+    // Extract actual string ID from whatever structure we receive
+    let actualId: string;
+
+    if (typeof product_id === 'string') {
+      actualId = product_id;
+    } else if (typeof product_id === 'object' && product_id !== null) {
+      // Try to extract ID from object
+      actualId = product_id._id || product_id.id || product_id.productId || product_id.toString();
+      console.log('Extracted ID from object:', actualId);
+    } else {
+      actualId = String(product_id);
+    }
+
+    console.log('Final ID to remove:', actualId);
+
     if (this.isGuestMode()) {
-      this.guestCartService.removeItem(productId);
+      this.guestCartService.removeItem(actualId);
       this.guestCart.set(this.guestCartService.getCart());
 
       // Redirect if cart is empty
@@ -571,8 +850,17 @@ export class CheckoutComponent implements OnInit {
         this.router.navigate(['/products']);
       }
     } else {
-      // For authenticated users, remove by setting quantity to 0
-      this.cartService.addToCart(productId, 0).subscribe();
+      this.cartService.removeFromCart(actualId).subscribe({
+        next: (response) => {
+          this.cartService.cart.set(response.data);
+          if (!response.data.items.length) {
+            this.router.navigate(['/products']);
+          }
+        },
+        error: (error) => {
+          console.error('Remove error:', error);
+        },
+      });
     }
   }
 
@@ -591,6 +879,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   placeOrder(): void {
+    this.checkoutError.set(null);
+
     if (!this.isFormValid()) return;
 
     const isAuthenticated = this.authService.isAuthenticated();
@@ -612,10 +902,46 @@ export class CheckoutComponent implements OnInit {
   }
 
   private placeAuthenticatedOrder(): void {
-    const orderRequest: CreateOrderRequest = {
-      shippingAddressIndex: this.selectedAddressIndex,
-      couponCode: this.appliedCoupon()?.code,
+    const addressValidation = this.orderService.validateShippingAddress(this.shippingAddress);
+
+    if (!addressValidation.isValid) {
+      const errorMessage =
+        'Cannot place order. Your profile shipping address is incomplete: ' +
+        addressValidation.missingFields.join(', ');
+      this.checkoutError.set(errorMessage);
+      this.ordersFacade.error.set(errorMessage);
+      return;
+    }
+
+    // Use the selected address index (0, 1, 2...) not the address ID
+    const addressIndex = this.selectedAddressIndex();
+
+    if (addressIndex < 0) {
+      const errorMessage =
+        'Cannot place order. Please select a saved shipping address.';
+      this.checkoutError.set(errorMessage);
+      this.ordersFacade.error.set(errorMessage);
+      return;
+    }
+
+    const authenticatedCartItems = this.cartService.cart()?.items.map((item) => ({
+      product_id: item.productId,
+      quantity: item.quantity,
+    }));
+
+    if (!authenticatedCartItems || authenticatedCartItems.length === 0) {
+      const errorMessage = 'Cannot place order. Your cart has no valid items.';
+      this.checkoutError.set(errorMessage);
+      this.ordersFacade.error.set(errorMessage);
+      return;
+    }
+
+    const normalizedCouponCode = this.couponCodeValue.trim();
+
+    const orderRequest: AuthenticatedOrderPayload = {
+      shippingAddressIndex: addressIndex,
       paymentMethod: this.paymentMethodValue,
+      ...(normalizedCouponCode ? { couponCode: normalizedCouponCode } : {}),
     };
 
     this.ordersFacade.createOrder$(orderRequest).subscribe((response) => {
@@ -624,6 +950,46 @@ export class CheckoutComponent implements OnInit {
         this.processPayment(orderId);
       }
     });
+  }
+
+  private getNormalizedShippingAddressId(): string | null {
+    const selectedAddress =
+      this.selectedAddressIndex() >= 0 ? this.savedAddresses()[this.selectedAddressIndex()] : null;
+
+    return this.normalizeAddressId(
+      selectedAddress?._id,
+      this.shippingAddress._id,
+      (this.shippingAddress as unknown as Record<string, unknown>)['id'],
+    );
+  }
+
+  private normalizeAddressId(...candidates: unknown[]): string | null {
+    for (const candidate of candidates) {
+      const normalized = this.coerceAddressId(candidate);
+      if (normalized !== null) {
+        return normalized;
+      }
+    }
+
+    return null;
+  }
+
+  private coerceAddressId(candidate: unknown): string | null {
+    if (typeof candidate === 'number' && Number.isFinite(candidate) && candidate > 0) {
+      return String(candidate);
+    }
+
+    if (typeof candidate === 'string') {
+      const trimmed = candidate.trim();
+      return trimmed ? trimmed : null;
+    }
+
+    if (candidate && typeof candidate === 'object') {
+      const objectCandidate = candidate as Record<string, unknown>;
+      return this.coerceAddressId(objectCandidate['_id'] ?? objectCandidate['id']);
+    }
+
+    return null;
   }
 
   private placeGuestOrder(): void {
@@ -643,8 +1009,8 @@ export class CheckoutComponent implements OnInit {
         country: this.shippingAddress.country,
         zip: this.shippingAddress.zip,
       },
-      items: cart.items.map((item: any) => ({
-        product: item.productId,
+      items: cart.items.map((item) => ({
+        product_id: item.productId,
         quantity: item.quantity,
       })),
       couponCode: this.appliedCoupon()?.code,
@@ -655,19 +1021,10 @@ export class CheckoutComponent implements OnInit {
     this.ordersFacade.guestCheckout$(guestRequest).subscribe({
       next: (response) => {
         this.isLoading.set(false);
-        console.log('=== Guest Checkout Response ===');
-        console.log('Full response:', JSON.stringify(response, null, 2));
-        console.log('response.data:', response?.data);
-        console.log('response.data._id:', response?.data?._id);
-        console.log('response.data.user:', response?.data?.user);
-        console.log('response.data.guest_info:', response?.data?.guest_info);
-        console.log('response.message:', response?.message);
 
         if (response && response.data) {
           const orderId = response.data.id || (response.data as any)._id;
           const guestEmail = (response.data as any).guest_info?.email;
-          console.log('Using Order ID:', orderId);
-          console.log('Guest email from order:', guestEmail);
           this.processPayment(orderId, guestEmail);
         }
       },
@@ -698,21 +1055,53 @@ export class CheckoutComponent implements OnInit {
       useGuestEndpoint,
     );
 
-    if (useGuestEndpoint) {
-      this.paymentFacade
-        .processGuestPayment({
-          orderId,
-          method: this.paymentMethodValue,
-          guestEmail: guestEmail || this.guestInfo.email,
-        })
-        .subscribe();
-    } else {
-      this.paymentFacade
-        .processPayment({
-          orderId,
-          method: this.paymentMethodValue,
-        })
-        .subscribe();
+    const paymentObservable = useGuestEndpoint
+      ? this.paymentFacade.processGuestPayment({
+        orderId,
+        method: this.paymentMethodValue,
+        guestEmail: guestEmail || this.guestInfo.email,
+      })
+      : this.paymentFacade.processPayment({
+        orderId,
+        method: this.paymentMethodValue,
+      });
+
+    // Subscribe to handle redirect and cleanup - the PaymentFacadeService handles redirect in its tap operator
+    paymentObservable.subscribe({
+      next: (response) => {
+        // Handle redirect - the redirect happens in PaymentFacadeService, but we also handle it here as fallback
+        if (response?.success && response?.data?.paymentStatus === 'paid') {
+          this.router.navigate(['/payment/success', orderId]);
+        }
+
+        // Clean up guest cart after successful payment (only for guest users)
+        if (useGuestEndpoint && response?.success) {
+          this.clearGuestCart();
+        }
+      },
+      error: (err) => {
+        // Error redirect is handled in PaymentFacadeService
+        console.error('Payment error:', err);
+      },
+    });
+  }
+
+  /**
+   * Clear guest cart data after successful order completion.
+   * This only affects guest users and does not touch authenticated user carts.
+   */
+  private clearGuestCart(): void {
+    try {
+      // Clear the guest cart from localStorage
+      this.guestCartService.clearCart();
+
+      // Reset local state
+      this.guestCart.set(null);
+
+      console.log('Guest cart cleared successfully after order completion');
+    } catch (error) {
+      // Handle any errors gracefully - don't affect the order confirmation
+      console.error('Error clearing guest cart:', error);
     }
   }
 

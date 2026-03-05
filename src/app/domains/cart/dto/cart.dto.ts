@@ -3,7 +3,7 @@
  * Data Transfer Objects for cart operations
  */
 
-// Cart Item
+// Cart Item - FLAT structure (matches actual API response)
 export interface CartItem {
   productId: string;
   name: string;
@@ -29,12 +29,12 @@ export interface CartResponse {
 
 // Update Cart Item Request
 export interface UpdateCartItemRequest {
-  productId: string;
+  product_id: string;
   quantity: number;
 }
 
 export interface AddToCartRequest {
-  productId: string;
+  product: string;
   quantity: number;
 }
 

@@ -1,5 +1,5 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartService } from '@core/services/cart.service';
 import { formatCurrency } from '@core/utils';
@@ -35,7 +35,7 @@ import { formatCurrency } from '@core/utils';
               <div class="card-body">
                 @for (item of cartService.cart()!.items; track item.productId) {
                   <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                       @if (item.image) {
                         <img
                           [src]="item.image"
@@ -52,7 +52,7 @@ import { formatCurrency } from '@core/utils';
                         </div>
                       }
                     </div>
-                    <div class="flex-grow-1 ms-3">
+                    <div class="grow ms-3">
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <h5 class="mb-1">{{ item.name }}</h5>
@@ -175,13 +175,31 @@ export class CartComponent implements OnInit {
     });
   }
 
-  removeItem(productId: string): void {
+  removeItem(productId: any): void {
+    console.log('=== Cart removeItem called ===');
+    console.log('Received:', productId);
+    console.log('Type:', typeof productId);
+
+    // Extract actual string ID
+    let actualId: string;
+    if (typeof productId === 'string') {
+      actualId = productId;
+    } else if (typeof productId === 'object' && productId !== null) {
+      actualId = productId._id || productId.id || productId.productId || productId.toString();
+      console.log('Extracted ID:', actualId);
+    } else {
+      actualId = String(productId);
+    }
+
+    console.log('Final ID:', actualId);
+
     this.isRemoving.set(true);
-    this.cartService.removeFromCart(productId).subscribe({
+    this.cartService.removeFromCart(actualId).subscribe({
       next: () => {
         this.isRemoving.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Remove error:', err);
         this.isRemoving.set(false);
       },
     });

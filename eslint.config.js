@@ -14,13 +14,7 @@ const tsParser = tseslint.parser;
 module.exports = [
   // Ignore patterns
   {
-    ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.angular/**',
-      'coverage/**',
-    ],
+    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.angular/**', 'coverage/**'],
   },
 
   // Base JavaScript recommended rules
@@ -47,6 +41,7 @@ module.exports = [
     rules: {
       ...tseslint.configs.recommended.rules,
       ...(angular.configs.recommended ? angular.configs.recommended.rules : {}),
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 
@@ -59,8 +54,6 @@ module.exports = [
     languageOptions: {
       parser: angularParser,
     },
-    rules: angularTemplate.configs.recommended
-      ? angularTemplate.configs.recommended.rules
-      : {},
-  }
+    rules: angularTemplate.configs.recommended ? angularTemplate.configs.recommended.rules : {},
+  },
 ];

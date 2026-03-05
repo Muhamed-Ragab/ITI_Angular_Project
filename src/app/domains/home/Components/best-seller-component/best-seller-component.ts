@@ -14,7 +14,7 @@ import { HomeService } from '../../services/home-service';
         @if (loading()) {
           <p class="text-center py-5">Loading...</p>
         }
-        @for (item of product(); track item._id) {
+        @for (item of product(); track $index) {
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="card h-100 shadow-sm border-0">
               <img

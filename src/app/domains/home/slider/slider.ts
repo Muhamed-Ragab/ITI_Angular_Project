@@ -37,7 +37,7 @@ import { Banner } from '../dto/banner.dto';
 
       <!-- Slides -->
       <div class="carousel-inner">
-        @for (slide of sliders(); track slide.id) {
+        @for (slide of sliders(); track $index) {
           @if ($index === 0) {
             <div class="carousel-item active">
               <img [src]="slide.image_url" class="d-block w-100 slider-img" [alt]="slide.title" />

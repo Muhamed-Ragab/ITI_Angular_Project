@@ -8,7 +8,7 @@ import { GuestWishlistService } from '@core/services/guest-wishlist.service';
 import { ProductService } from '@core/services/product.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { ProductReviewsComponent } from '../../components/product-reviews/products-reviews.component';
-import { ProductDetail } from '../../dto';
+import { ProductDetail, Review, ReviewsPagination } from '../../dto';
 
 @Component({
   selector: 'app-product-detail',
@@ -73,7 +73,7 @@ import { ProductDetail } from '../../dto';
             <!-- Rating -->
             <div class="d-flex align-items-center gap-2 mb-3">
               <div>
-                @for (star of [1, 2, 3, 4, 5]; track star) {
+                @for (star of [1, 2, 3, 4, 5]; track $index) {
                   <i
                     class="bi small"
                     [class.bi-star-fill]="star <= product()!.average_rating"
@@ -106,14 +106,21 @@ import { ProductDetail } from '../../dto';
               </div>
             </div>
 
+            <!-- Category + Stock -->
+            <div class="mb-3">
+              @if (product()!.category_id.slug) {
+                <small class="d-block text-muted mb-2"
+                  >Category slug: {{ product()!.category_id.slug }}</small
+                >
+              }
+            </div>
+
             <!-- Stock -->
             <span
               class="badge fs-6 mb-3"
-              [ngClass]="product()!.stock > 0 ? 'bg-success' : 'bg-danger'"
+              [ngClass]="stockQuantity() > 0 ? 'bg-success' : 'bg-danger'"
             >
-              {{
-                product()!.stock > 0 ? 'In Stock (' + product()!.stock + ' left)' : 'Out of Stock'
-              }}
+              {{ stockQuantity() > 0 ? 'In Stock (' + stockQuantity() + ' left)' : 'Out of Stock' }}
             </span>
 
             <!-- Actions -->
@@ -121,7 +128,7 @@ import { ProductDetail } from '../../dto';
               <button
                 class="btn btn-primary px-4"
                 (click)="addToCart()"
-                [disabled]="product()!.stock === 0"
+                [disabled]="stockQuantity() === 0"
               >
                 <i class="bi bi-cart-plus me-2"></i>Add to Cart
               </button>
@@ -129,7 +136,7 @@ import { ProductDetail } from '../../dto';
                 <button
                   class="btn btn-success px-4"
                   (click)="buyNow()"
-                  [disabled]="product()!.stock === 0"
+                  [disabled]="stockQuantity() === 0"
                 >
                   <i class="bi bi-lightning-charge me-2"></i>Buy Now
                 </button>
@@ -137,7 +144,7 @@ import { ProductDetail } from '../../dto';
                 <a
                   class="btn btn-success px-4"
                   [routerLink]="['/guest-checkout']"
-                  [queryParams]="{ productId: product()!._id }"
+                  [queryParams]="{ product_id: product()!._id }"
                 >
                   <i class="bi bi-lightning-charge me-2"></i>Buy Now
                 </a>
@@ -161,7 +168,8 @@ import { ProductDetail } from '../../dto';
 
         <!-- Reviews Section -->
         <app-product-reviews
-          [reviews]="product()!.reviews"
+          [reviews]="visibleReviews()"
+          [reviewsPagination]="reviewsPagination()"
           (reviewSubmit)="onReviewSubmit($event)"
         />
       }
@@ -185,6 +193,8 @@ export class ProductDetailComponent implements OnInit {
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
   readonly inWishlist = signal(false);
+  readonly reviewsPagination = signal<ReviewsPagination | null>(null);
+  readonly visibleReviews = signal<Review[]>([]);
 
   ngOnInit(): void {
     this.loadProduct();
@@ -196,20 +206,21 @@ export class ProductDetailComponent implements OnInit {
 
     this.productService.getProductById(this.id()).subscribe({
       next: (res) => {
-        this.product.set(res.data);
-        this.selectedImage.set(res.data.images[0]); // default to first image
-        
+        const product = res.data;
+        this.product.set(product);
+        this.visibleReviews.set((product.reviews ?? []).filter((review) => !review.deletedAt));
+        this.reviewsPagination.set(product.reviews_pagination ?? null);
+        this.selectedImage.set(product.images[0] ?? '');
+
         if (this.authService.isAuthenticated()) {
           this.wishlistService.getWishlist().subscribe({
-  next: (wishlistRes) => {
-    const inWishlist = wishlistRes.data.wishlist.some(
-      item => item.productId === this.id()
-    );
-    this.inWishlist.set(inWishlist);
-  }
-});
+            next: (wishlistRes) => {
+              const inWishlist = wishlistRes.data.some((item) => item.product_id === this.id());
+              this.inWishlist.set(inWishlist);
+            },
+          });
         } else {
-           this.inWishlist.set(this.guestWishlistService.isInWishlist(this.id()));
+          this.inWishlist.set(this.guestWishlistService.isInWishlist(this.id()));
         }
 
         this.isLoading.set(false);
@@ -224,7 +235,7 @@ export class ProductDetailComponent implements OnInit {
   onReviewSubmit(review: { rating: number; comment: string }): void {
     this.productService
       .createReview({
-        productId: this.id(),
+        product_id: this.id(),
         ...review,
       })
       .subscribe({
@@ -232,7 +243,7 @@ export class ProductDetailComponent implements OnInit {
         error: (err) => this.error.set(err.message || 'Failed to submit review'),
       });
   }
-  
+
   onToggleWishlist(): void {
     if (this.authService.isAuthenticated()) {
       if (this.inWishlist()) {
@@ -246,18 +257,18 @@ export class ProductDetailComponent implements OnInit {
       }
     } else {
       if (this.inWishlist()) {
-         this.guestWishlistService.removeFromWishlist(this.id());
-         this.inWishlist.set(false);
+        this.guestWishlistService.removeFromWishlist(this.id());
+        this.inWishlist.set(false);
       } else {
-         this.guestWishlistService.addToWishlist(this.id());
-         this.inWishlist.set(true);
+        this.guestWishlistService.addToWishlist(this.id());
+        this.inWishlist.set(true);
       }
     }
   }
 
   addToCart(): void {
     const product = this.product();
-    if (!product || product.stock === 0) return;
+    if (!product || this.stockQuantity() === 0) return;
 
     if (this.authService.isAuthenticated()) {
       this.cartService.addToCart(product._id, 1).subscribe();
@@ -274,7 +285,7 @@ export class ProductDetailComponent implements OnInit {
 
   buyNow(): void {
     const product = this.product();
-    if (!product || product.stock === 0) return;
+    if (!product || this.stockQuantity() === 0) return;
 
     // Add to cart and navigate to checkout
     this.cartService.addToCart(product._id, 1).subscribe({
@@ -286,5 +297,11 @@ export class ProductDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/products']);
+  }
+
+  stockQuantity(): number {
+    const product = this.product();
+    if (!product) return 0;
+    return product.stock_quantity ?? product.stock;
   }
 }

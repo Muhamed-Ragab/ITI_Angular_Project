@@ -103,15 +103,15 @@ export class GuestCartService {
     return !!(cart && cart.items.length > 0);
   }
 
-  updateQuantity(productId: string, quantity: number): void {
+  updateQuantity(product_id: string, quantity: number): void {
     const cart = this.cart();
     if (!cart) return;
 
-    const itemIndex = cart.items.findIndex((i) => i.productId === productId);
+    const itemIndex = cart.items.findIndex((i) => i.productId === product_id);
     if (itemIndex === -1) return;
 
     if (quantity <= 0) {
-      this.removeItem(productId);
+      this.removeItem(product_id);
       return;
     }
 
@@ -120,11 +120,11 @@ export class GuestCartService {
     this.recalculateTotals(cart);
   }
 
-  removeItem(productId: string): void {
+  removeItem(product_id: string): void {
     const cart = this.cart();
     if (!cart) return;
 
-    cart.items = cart.items.filter((i) => i.productId !== productId);
+    cart.items = cart.items.filter((i) => i.productId !== product_id);
     this.recalculateTotals(cart);
   }
 }

@@ -12,6 +12,7 @@ import { User } from '@domains/auth/types';
 import { environment } from '@env/environment';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
+import { GuestSyncService } from './guest-sync.service';
 import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,7 @@ export class AuthService {
   private readonly api = inject(ApiService);
   private readonly storage = inject(StorageService);
   private readonly router = inject(Router);
+  private readonly guestSyncService = inject(GuestSyncService);
 
   readonly currentUser = signal<User | null>(null);
   readonly isAuthenticated = computed(() => !!this.currentUser());
@@ -34,6 +36,9 @@ export class AuthService {
       this.fetchUserProfile().subscribe({
         next: () => {
           this.isLoading.set(false);
+          // Optional: also sync if token found?
+          // Usually guest data only accumulates when NOT logged in.
+          this.guestSyncService.syncGuestData().subscribe();
         },
         error: () => {
           this.storage.removeToken();
@@ -60,6 +65,7 @@ export class AuthService {
         if (response?.data?.token) {
           this.storage.setToken(response.data.token);
           this.currentUser.set(response.data.user);
+          this.guestSyncService.syncGuestData().subscribe();
         }
       }),
     );
@@ -94,6 +100,7 @@ export class AuthService {
         if (response?.data?.token) {
           this.storage.setToken(response.data.token);
           this.currentUser.set(response.data.user);
+          this.guestSyncService.syncGuestData().subscribe();
         }
       }),
     );
@@ -105,6 +112,7 @@ export class AuthService {
         if (response?.data?.token) {
           this.storage.setToken(response.data.token);
           this.currentUser.set(response.data.user);
+          this.guestSyncService.syncGuestData().subscribe();
         }
       }),
     );
@@ -128,29 +136,7 @@ export class AuthService {
       .pipe(
         tap(() => {
           // Email verified successfully
-          // Note: Backend should return token and user in a separate response
-          // For now, we'll just navigate to login with success flag
         }),
       );
-  }
-
-  getCurrentUser(): User | null {
-    return this.currentUser();
-  }
-
-  getUserId(): string | null {
-    return this.currentUser()?.id ?? null;
-  }
-
-  getUserRole(): string | null {
-    return this.currentUser()?.role ?? null;
-  }
-
-  isAdmin(): boolean {
-    return this.currentUser()?.role === 'admin';
-  }
-
-  isSeller(): boolean {
-    return this.currentUser()?.role === 'seller';
   }
 }
