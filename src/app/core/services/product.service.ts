@@ -1,13 +1,13 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ApiService } from './api.service';
+import { Injectable, inject } from '@angular/core';
 import {
+  CreateReviewDto,
+  ProductDetailResponse,
   ProductFilters,
   ProductListResponse,
-  ProductDetailResponse,
-  CreateReviewDto,
 } from '@domains/products/dto';
+import { Observable } from 'rxjs';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
@@ -26,6 +26,10 @@ export class ProductService {
   // ← ADD THIS
   getProductById(id: string): Observable<ProductDetailResponse> {
     return this.api.get<ProductDetailResponse>(`/products/${id}`);
+  }
+
+  getProductsByIds(ids: string[]): Observable<BatchProductResponse> {
+    return this.api.post<BatchProductResponse>('/products/batch', { ids });
   }
 
   // ← ADD THIS (for the review form)

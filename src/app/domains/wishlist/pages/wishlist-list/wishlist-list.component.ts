@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';           // ← Fix 2
+import { RouterLink } from '@angular/router'; // ← Fix 2
 import { WishlistService } from '@core/services/wishlist.service';
 import { WishlistCardComponent } from '../../components/wishlist-card/wishlist-card.component';
 import { WishlistItem } from '../../dto';
@@ -8,10 +8,9 @@ import { WishlistItem } from '../../dto';
   selector: 'app-wishlist-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WishlistCardComponent, RouterLink],          // ← Fix 2
+  imports: [WishlistCardComponent, RouterLink], // ← Fix 2
   template: `
     <div class="container py-4">
-
       <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="fw-bold mb-0">
           <i class="bi bi-heart-fill text-danger me-2"></i>
@@ -68,20 +67,19 @@ import { WishlistItem } from '../../dto';
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
           @for (item of wishlist(); track item.productId) {
             <div class="col">
-              <app-wishlist-card
-                [item]="item"
-                (remove)="onRemove($event)"
-              />
+              <app-wishlist-card [item]="item" (remove)="onRemove($event)" />
             </div>
           }
         </div>
       }
-
     </div>
   `,
 })
 export class WishlistListComponent implements OnInit {
   private readonly wishlistService = inject(WishlistService);
+  private readonly guestWishlistService = inject(GuestWishlistService);
+  private readonly authService = inject(AuthService);
+  private readonly productService = inject(ProductService);
 
   readonly wishlist = signal<WishlistItem[]>([]);
   readonly isLoading = signal(false);
@@ -96,40 +94,76 @@ export class WishlistListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.wishlistService.getWishlist().subscribe({
-      next: (res) => {
-        this.wishlist.set(res.data.wishlist);
+    if (this.authService.isAuthenticated()) {
+      this.wishlistService.getWishlist().subscribe({
+        next: (res) => {
+          this.wishlist.set(res.data || []);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.error.set(err.message || 'Failed to load wishlist');
+          this.isLoading.set(false);
+        },
+      });
+    } else {
+      const guestItemIds = this.guestWishlistService.getWishlistItems();
+      if (guestItemIds.length === 0) {
+        this.wishlist.set([]);
         this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.message || 'Failed to load wishlist');
-        this.isLoading.set(false);
-      },
-    });
+        return;
+      }
+      
+      this.productService.getProductsByIds(guestItemIds).subscribe({
+        next: (res: any) => {
+          // Map products to WishlistItem format
+          const mappedItems: WishlistItem[] = res.data.map((product: any) => ({
+            _id: product._id, // placeholder id
+            productId: product._id,
+            name: product.title,
+            price: product.price,
+            image: product.images[0] || '',
+            inStock: product.stock > 0,
+            addedAt: new Date().toISOString()
+          }));
+          this.wishlist.set(mappedItems);
+          this.isLoading.set(false);
+        },
+        error: (err: any) => {
+           this.error.set(err.message || 'Failed to load guest wishlist');
+           this.isLoading.set(false);
+        }
+      });
+    }
   }
 
   onRemove(productId: string): void {
-    this.wishlistService.removeFromWishlist(productId).subscribe({
-      next: () => {
-        this.wishlist.update(list => list.filter(i => i.productId !== productId));
-        this.successMsg.set('Item removed from wishlist');
-        setTimeout(() => this.successMsg.set(null), 3000);
-      },
-      error: (err) => this.error.set(err.message || 'Failed to remove item'),
-    });
+    if (this.authService.isAuthenticated()) {
+      this.wishlistService.removeFromWishlist(productId).subscribe({
+        next: () => {
+          this.wishlist.update((list) => list.filter((i) => i.productId !== productId));
+          this.successMsg.set('Item removed from wishlist');
+          setTimeout(() => this.successMsg.set(null), 3000);
+        },
+        error: (err) => this.error.set(err.message || 'Failed to remove item'),
+      });
+    } else {
+      this.guestWishlistService.removeFromWishlist(productId);
+      this.wishlist.update((list) => list.filter((i) => i.productId !== productId));
+      this.successMsg.set('Item removed from wishlist');
+      setTimeout(() => this.successMsg.set(null), 3000);
+    }
   }
 
   // ← Fix 1: each delete updates UI immediately as it succeeds
   clearAll(): void {
-  clearAll(): void {
-    const ids = this.wishlist().map(i => i.productId);
+    const ids = this.wishlist().map((i) => i.productId);
     let completed = 0;
 
-    ids.forEach(id => {
+    ids.forEach((id) => {
       this.wishlistService.removeFromWishlist(id).subscribe({
         next: () => {
           // Keep local state in sync as each item is removed successfully
-          this.wishlist.update(list => list.filter(item => item.productId !== id));
+          this.wishlist.update((list) => list.filter((item) => item.productId !== id));
           completed++;
           if (completed === ids.length && this.wishlist().length === 0) {
             this.successMsg.set('Wishlist cleared');

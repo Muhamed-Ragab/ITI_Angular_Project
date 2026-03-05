@@ -3,10 +3,8 @@ import { CategoryComponent } from '../../Components/category-component/category-
 
 @Component({
   selector: 'app-categories.page',
-  standalone:true,
+  standalone: true,
   imports: [CategoryComponent],
-  template:`
-    <app-category-component/>
-  `
+  template: ` <app-category-component /> `,
 })
 export class CategoriesPage {}

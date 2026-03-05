@@ -5,4 +5,3 @@ export interface Category {
   parentId: string | null;
   subcategories: Category[];
 }
-

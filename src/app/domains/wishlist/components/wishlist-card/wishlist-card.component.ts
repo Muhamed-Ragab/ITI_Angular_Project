@@ -10,12 +10,8 @@ import { WishlistItem } from '../../dto';
   imports: [CurrencyPipe, DatePipe, RouterLink],
   template: `
     <div class="card h-100 shadow-sm border-0">
-
       <!-- Image — routerLink on div works fine -->
-      <div
-        [routerLink]="['/products', item().productId]"
-        style="cursor: pointer;"
-      >
+      <div [routerLink]="['/products', item().productId]" style="cursor: pointer;">
         <img
           [src]="item().image"
           [alt]="item().name"
@@ -25,7 +21,6 @@ import { WishlistItem } from '../../dto';
       </div>
 
       <div class="card-body d-flex flex-column">
-
         <!-- Name -->
         <h6
           class="card-title fw-semibold text-dark"
@@ -39,7 +34,7 @@ import { WishlistItem } from '../../dto';
 
         <small class="text-muted mb-3">
           <i class="bi bi-clock me-1"></i>
-          Added {{ item().addedAt | date:'mediumDate' }}
+          Added {{ item().addedAt | date: 'mediumDate' }}
         </small>
 
         <!-- Actions -->
@@ -58,7 +53,6 @@ import { WishlistItem } from '../../dto';
             <i class="bi bi-trash"></i>
           </button>
         </div>
-
       </div>
     </div>
   `,

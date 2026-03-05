@@ -51,6 +51,12 @@ export interface ProductListResponse {
     pagination: ProductPagination;
   };
 }
+
+export interface BatchProductResponse {
+  success: boolean;
+  data: Product[];
+}
+
 export interface ReviewUser {
   name: string;
   verified_purchase: boolean;

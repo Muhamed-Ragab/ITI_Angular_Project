@@ -1,16 +1,20 @@
 import { CurrencyPipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '@core/services/auth.service';
+import { CartService } from '@core/services/cart.service';
+import { GuestCartService } from '@core/services/guest-cart.service';
+import { GuestWishlistService } from '@core/services/guest-wishlist.service';
 import { ProductService } from '@core/services/product.service';
+import { WishlistService } from '@core/services/wishlist.service';
 import { ProductReviewsComponent } from '../../components/product-reviews/products-reviews.component';
 import { ProductDetail } from '../../dto';
-import { WishlistService } from '@core/services/wishlist.service';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, NgClass, ProductReviewsComponent],
+  imports: [CurrencyPipe, NgClass, ProductReviewsComponent, RouterLink],
   template: `
     <div class="container py-4">
       <!-- Back Button -->
@@ -114,18 +118,43 @@ import { WishlistService } from '@core/services/wishlist.service';
 
             <!-- Actions -->
             <div class="d-flex gap-2 mt-3">
-              <button class="btn btn-primary px-4" [disabled]="product()!.stock === 0">
+              <button
+                class="btn btn-primary px-4"
+                (click)="addToCart()"
+                [disabled]="product()!.stock === 0"
+              >
                 <i class="bi bi-cart-plus me-2"></i>Add to Cart
               </button>
+              @if (authService.isAuthenticated()) {
+                <button
+                  class="btn btn-success px-4"
+                  (click)="buyNow()"
+                  [disabled]="product()!.stock === 0"
+                >
+                  <i class="bi bi-lightning-charge me-2"></i>Buy Now
+                </button>
+              } @else {
+                <a
+                  class="btn btn-success px-4"
+                  [routerLink]="['/guest-checkout']"
+                  [queryParams]="{ productId: product()!._id }"
+                >
+                  <i class="bi bi-lightning-charge me-2"></i>Buy Now
+                </a>
+              }
               <button
-  class="btn btn-sm"
-  [class.btn-danger]="inWishlist()"
-  [class.btn-outline-danger]="!inWishlist()"
-  (click)="onToggleWishlist()"
-  [title]="inWishlist() ? 'Remove from wishlist' : 'Add to wishlist'"
->
-  <i class="bi" [class.bi-heart-fill]="inWishlist()" [class.bi-heart]="!inWishlist()"></i>
-</button>
+                class="btn btn-sm"
+                [class.btn-danger]="inWishlist()"
+                [class.btn-outline-danger]="!inWishlist()"
+                (click)="onToggleWishlist()"
+                [title]="inWishlist() ? 'Remove from wishlist' : 'Add to wishlist'"
+              >
+                <i
+                  class="bi"
+                  [class.bi-heart-fill]="inWishlist()"
+                  [class.bi-heart]="!inWishlist()"
+                ></i>
+              </button>
             </div>
           </div>
         </div>
@@ -146,13 +175,16 @@ export class ProductDetailComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly router = inject(Router);
   private readonly wishlistService = inject(WishlistService);
+  private readonly guestWishlistService = inject(GuestWishlistService);
+  private readonly cartService = inject(CartService);
+  private readonly guestCartService = inject(GuestCartService);
+  readonly authService = inject(AuthService);
 
   readonly product = signal<ProductDetail | null>(null);
   readonly selectedImage = signal<string>('');
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
   readonly inWishlist = signal(false);
-
 
   ngOnInit(): void {
     this.loadProduct();
@@ -166,6 +198,18 @@ export class ProductDetailComponent implements OnInit {
       next: (res) => {
         this.product.set(res.data);
         this.selectedImage.set(res.data.images[0]); // default to first image
+        
+        if (this.authService.isAuthenticated()) {
+          this.wishlistService.getWishlist().subscribe({
+            next: (wishlistRes) => {
+              const inWishlist = wishlistRes.data.some(item => item.productId === this.id());
+              this.inWishlist.set(inWishlist);
+            }
+          });
+        } else {
+           this.inWishlist.set(this.guestWishlistService.isInWishlist(this.id()));
+        }
+
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -186,17 +230,57 @@ export class ProductDetailComponent implements OnInit {
         error: (err) => this.error.set(err.message || 'Failed to submit review'),
       });
   }
+  
   onToggleWishlist(): void {
-  if (this.inWishlist()) {
-    this.wishlistService.removeFromWishlist(this.id()).subscribe({
-      next: () => this.inWishlist.set(false),
-    });
-  } else {
-    this.wishlistService.addToWishlist({ productId: this.id() }).subscribe({
-      next: () => this.inWishlist.set(true),
+    if (this.authService.isAuthenticated()) {
+      if (this.inWishlist()) {
+        this.wishlistService.removeFromWishlist(this.id()).subscribe({
+          next: () => this.inWishlist.set(false),
+        });
+      } else {
+        this.wishlistService.addToWishlist({ productId: this.id() }).subscribe({
+          next: () => this.inWishlist.set(true),
+        });
+      }
+    } else {
+      if (this.inWishlist()) {
+         this.guestWishlistService.removeFromWishlist(this.id());
+         this.inWishlist.set(false);
+      } else {
+         this.guestWishlistService.addToWishlist(this.id());
+         this.inWishlist.set(true);
+      }
+    }
+  }
+
+  addToCart(): void {
+    const product = this.product();
+    if (!product || product.stock === 0) return;
+
+    if (this.authService.isAuthenticated()) {
+      this.cartService.addToCart(product._id, 1).subscribe();
+    } else {
+      this.guestCartService.addItem({
+        productId: product._id,
+        name: product.title,
+        price: product.price,
+        quantity: 1,
+        image: product.images[0],
+      });
+    }
+  }
+
+  buyNow(): void {
+    const product = this.product();
+    if (!product || product.stock === 0) return;
+
+    // Add to cart and navigate to checkout
+    this.cartService.addToCart(product._id, 1).subscribe({
+      next: () => {
+        this.router.navigate(['/checkout']);
+      },
     });
   }
-}
 
   goBack(): void {
     this.router.navigate(['/products']);

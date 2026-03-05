@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { LoginRequestDto, RegisterRequestDto } from '@domains/auth/dto';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { LoginRequestDto, RegisterRequestDto } from '@domains/auth/dto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthFacadeService {
@@ -15,7 +15,7 @@ export class AuthFacadeService {
   login$(credentials: LoginRequestDto): Observable<boolean> {
     return this.authService.login(credentials).pipe(
       tap(() => {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/home'], { replaceUrl: true });
       }),
       map(() => true),
       catchError(() => of(false)),
@@ -26,10 +26,11 @@ export class AuthFacadeService {
     userData: RegisterRequestDto,
   ): Observable<{ success: boolean; error?: { message: string } }> {
     return this.authService.register(userData).pipe(
-      tap((response) => {
+      tap(() => {
         // Navigate to verify email page with email parameter
         this.router.navigate(['/auth/verify-email'], {
           queryParams: { email: userData.email },
+          replaceUrl: true,
         });
       }),
       map(() => ({ success: true })),
@@ -82,7 +83,7 @@ export class AuthFacadeService {
   verifyEmailAndLogin$(token: string): Observable<boolean> {
     return this.authService.verifyEmailAndLogin(token).pipe(
       tap(() => {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/home'], { replaceUrl: true });
       }),
       map(() => true),
       catchError(() => of(false)),

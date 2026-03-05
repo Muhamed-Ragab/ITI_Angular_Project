@@ -35,7 +35,11 @@ import { HomeService } from '@app/domains/home/services/home-service';
             <ul class="dropdown-menu">
               @for (item of categories(); track item.id) {
                 <li>
-                  <a class="dropdown-item" [routerLink]="['/products']" [queryParams]="{ category_id: item.id}">
+                  <a
+                    class="dropdown-item"
+                    [routerLink]="['/products']"
+                    [queryParams]="{ category_id: item.id }"
+                  >
                     {{ item.name }}
                   </a>
                 </li>
@@ -92,23 +96,23 @@ export class Header {
   // categories = ['Electronics', 'Fasion', 'home'];
 
   private categoryService = inject(HomeService);
-  
-    categories = signal<Category[]>([]);
-    loading = signal(true);
-  
-    constructor() {
-      this.loadCategories();
-    }
-  
-    loadCategories() {
-      this.categoryService.getCategories().subscribe({
-        next: (res) => {
-          this.categories.set(res);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-        },
-      });
-    }
+
+  categories = signal<Category[]>([]);
+  loading = signal(true);
+
+  constructor() {
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (res) => {
+        this.categories.set(res);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
 }

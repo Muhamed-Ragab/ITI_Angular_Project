@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Header } from "../main-layout/header";
-import { Footer } from "../main-layout/footer";
+import { Header } from '../main-layout/header';
+import { Footer } from '../main-layout/footer';
 
 @Component({
   selector: 'app-auth-layout',

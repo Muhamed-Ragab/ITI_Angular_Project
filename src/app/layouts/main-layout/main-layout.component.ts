@@ -19,12 +19,22 @@ import { Header } from './header';
         <router-outlet></router-outlet>
       </div>
     </main>
-    
+
     <!-- Footer -->
     <app-footer />
   `,
   styles: [
     `
+      :host {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      main {
+        flex: 1;
+      }
+
       /* Mobile navbar improvements */
       @media (max-width: 991px) {
         .navbar-collapse {

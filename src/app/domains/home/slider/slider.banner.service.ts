@@ -7,7 +7,7 @@ import { Banner } from '../dto/banner.dto';
   providedIn: 'root',
 })
 export class SliderBannerService {
-  private api = inject(ApiService)
+  private api = inject(ApiService);
 
   getHomeBanner() {
     return this.api
