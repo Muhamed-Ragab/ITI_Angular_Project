@@ -24,10 +24,10 @@ import { HomeService } from '../../services/home-service';
             <div class="card-body text-center">
               <h6 class="card-title">{{ cat.name }}</h6>
               <h6 class="card-title">{{ cat.description }}</h6>
-
+              
               <a
                 [routerLink]="['/products']"
-                [queryParams]="{ category_id: cat.id }"
+                [queryParams]="{ category_id: cat._id }"
                 class="btn btn-primary"
               >
                 See All Products
@@ -42,7 +42,7 @@ import { HomeService } from '../../services/home-service';
 export class CategoryComponent {
   private categoryService = inject(HomeService);
 
-  categories = signal<Category[]>([]);
+  readonly categories = signal<Category[]>([]);
   loading = signal(true);
 
   constructor() {
