@@ -19,7 +19,7 @@ export class WishlistService {
     return this.api.post<WishlistResponse>('/users/wishlist', body);
   }
 
-  removeFromWishlist(productId: string): Observable<RemoveFromWishlistResponse> {
-    return this.api.delete<RemoveFromWishlistResponse>(`/users/wishlist/${productId}`);
+  removeFromWishlist(product_id: string): Observable<RemoveFromWishlistResponse> {
+    return this.api.delete<RemoveFromWishlistResponse>(`/users/wishlist/${product_id}`);
   }
 }

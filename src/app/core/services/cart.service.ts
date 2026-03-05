@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { AddToCartRequest, Cart, CartResponse } from '@domains/cart/dto';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
-import { Cart, CartResponse, AddToCartRequest } from '@domains/cart/dto';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
@@ -31,12 +31,12 @@ export class CartService {
 
   /**
    * Add a product to the cart or update quantity if already exists
-   * @param productId - Product ID to add
+   * @param product_id - Product ID to add
    * @param quantity - Quantity to add
    */
-  addToCart(productId: string, quantity: number = 1): Observable<CartResponse> {
+  addToCart(product_id: string, quantity: number = 1): Observable<CartResponse> {
     return this.api
-      .put<CartResponse>('/users/cart', { productId, quantity } as AddToCartRequest)
+      .put<CartResponse>('/users/cart', { product: product_id, quantity } as AddToCartRequest)
       .pipe(
         tap((response) => {
           this.cart.set(response.data);
@@ -46,12 +46,25 @@ export class CartService {
 
   /**
    * Remove a product from the cart
-   * @param productId - Product ID to remove
+   * @param product_id - Product ID to remove
    */
-  removeFromCart(productId: string): Observable<CartResponse> {
-    return this.api.delete<CartResponse>(`/users/cart/${productId}`).pipe(
-      tap((response) => {
-        this.cart.set(response.data);
+  removeFromCart(product_id: string): Observable<CartResponse> {
+    console.log('=== CartService.removeFromCart ===');
+    console.log('Product ID to remove:', product_id);
+    console.log('Product ID type:', typeof product_id);
+    console.log('DELETE URL:', `/users/cart/${product_id}`);
+
+    return this.api.delete<CartResponse>(`/users/cart/${product_id}`).pipe(
+      tap({
+        next: (response) => {
+          console.log('Remove successful, response:', response);
+          this.cart.set(response.data);
+        },
+        error: (error) => {
+          console.error('Remove failed, error:', error);
+          console.error('Error status:', error.status);
+          console.error('Error message:', error.error?.message || error.message);
+        },
       }),
     );
   }
