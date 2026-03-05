@@ -1,5 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router'; // ← Fix 2
+import { RouterLink } from '@angular/router';
+import { AuthService } from '@core/services/auth.service';
+import { GuestWishlistService } from '@core/services/guest-wishlist.service';
+import { ProductService } from '@core/services/product.service';
 import { WishlistService } from '@core/services/wishlist.service';
 import { WishlistCardComponent } from '../../components/wishlist-card/wishlist-card.component';
 import { WishlistItem } from '../../dto';
@@ -8,7 +11,7 @@ import { WishlistItem } from '../../dto';
   selector: 'app-wishlist-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WishlistCardComponent, RouterLink], // ← Fix 2
+  imports: [WishlistCardComponent, RouterLink],
   template: `
     <div class="container py-4">
       <div class="d-flex align-items-center justify-content-between mb-4">
@@ -97,7 +100,7 @@ export class WishlistListComponent implements OnInit {
     if (this.authService.isAuthenticated()) {
       this.wishlistService.getWishlist().subscribe({
         next: (res) => {
-          this.wishlist.set(res.data || []);
+          this.wishlist.set(res.data.wishlist || []);
           this.isLoading.set(false);
         },
         error: (err) => {
@@ -112,26 +115,25 @@ export class WishlistListComponent implements OnInit {
         this.isLoading.set(false);
         return;
       }
-      
+
       this.productService.getProductsByIds(guestItemIds).subscribe({
         next: (res: any) => {
-          // Map products to WishlistItem format
           const mappedItems: WishlistItem[] = res.data.map((product: any) => ({
-            _id: product._id, // placeholder id
+            _id: product._id,
             productId: product._id,
             name: product.title,
             price: product.price,
             image: product.images[0] || '',
             inStock: product.stock > 0,
-            addedAt: new Date().toISOString()
+            addedAt: new Date().toISOString(),
           }));
           this.wishlist.set(mappedItems);
           this.isLoading.set(false);
         },
         error: (err: any) => {
-           this.error.set(err.message || 'Failed to load guest wishlist');
-           this.isLoading.set(false);
-        }
+          this.error.set(err.message || 'Failed to load guest wishlist');
+          this.isLoading.set(false);
+        },
       });
     }
   }
@@ -154,7 +156,6 @@ export class WishlistListComponent implements OnInit {
     }
   }
 
-  // ← Fix 1: each delete updates UI immediately as it succeeds
   clearAll(): void {
     const ids = this.wishlist().map((i) => i.productId);
     let completed = 0;
@@ -162,7 +163,6 @@ export class WishlistListComponent implements OnInit {
     ids.forEach((id) => {
       this.wishlistService.removeFromWishlist(id).subscribe({
         next: () => {
-          // Keep local state in sync as each item is removed successfully
           this.wishlist.update((list) => list.filter((item) => item.productId !== id));
           completed++;
           if (completed === ids.length && this.wishlist().length === 0) {
