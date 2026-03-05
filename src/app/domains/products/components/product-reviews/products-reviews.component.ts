@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Review } from '../../dto';
+import { Review, ReviewsPagination } from '../../dto';
 
 @Component({
   selector: 'app-product-reviews',
@@ -12,17 +12,23 @@ import { Review } from '../../dto';
     <div class="mt-5">
       <h5 class="fw-bold mb-4">
         <i class="bi bi-chat-left-text me-2"></i>
-        Customer Reviews ({{ reviews().length }})
+        Customer Reviews ({{ reviewsPagination()?.total ?? reviews().length }})
       </h5>
 
+      @if (reviewsPagination(); as pagination) {
+        <div class="text-muted small mb-3">
+          Page {{ pagination.page }} of {{ pagination.pages }} · Showing up to {{ pagination.limit }} · Total {{ pagination.total }}
+        </div>
+      }
+
       <!-- Review List -->
-      @for (review of reviews(); track review.id) {
+      @for (review of reviews(); track $index) {
         <div class="card border-0 shadow-sm mb-3">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <span class="fw-semibold">{{ review.user.name }}</span>
-                @if (review.user.verified_purchase) {
+                <span class="fw-semibold">{{ review.user_id.name }}</span>
+                @if (review.user_id.verified_purchase) {
                   <span class="badge bg-success ms-2 small">Verified Purchase</span>
                 }
               </div>
@@ -31,7 +37,7 @@ import { Review } from '../../dto';
 
             <!-- Stars -->
             <div class="my-1">
-              @for (star of [1, 2, 3, 4, 5]; track star) {
+              @for (star of [1, 2, 3, 4, 5]; track $index) {
                 <i
                   class="bi small"
                   [class.bi-star-fill]="star <= review.rating"
@@ -102,6 +108,7 @@ import { Review } from '../../dto';
 })
 export class ProductReviewsComponent {
   readonly reviews = input<Review[]>([]);
+  readonly reviewsPagination = input<ReviewsPagination | null>(null);
   readonly reviewSubmit = output<{ rating: number; comment: string }>();
 
   readonly newRating = signal(0);

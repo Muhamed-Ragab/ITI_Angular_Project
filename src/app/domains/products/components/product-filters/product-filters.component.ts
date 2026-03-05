@@ -1,4 +1,4 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, input, output, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProductFilters } from '../../dto';
 
@@ -26,9 +26,9 @@ import { ProductFilters } from '../../dto';
             <input
               type="number"
               class="form-control form-control-sm"
-              [ngModel]="filters().minPrice"
-              (ngModelChange)="patch('minPrice', $event)"
-              name="minPrice"
+              [ngModel]="filters().min_price"
+              (ngModelChange)="patch('min_price', $event)"
+              name="min_price"
             />
           </div>
 
@@ -37,9 +37,9 @@ import { ProductFilters } from '../../dto';
             <input
               type="number"
               class="form-control form-control-sm"
-              [ngModel]="filters().maxPrice"
-              (ngModelChange)="patch('maxPrice', $event)"
-              name="maxPrice"
+              [ngModel]="filters().max_price"
+              (ngModelChange)="patch('max_price', $event)"
+              name="max_price"
             />
           </div>
 
@@ -60,19 +60,6 @@ import { ProductFilters } from '../../dto';
             </select>
           </div>
 
-          <div class="col-md-2">
-            <div class="form-check mt-4">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="inStock"
-                [checked]="filters().inStock === 'true'"
-                (change)="patch('inStock', $any($event.target).checked ? 'true' : '')"
-              />
-              <label class="form-check-label small" for="inStock">In Stock Only</label>
-            </div>
-          </div>
-
           <div class="col-md-1 d-flex gap-1 mt-3">
             <button class="btn btn-primary btn-sm" (click)="apply()">
               <i class="bi bi-search"></i>
@@ -87,9 +74,20 @@ import { ProductFilters } from '../../dto';
   `,
 })
 export class ProductFiltersComponent {
-  readonly filtersChange = output<ProductFilters>(); // ← output() signal style
+  readonly initialCategoryId = input<string | null>(null);
+  readonly filtersChange = output<ProductFilters>();
 
   readonly filters = signal<ProductFilters>({ page: 1, limit: 10 });
+
+  constructor() {
+    // Update filters when category changes
+    effect(() => {
+      const categoryId = this.initialCategoryId();
+      if (categoryId) {
+        this.filters.update((f) => ({ ...f, category_id: categoryId }));
+      }
+    });
+  }
 
   patch(key: keyof ProductFilters, value: unknown): void {
     this.filters.update((f) => ({ ...f, [key]: value }));
@@ -100,7 +98,12 @@ export class ProductFiltersComponent {
   }
 
   reset(): void {
-    this.filters.set({ page: 1, limit: 10 });
+    const categoryId = this.initialCategoryId();
+    const baseFilters: ProductFilters = { page: 1, limit: 10 };
+    if (categoryId) {
+      baseFilters.category_id = categoryId;
+    }
+    this.filters.set(baseFilters);
     this.filtersChange.emit(this.filters());
   }
 }
