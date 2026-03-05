@@ -28,12 +28,15 @@ export interface CheckoutPaymentRequest {
 
 export interface CheckoutPaymentResponse {
   success: boolean;
-  message: string;
+  message?: string;
   data: {
-    orderId: string;
-    paymentStatus: 'paid' | 'pending' | 'failed';
-    transactionId: string;
+    orderId?: string;
+    paymentStatus?: 'paid' | 'pending' | 'failed';
+    status?: 'paid' | 'pending' | 'failed';
+    transactionId?: string;
     clientSecret?: string;
+    method?: PaymentMethod;
+    message?: string;
   };
 }
 

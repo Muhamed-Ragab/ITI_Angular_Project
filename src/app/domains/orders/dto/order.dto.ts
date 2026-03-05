@@ -7,7 +7,11 @@ import { PaymentMethod } from '@domains/payment/dto/payment.dto';
 
 // Create Order Request
 export interface CreateOrderRequest {
-  shippingAddressIndex: number;
+  shippingAddressIndex?: number;
+  items: Array<{
+    product_id: string;
+    quantity: number;
+  }>;
   couponCode?: string;
   paymentMethod: string;
 }
@@ -27,7 +31,7 @@ export interface GuestCheckoutRequest {
     zip: string;
   };
   items: Array<{
-    product: string;
+    product_id: string;
     quantity: number;
   }>;
   couponCode?: string;
@@ -36,7 +40,7 @@ export interface GuestCheckoutRequest {
 
 // Order Item - for authenticated user orders
 export interface OrderItem {
-  productId: string;
+  product_id: string;
   name: string;
   price: number;
   quantity: number;
@@ -69,7 +73,7 @@ export interface OrderStatusTimeline {
   note?: string;
 }
 
-export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
 
 // Guest Info (for guest orders)
 export interface GuestInfo {

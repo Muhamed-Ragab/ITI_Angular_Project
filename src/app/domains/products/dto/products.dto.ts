@@ -1,6 +1,7 @@
 export interface ProductCategory {
   _id: string;
   name: string;
+  slug?: string;
 }
 
 export interface ProductSeller {
@@ -16,6 +17,7 @@ export interface Product {
   price: number;
   category_id: ProductCategory;
   stock: number;
+  stock_quantity?: number;
   images: string[];
   average_rating: number;
   ratings_count: number;
@@ -32,16 +34,14 @@ export interface ProductPagination {
 export interface ProductFilters {
   page?: number;
   limit?: number;
-  category?: string;
+  category_id?: string;
   search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minRating?: number;
-  sellerId?: string;
-  inStock?: string;
-  minRatingCount?: number;
+  min_price?: number;
+  max_price?: number;
+  min_rating?: number;
+  seller_id?: string;
+  min_rating_count?: number;
   sort?: string;
-  categoryId?: number;
 }
 
 export interface ProductListResponse {
@@ -58,30 +58,41 @@ export interface BatchProductResponse {
 }
 
 export interface ReviewUser {
+  _id?: string;
   name: string;
+  email?: string;
   verified_purchase: boolean;
 }
 
 export interface Review {
-  id: string;
+  _id: string;
   rating: number;
   comment: string;
-  user: ReviewUser;
+  user_id: ReviewUser;
   createdAt: string;
+  deletedAt?: string | null;
 }
+
+export interface ReviewsPagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 export interface ProductDetail extends Product {
-  // ProductDetail has everything Product has, plus:
   reviews: Review[];
-  // seller.bio is already optional in ProductSeller ✅
+  reviews_pagination?: ReviewsPagination;
 }
 
 export interface ProductDetailResponse {
   success: boolean;
   data: ProductDetail;
+  message?: string;
 }
 
 export interface CreateReviewDto {
-  productId: string;
+  product_id: string;
   rating: number;
   comment: string;
 }
