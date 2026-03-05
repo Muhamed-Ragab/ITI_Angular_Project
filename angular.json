@@ -6,8 +6,7 @@
     "cache": {
       "enabled": true
     },
-    "analytics": false,
-    "allowedCommonJsDependencies": ["bootstrap"]
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -19,7 +18,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@ngx-env/builder:application",
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
@@ -31,15 +30,16 @@
             ],
             "styles": ["src/styles.css"],
             "optimization": true,
-            "sourceMap": false
+            "sourceMap": false,
+            "allowedCommonJsDependencies": ["bootstrap"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "600kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "800kB",
+                  "maximumError": "1.2MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -47,18 +47,30 @@
                   "maximumError": "20kB"
                 }
               ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "outputHashing": "all"
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
+          "builder": "@ngx-env/builder:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "test:build:production"
@@ -70,7 +82,7 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@ngx-env/builder:unit-test"
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",

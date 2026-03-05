@@ -1,0 +1,177 @@
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router'; // ← Fix 2
+import { WishlistService } from '@core/services/wishlist.service';
+import { WishlistCardComponent } from '../../components/wishlist-card/wishlist-card.component';
+import { WishlistItem } from '../../dto';
+
+@Component({
+  selector: 'app-wishlist-list',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [WishlistCardComponent, RouterLink], // ← Fix 2
+  template: `
+    <div class="container py-4">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h4 class="fw-bold mb-0">
+          <i class="bi bi-heart-fill text-danger me-2"></i>
+          My Wishlist
+          @if (!isLoading() && wishlist().length > 0) {
+            <span class="badge bg-secondary ms-2">{{ wishlist().length }}</span>
+          }
+        </h4>
+
+        @if (wishlist().length > 0) {
+          <button
+            class="btn btn-outline-danger btn-sm"
+            (click)="clearAll()"
+            [disabled]="isLoading()"
+          >
+            <i class="bi bi-trash me-1"></i>Clear All
+          </button>
+        }
+      </div>
+
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ error() }}
+        </div>
+      }
+
+      @if (successMsg()) {
+        <div class="alert alert-success alert-dismissible">
+          <i class="bi bi-check-circle me-2"></i>{{ successMsg() }}
+          <button type="button" class="btn-close" (click)="successMsg.set(null)"></button>
+        </div>
+      }
+
+      @if (!isLoading() && !error() && wishlist().length === 0) {
+        <div class="text-center py-5">
+          <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
+          <h5 class="mt-3 text-muted">Your wishlist is empty</h5>
+          <p class="text-muted">Start saving products you love!</p>
+          <a routerLink="/products" class="btn btn-primary mt-2">
+            <i class="bi bi-grid me-2"></i>Browse Products
+          </a>
+        </div>
+      }
+
+      @if (!isLoading() && wishlist().length > 0) {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+          @for (item of wishlist(); track item.productId) {
+            <div class="col">
+              <app-wishlist-card [item]="item" (remove)="onRemove($event)" />
+            </div>
+          }
+        </div>
+      }
+    </div>
+  `,
+})
+export class WishlistListComponent implements OnInit {
+  private readonly wishlistService = inject(WishlistService);
+  private readonly guestWishlistService = inject(GuestWishlistService);
+  private readonly authService = inject(AuthService);
+  private readonly productService = inject(ProductService);
+
+  readonly wishlist = signal<WishlistItem[]>([]);
+  readonly isLoading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly successMsg = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.loadWishlist();
+  }
+
+  loadWishlist(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    if (this.authService.isAuthenticated()) {
+      this.wishlistService.getWishlist().subscribe({
+        next: (res) => {
+          this.wishlist.set(res.data || []);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.error.set(err.message || 'Failed to load wishlist');
+          this.isLoading.set(false);
+        },
+      });
+    } else {
+      const guestItemIds = this.guestWishlistService.getWishlistItems();
+      if (guestItemIds.length === 0) {
+        this.wishlist.set([]);
+        this.isLoading.set(false);
+        return;
+      }
+      
+      this.productService.getProductsByIds(guestItemIds).subscribe({
+        next: (res: any) => {
+          // Map products to WishlistItem format
+          const mappedItems: WishlistItem[] = res.data.map((product: any) => ({
+            _id: product._id, // placeholder id
+            productId: product._id,
+            name: product.title,
+            price: product.price,
+            image: product.images[0] || '',
+            inStock: product.stock > 0,
+            addedAt: new Date().toISOString()
+          }));
+          this.wishlist.set(mappedItems);
+          this.isLoading.set(false);
+        },
+        error: (err: any) => {
+           this.error.set(err.message || 'Failed to load guest wishlist');
+           this.isLoading.set(false);
+        }
+      });
+    }
+  }
+
+  onRemove(productId: string): void {
+    if (this.authService.isAuthenticated()) {
+      this.wishlistService.removeFromWishlist(productId).subscribe({
+        next: () => {
+          this.wishlist.update((list) => list.filter((i) => i.productId !== productId));
+          this.successMsg.set('Item removed from wishlist');
+          setTimeout(() => this.successMsg.set(null), 3000);
+        },
+        error: (err) => this.error.set(err.message || 'Failed to remove item'),
+      });
+    } else {
+      this.guestWishlistService.removeFromWishlist(productId);
+      this.wishlist.update((list) => list.filter((i) => i.productId !== productId));
+      this.successMsg.set('Item removed from wishlist');
+      setTimeout(() => this.successMsg.set(null), 3000);
+    }
+  }
+
+  // ← Fix 1: each delete updates UI immediately as it succeeds
+  clearAll(): void {
+    const ids = this.wishlist().map((i) => i.productId);
+    let completed = 0;
+
+    ids.forEach((id) => {
+      this.wishlistService.removeFromWishlist(id).subscribe({
+        next: () => {
+          // Keep local state in sync as each item is removed successfully
+          this.wishlist.update((list) => list.filter((item) => item.productId !== id));
+          completed++;
+          if (completed === ids.length && this.wishlist().length === 0) {
+            this.successMsg.set('Wishlist cleared');
+            setTimeout(() => this.successMsg.set(null), 3000);
+          }
+        },
+        error: (err) => this.error.set(err.message || 'Failed to clear wishlist'),
+      });
+    });
+  }
+}
