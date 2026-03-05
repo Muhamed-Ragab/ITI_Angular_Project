@@ -9,9 +9,9 @@ import { Banner } from '../dto/banner.dto';
 export class SliderBannerService {
   private api = inject(ApiService)
 
-  getHomeBanner(){
-    return this.api.get('/content?section=homepage')
-    .pipe(map((res:any)=>res.data))
-
+  getHomeBanner() {
+    return this.api
+      .get<{ data: Banner[] }>('/content?section=homepage')
+      .pipe(map((res) => res.data));
   }
 }
