@@ -46,10 +46,10 @@ import { RouterLink } from '@angular/router';
           <div class="col-md-3 mb-4">
             <h6 class="fw-bold">Customer Service</h6>
             <ul class="list-unstyled">
-              <li><a href="#" class="text-decoration-none text-light">My Account</a></li>
-              <li><a href="#" class="text-decoration-none text-light">Orders</a></li>
-              <li><a href="#" class="text-decoration-none text-light">Wishlist</a></li>
-              <li><a href="#" class="text-decoration-none text-light">Help</a></li>
+              <li><a routerLink="/" class="text-decoration-none text-light">My Account</a></li>
+              <li><a routerLink="/orders" class="text-decoration-none text-light">Orders</a></li>
+              <li><a routerLink="/wishlist" class="text-decoration-none text-light">Wishlist</a></li>
+              <li><a routerLink="/" class="text-decoration-none text-light">Help</a></li>
             </ul>
           </div>
 
