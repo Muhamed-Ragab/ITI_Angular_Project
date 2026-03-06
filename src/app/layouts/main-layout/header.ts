@@ -79,6 +79,11 @@ import { HomeService } from '@app/domains/home/services/home-service';
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li>
+                  <a class="dropdown-item" routerLink="/profile">
+                    <i class="bi bi-bag me-2"></i>Profile
+                  </a>
+                </li>
+                <li>
                   <a class="dropdown-item" routerLink="/orders">
                     <i class="bi bi-bag me-2"></i>My Orders
                   </a>

@@ -1010,7 +1010,7 @@ export class CheckoutComponent implements OnInit {
         zip: this.shippingAddress.zip,
       },
       items: cart.items.map((item) => ({
-        product_id: item.productId,
+        product: item.productId,
         quantity: item.quantity,
       })),
       couponCode: this.appliedCoupon()?.code,
