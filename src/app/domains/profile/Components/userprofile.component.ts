@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
-import { UeserProfileDto } from '../../dto/ueser-profile.dto';
+import { UserProfile } from '../dto/user-profile.dto';
 import { sign } from 'node:crypto';
-import { ProfileService } from '../../Services/profile.service';
+import { ProfileService } from '../Services/profile.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -108,7 +108,7 @@ export class UserprofileComponent {
 
    private userService = inject(ProfileService);
   
-  profile = signal<UeserProfileDto | null>(null);
+  profile = signal<UserProfile | null>(null);
   isLoading = signal(false);
   isSaving = signal(false);
   message = signal('');
@@ -129,7 +129,7 @@ export class UserprofileComponent {
     });
   }
 
-  updateField(field: keyof UeserProfileDto, value: any) {
+  updateField(field: keyof UserProfile, value: any) {
     this.profile.update(p => p ? { ...p, [field]: value } : null);
   }
 

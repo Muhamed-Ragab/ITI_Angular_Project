@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@app/core/services/api.service';
 import { map, Observable } from 'rxjs';
-import { UeserProfileDto } from '../dto/ueser-profile.dto';
+import { UserProfile } from '../dto/user-profile.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -9,14 +9,14 @@ import { UeserProfileDto } from '../dto/ueser-profile.dto';
 export class ProfileService {
   private api=inject(ApiService)
 
-  getUserProfile(): Observable<UeserProfileDto> {
+  getUserProfile(): Observable<UserProfile> {
     return this.api
-      .get<{ success: boolean; data: UeserProfileDto }>('/users/profile')
+      .get<{ success: boolean; data: UserProfile }>('/users/profile')
       .pipe(map(res => res.data));
   }
-  updateProfile(data: { name: string; phone: string }): Observable<UeserProfileDto> {
+  updateProfile(data: { name: string; phone: string }): Observable<UserProfile> {
     return this.api
-      .put<{ success: boolean; data: UeserProfileDto }>('/users/profile', data)
+      .put<{ success: boolean; data: UserProfile }>('/users/profile', data)
       .pipe(map(res => res.data));
   }
 }
