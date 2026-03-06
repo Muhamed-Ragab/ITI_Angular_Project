@@ -1,7 +1,7 @@
 # Complete API Reference Guide
 
 **Project:** MEAN E-Commerce Backend  
-**Base URL:** `http://localhost:3000/api`  
+**Base URL:** `http://localhost:3000/api/v1`  
 **Last Updated:** February 2026
 
 ---
