@@ -544,7 +544,7 @@ describe('OrderService - Integration Tests', () => {
         },
         items: [
           {
-            product_id: 'prod1',
+            product: 'prod1',
             quantity: 2,
           },
         ],

@@ -31,7 +31,7 @@ export interface GuestCheckoutRequest {
     zip: string;
   };
   items: Array<{
-    product_id: string;
+    product: string;
     quantity: number;
   }>;
   couponCode?: string;
