@@ -70,8 +70,8 @@ export const routes: Routes = [
       {
       path: 'profile',
       loadComponent: () =>
-        import('./domains/profile/Components/userprofile.component')
-          .then(m => m.UserprofileComponent),
+        import('./domains/profile/profile-page.component/profile-page.component')
+          .then(m => m.ProfilePageComponent),
       canActivate: [authGuard] 
     }
     ],

@@ -7,8 +7,6 @@ import {
   PayoutRequest, 
   PayoutResponse, 
   ReferralSummary, 
-  SellerOnboardingRequest, 
-  SellerOnboardingResponse 
 } from '../dto/user-profile.dto';
 
 @Injectable({
@@ -17,51 +15,38 @@ import {
 export class ProfileService {
   private api = inject(ApiService);
 
-  // -------------------------
-  // USER PROFILE
-  // -------------------------
+
   getUserProfile(): Observable<UserProfile> {
     return this.api
       .get<{ success: boolean; data: UserProfile }>('/users/profile')
       .pipe(map(res => res.data));
   }
 
-  /**
-   * تحديث البيانات الأساسية (الاسم والموبايل)
-   */
+ 
   updateProfile(data: { name: string; phone: string }): Observable<UserProfile> {
     return this.api
       .put<{ success: boolean; data: UserProfile }>('/users/profile', data)
       .pipe(map(res => res.data));
   }
 
-  /**
-   * تحديث اللغة (تستخدم الـ Endpoint الخاصة بها)
-   */
+
   updateLanguage(lang: string): Observable<any> {
     return this.api
       .patch<{ success: boolean; data: any }>('/users/preferences/language', { language: lang })
       .pipe(map(res => res.data));
   }
 
-  /**
-   * تحديث تفضيلات التسويق (تستخدم الـ Endpoint الخاصة بها)
-   */
+
   updateMarketing(prefs: { push_notifications: boolean; email_newsletter: boolean; promotional_notifications: boolean }): Observable<any> {
     return this.api
       .patch<{ success: boolean; data: any }>('/users/preferences/marketing', prefs)
       .pipe(map(res => res.data));
   }
 
-  // -------------------------
   // SELLER ONBOARDING
-  // -------------------------
-  // جلب طلبات السيلر للأدمن
 getAdminSellerRequests(status?: string, page: number = 1, limit: number = 50): Observable<any> {
-  // بنبني الـ URL بالـ Parameters المتاحة بس
   let url = `/users/admin/seller-requests?page=${page}&limit=${limit}`;
   
-  // لو بعتنا status محددة نضيفها، لو مبعتناش هيجيب الكل
   if (status) {
     url += `&status=${status}`;
   }
@@ -69,38 +54,31 @@ getAdminSellerRequests(status?: string, page: number = 1, limit: number = 50): O
   return this.api.get<any>(url);
 }
 
-// إرسال طلب onboarding جديد
 requestSellerOnboarding(data: { store_name: string; bio: string; payout_method: string }): Observable<any> {
   return this.api.post<any>('/users/seller/onboarding', data);
 }
-
-  // -------------------------
   // PAYOUTS
-  // -------------------------
   requestPayout(data: PayoutRequest): Observable<PayoutResponse> {
     return this.api
       .post<{ success: boolean; data: PayoutResponse }>('/users/seller/payouts', data)
       .pipe(map(res => res.data));
   }
 
-  // -------------------------
+
   // REFERRALS
-  // -------------------------
+
   getReferralSummary(): Observable<ReferralSummary> {
     return this.api
       .get<{ success: boolean; data: ReferralSummary }>('/users/referrals')
       .pipe(map(res => res.data));
   }
 
-  // -------------------------
   // PAYMENT METHODS
-  // -------------------------
   getPaymentMethods(): Observable<PaymentMethod[]> {
-    return this.api
-      .get<{ success: boolean; data: { methods: PaymentMethod[] } }>('/users/payment-methods')
-      .pipe(map(res => res.data.methods));
-  }
-
+  return this.api
+    .get<{ success: boolean; data: { methods: PaymentMethod[] } }>('/users/payment-methods')
+    .pipe(map(res => res.data.methods));
+}
   addPaymentMethod(data: any): Observable<PaymentMethod> {
     return this.api
       .post<{ success: boolean; data: PaymentMethod }>('/users/payment-methods', data)
@@ -119,8 +97,4 @@ requestSellerOnboarding(data: { store_name: string; bio: string; payout_method: 
       .pipe(map(res => res.success));
   }
 
-
-//   getAdminSellerRequests(): Observable<any> {
-//   return this.api.get<any>('/users/admin/seller-requests?status=pending');
-// }
 }
