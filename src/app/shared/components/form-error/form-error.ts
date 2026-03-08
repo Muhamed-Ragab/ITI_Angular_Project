@@ -14,7 +14,7 @@ import { AbstractControl, FormsModule } from '@angular/forms';
 })
 export class FormErrorComponent {
   @Input() control!: AbstractControl | null;
-
+  
   errors(): string[] {
     if (!this.control || !this.control.errors) return [];
     const errs: string[] = [];
@@ -31,4 +31,5 @@ export class FormErrorComponent {
 
     return errs;
   }
+  
 }

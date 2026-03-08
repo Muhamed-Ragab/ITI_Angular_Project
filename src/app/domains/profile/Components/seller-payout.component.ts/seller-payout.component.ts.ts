@@ -23,7 +23,7 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
           <button
             class="btn btn-success fw-bold"
             (click)="withdraw.emit()"
-            [disabled]="loading"
+            [disabled]="loading || form.invalid"
           >
             Withdraw
           </button>

@@ -2,16 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-
 import { ProfileService } from '../Services/profile.service';
-import { UserProfile, PaymentMethod, AddPaymentMethodRequest } from '../dto/user-profile.dto';
-
+import { UserProfile } from '../dto/user-profile.dto';
 import { ProfileFormComponent } from '../Components/profile-form.component/profile-form.component';
 import { SellerApplyComponent } from '../Components/seller-apply.component/seller-apply.component';
-import { AdminSellerRequestsComponent } from '../Components/admin-seller-requests.component/admin-seller-requests.component';
 import { SellerPayoutComponent } from '../Components/seller-payout.component.ts/seller-payout.component.ts';
 import { WalletCardComponent } from '../Components/wallet-card.component/wallet-card.component';
-import { PaymentMethodsComponent } from '../Components/payment-methods.component.ts/payment-methods.component.ts';
 
 @Component({
   selector: 'app-profile-page',
@@ -21,10 +17,8 @@ import { PaymentMethodsComponent } from '../Components/payment-methods.component
     ReactiveFormsModule,
     ProfileFormComponent,
     SellerApplyComponent,
-    AdminSellerRequestsComponent,
     SellerPayoutComponent,
     WalletCardComponent,
-    PaymentMethodsComponent
   ],
   template: `
 <div class="container py-5">
@@ -58,13 +52,6 @@ import { PaymentMethodsComponent } from '../Components/payment-methods.component
         </app-seller-apply>
       }
 
-      @if(user.role === 'admin'){
-        <app-admin-seller-requests
-          [requests]="adminRequests()"
-          (refresh)="checkAllRequests()">
-        </app-admin-seller-requests>
-      }
-
       @if(user.role === 'seller'){
         <app-seller-payout
           [form]="payoutForm"
@@ -82,18 +69,11 @@ import { PaymentMethodsComponent } from '../Components/payment-methods.component
         [balance]="user.wallet_balance"
         [points]="user.loyalty_points">
       </app-wallet-card>
-
-        <app-payment-methods
-  [methods]="paymentMethods()"
-  (action)="handlePaymentAction($event)">
-</app-payment-methods>
-
     </div>
-
   </div>
 }
-
 </div>
+
 `
 })
 export class ProfilePageComponent implements OnInit {
@@ -102,8 +82,6 @@ export class ProfilePageComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   profile = signal<UserProfile | null>(null);
-  paymentMethods = signal<PaymentMethod[]>([]);
-  adminRequests = signal<any[]>([]);
 
   isLoading = signal(true);
   isSaving = signal(false);
@@ -126,7 +104,7 @@ export class ProfilePageComponent implements OnInit {
   initForms(){
   this.profileForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
-    phone: ['', [Validators.pattern(/^[0-9]{10,15}$/)]],
+    phone: ['', [Validators.pattern(/^\+2[0-9]{10,15}$/)]],
     preferred_language: ['en', Validators.required],
     marketing_preferences: this.fb.group({
       push_notifications: [false],
@@ -150,18 +128,11 @@ export class ProfilePageComponent implements OnInit {
 }
   loadData(){
     this.isLoading.set(true);
-
     this.profileService.getUserProfile().subscribe({
       next:(user)=>{
         this.profile.set(user);
         this.profileForm.patchValue(user);
         this.isLoading.set(false);
-
-        this.refreshCards();
-
-        if(user.role === 'admin'){
-          this.checkAllRequests();
-        }
       },
       error:()=>this.isLoading.set(false)
     })
@@ -199,24 +170,13 @@ export class ProfilePageComponent implements OnInit {
 
   }
 
-  checkAllRequests(){
-    this.profileService.getAdminSellerRequests().subscribe({
-      next:(res)=>{
-        if(res && res.success && Array.isArray(res.data)){
-          this.adminRequests.set(res.data);
-        }else{
-          this.adminRequests.set([]);
-        }
-      }
-    })
-  }
-
   saveAll(){
-
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
     this.isSaving.set(true);
-
     const val = this.profileForm.getRawValue();
-
     forkJoin({
       profile:this.profileService.updateProfile({name:val.name,phone:val.phone}),
       lang:this.profileService.updateLanguage(val.preferred_language),
@@ -232,9 +192,12 @@ export class ProfilePageComponent implements OnInit {
     })
   }
 
-  withdraw(){
+withdraw(){
+    if (this.payoutForm.invalid) {
+      this.payoutForm.markAllAsTouched();
+      return;
+    }
     this.isWithdrawing.set(true);
-
     this.profileService.requestPayout(this.payoutForm.value).subscribe({
       next:()=>{
         this.payoutStatus.set('Withdrawal pending approval.');
@@ -245,48 +208,5 @@ export class ProfilePageComponent implements OnInit {
       error:()=>this.isWithdrawing.set(false)
     })
   }
-
-  refreshCards(){
-    this.profileService.getPaymentMethods().subscribe(res=>{
-      this.paymentMethods.set(res)
-    })
-  }
-
-  addCard() {
-  this.profileService.addPaymentMethod({
-    provider: 'stripe',
-    provider_token: 'tok_visa_4242', 
-    brand: 'visa',
-    last4: '4242',
-    expiry_month: 12,
-    expiry_year: 2027
-  }).subscribe({
-    next: () => this.refreshCards(),
-    error: (err) => console.error('Add Card Error:', err)
-  });
-}
-
-  deleteCard(id:string){
-    if(confirm('Delete?')){
-      this.profileService.removePaymentMethod(id)
-      .subscribe(()=>this.refreshCards())
-    }
-  }
-  handlePaymentAction(action?: { type: 'add' | 'delete', id?: string }) {
-  if(action?.type === 'add'){
-    const payload: AddPaymentMethodRequest = {
-      provider: 'stripe',
-      provider_token: 'tok_visa_4242',
-      brand: 'visa',
-      last4: '4242',
-      expiry_month: 12,
-      expiry_year: 2027
-    };
-    this.profileService.addPaymentMethod(payload).subscribe(()=> this.refreshCards());
-  }
-
-  if(action?.type === 'delete' && action.id){
-    this.profileService.removePaymentMethod(action.id).subscribe(()=> this.refreshCards());
-  }
-}
+  
 }
