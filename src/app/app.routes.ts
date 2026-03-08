@@ -70,12 +70,10 @@ export const routes: Routes = [
 
       // Profile
       {
-
       path: 'profile',
       loadComponent: () =>
         import('./domains/profile/profile-page.component/profile-page.component')
-          .then(m => m.ProfilePageComponent),
-      canActivate: [authGuard] 
+          .then(m => m.ProfilePageComponent)
     },
       {
         path: 'admin/categories',
@@ -84,7 +82,7 @@ export const routes: Routes = [
       },
       {
         path: 'admin/sellerrequest',
-        canActivate: [adminGuard,authGuard],
+        canActivate: [adminGuard],
         loadComponent: () =>
         import('./domains/SellerReview/admin-seller-requests.component.ts/admin-seller-requests.component.ts')
           .then(m => m.AdminSellerRequestsComponent), 
