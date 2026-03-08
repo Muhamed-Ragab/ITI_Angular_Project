@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly NG_APP_STRIPE_PUBLISHABLE_KEY: string
 }
 
+// eslint-disable-next-line no-unused-vars
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }

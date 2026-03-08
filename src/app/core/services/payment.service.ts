@@ -25,7 +25,6 @@ export class PaymentService {
    * @param request - Checkout payment request with order ID, payment method, guest email
    */
   processGuestCheckout(request: CheckoutPaymentRequest): Observable<CheckoutPaymentResponse> {
-    console.log('processGuestCheckout called with:', request);
     return this.api.post<CheckoutPaymentResponse>('/payments/guest-checkout', request);
   }
 

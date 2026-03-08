@@ -14,7 +14,7 @@ const tsParser = tseslint.parser;
 module.exports = [
   // Ignore patterns
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.angular/**', 'coverage/**'],
+    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.angular/**', 'coverage/**', '**/*.spec.ts'],
   },
 
   // Base JavaScript recommended rules
