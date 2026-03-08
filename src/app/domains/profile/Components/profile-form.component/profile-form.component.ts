@@ -9,10 +9,12 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormErrorComponent],
   template: `
-    <div *ngIf="statusMessage" class="alert alert-success alert-dismissible fade show shadow mb-4">
-      <i class="bi bi-check-circle-fill me-2"></i> {{ statusMessage }}
-      <button type="button" class="btn-close" (click)="clearMessage.emit()"></button>
-    </div>
+    @if (statusMessage) {
+      <div class="alert alert-success alert-dismissible fade show shadow mb-4 border-0 border-start border-4 border-success">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ statusMessage }}
+        <button type="button" class="btn-close" (click)="clearMessage.emit()"></button>
+      </div>
+    }
 
     <form [formGroup]="form" (ngSubmit)="save.emit()">
       <div class="card shadow-sm border-0 mb-4">
@@ -20,9 +22,8 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
           <h5 class="fw-bold mb-4 border-bottom pb-2">Account Details</h5>
 
           <div class="row g-3">
-
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Full Name</label>
+              <label class="form-label small fw-bold text-secondary">Full Name</label>
               <input
                 class="form-control"
                 [class.is-invalid]="controlInvalid('name')"
@@ -32,12 +33,12 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Email</label>
+              <label class="form-label small fw-bold text-secondary">Email</label>
               <input class="form-control bg-light" [value]="user.email" disabled />
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Phone</label>
+              <label class="form-label small fw-bold text-secondary">Phone</label>
               <input
                 class="form-control"
                 [class.is-invalid]="controlInvalid('phone')"
@@ -47,19 +48,35 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Language</label>
+              <label class="form-label small fw-bold text-secondary">Language</label>
               <select
                 class="form-select"
-                [class.is-invalid]="controlInvalid('preferred_language')"
                 formControlName="preferred_language"
               >
                 <option value="en">English</option>
                 <option value="ar">Arabic</option>
               </select>
-              <app-form-error
-                *ngIf="controlInvalid('preferred_language')"
-                [control]="form.get('preferred_language')"
-              ></app-form-error>
+            </div>
+
+            <div class="col-12 mt-4 pt-3 border-top" formGroupName="marketing_preferences">
+              <h6 class="fw-bold mb-3"><i class="bi bi-bell me-2 text-primary"></i>Notification Settings</h6>
+              
+              <div class="d-flex flex-wrap gap-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="push_notifications" id="pushNotify">
+                  <label class="form-check-label small fw-bold" for="pushNotify">Push Alerts</label>
+                </div>
+
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="email_newsletter" id="emailNotify">
+                  <label class="form-check-label small fw-bold" for="emailNotify">Newsletter</label>
+                </div>
+
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="promotional_notifications" id="promoNotify">
+                  <label class="form-check-label small fw-bold" for="promoNotify">Promotions</label>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -69,9 +86,9 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
       <button
         type="submit"
         class="btn btn-primary btn-lg w-100 fw-bold shadow-sm"
-        [disabled]="isSaving"
+        [disabled]="isSaving || form.invalid"
       >
-        {{ isSaving ? 'Processing...' : 'Save Changes' }}
+        {{ isSaving ? 'Saving Changes...' : 'Save Settings' }}
       </button>
     </form>
   `
