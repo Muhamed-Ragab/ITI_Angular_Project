@@ -70,22 +70,28 @@ export const routes: Routes = [
 
       // Profile
       {
-
-      path: 'profile',
-      loadComponent: () =>
-        import('./domains/profile/profile-page.component/profile-page.component')
-          .then(m => m.ProfilePageComponent),
-      canActivate: [authGuard] 
-    },
-
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/profile/profile-page.component/profile-page.component')
+            .then(m => m.ProfilePageComponent),
+        canActivate: [authGuard],
+      },
 
       // ── Admin ──────────────────────────────────────────────────────────────
+
       // Category management (admin only — guard is inside the feature routes)
       {
         path: 'admin/categories',
         loadChildren: () =>
           import('./domains/categories/routes').then((m) => m.categoryRoutes),
       },
+
+      // Product management route added
+     {
+  path: 'admin/products',
+  loadChildren: () =>
+    import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),
+}
 
     ],
   },
