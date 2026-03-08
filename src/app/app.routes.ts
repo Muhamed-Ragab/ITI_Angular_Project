@@ -3,7 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { HomeComponent } from './domains/home/home.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
-import {adminGuard} from './domains/categories/guards/admin.guard'
+import { adminGuard } from './domains/categories/guards/admin.guard';
 export const routes: Routes = [
   {
     path: 'auth',
@@ -70,23 +70,32 @@ export const routes: Routes = [
 
       // Profile
       {
-      path: 'profile',
-      loadComponent: () =>
-        import('./domains/profile/profile-page.component/profile-page.component')
-          .then(m => m.ProfilePageComponent)
-    },
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/profile/profile-page.component/profile-page.component').then(
+            (m) => m.ProfilePageComponent,
+          ),
+        canActivate: [authGuard],
+      },
+
       {
         path: 'admin/categories',
-        loadChildren: () =>
-        import('./domains/categories/routes').then((m) => m.categoryRoutes),
+        loadChildren: () => import('./domains/categories/routes').then((m) => m.categoryRoutes),
       },
       {
         path: 'admin/sellerrequest',
         loadComponent: () =>
-        import('./domains/SellerReview/admin-seller-requests.component/admin-seller-requests.component.ts')
-          .then(m => m.AdminSellerRequestsComponent), 
-           canActivate: [adminGuard]
-      }
+          import('./domains/SellerReview/admin-seller-requests.component/admin-seller-requests.component.ts').then(
+            (m) => m.AdminSellerRequestsComponent,
+          ),
+        canActivate: [adminGuard],
+      },
+
+      {
+        path: 'admin/products',
+        loadChildren: () =>
+          import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),
+      },
     ],
   },
 

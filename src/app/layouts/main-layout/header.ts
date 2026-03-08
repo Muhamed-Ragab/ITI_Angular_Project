@@ -95,7 +95,8 @@ import { HomeService } from '@app/domains/home/services/home-service';
                 </li>
 
                 <!-- Admin-only section -->
-                @if (isAdmin()) {
+                @if (isAdmin()) 
+                  {
                   <li><hr class="dropdown-divider" /></li>
                   <li>
                     <span class="dropdown-header text-uppercase small">
@@ -108,10 +109,15 @@ import { HomeService } from '@app/domains/home/services/home-service';
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" routerLink="/admin/sellerrequest">
-                      <i class="bi bi-diagram-3 me-2"></i>Manage Seller Request
+                    <a class="dropdown-item" routerLink="/admin/products">
+                      <i class="bi bi-box-seam me-2"></i>Manage Products
                     </a>
                   </li>
+                     <li>
+                    <a class="dropdown-item" routerLink="/admin/sellerrequest">
+                    <i class="bi bi-diagram-3 me-2"></i>Manage Seller Request
+                  </a>
+                    </li>
                 }
 
                 <li><hr class="dropdown-divider" /></li>
@@ -161,7 +167,6 @@ export class Header {
   readonly loading = signal(true);
   readonly cartItemCount = computed(() => this.cartService.getCartItemCount());
 
-  /** True only when the logged-in user has role 'admin' */
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
 
   constructor() {
