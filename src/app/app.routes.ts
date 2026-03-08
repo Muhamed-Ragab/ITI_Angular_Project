@@ -67,17 +67,32 @@ export const routes: Routes = [
         path: 'payment',
         loadChildren: () => import('./domains/payment/routes').then((m) => m.paymentRoutes),
       },
+
+      // Profile
       {
-      path: 'profile',
-      loadComponent: () =>
-        import('./domains/profile/Components/userprofile.component')
-          .then(m => m.UserprofileComponent),
-      canActivate: [authGuard] 
-    }
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/profile/Components/userprofile.component').then(
+            (m) => m.UserprofileComponent,
+          ),
+        canActivate: [authGuard],
+      },
+
+      // ── Admin ──────────────────────────────────────────────────────────────
+      // Category management (admin only — guard is inside the feature routes)
+      {
+        path: 'admin/categories',
+        loadChildren: () =>
+          import('./domains/categories/routes').then((m) => m.categoryRoutes),
+      },
     ],
   },
-  { path: '**', 
+
+  {
+    path: '**',
     loadComponent: () =>
-    import('./shared/pages/not-found.component/not-found.component')
-      .then(m => m.NotFoundComponent), },
+      import('./shared/pages/not-found.component/not-found.component').then(
+        (m) => m.NotFoundComponent,
+      ),
+  },
 ];
