@@ -82,10 +82,10 @@ export const routes: Routes = [
       },
       {
         path: 'admin/sellerrequest',
-        canActivate: [adminGuard],
         loadComponent: () =>
-        import('./domains/SellerReview/admin-seller-requests.component.ts/admin-seller-requests.component.ts')
+        import('./domains/SellerReview/admin-seller-requests.component/admin-seller-requests.component.ts')
           .then(m => m.AdminSellerRequestsComponent), 
+           canActivate: [adminGuard]
       }
     ],
   },

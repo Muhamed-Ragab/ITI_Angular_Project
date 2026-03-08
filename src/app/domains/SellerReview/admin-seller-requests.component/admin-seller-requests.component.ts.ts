@@ -11,7 +11,15 @@ import { SellerRequestUser } from '../dto/seller-request';
   template: `
   <div class="container mt-4">
 
-    <div class="card shadow">
+
+  @if(isLoading()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2">Loading seller requests...</p>
+  </div>
+} 
+@else {
+ <div class="card shadow">
 
       <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Seller Onboarding Requests</h5>
@@ -102,9 +110,9 @@ import { SellerRequestUser } from '../dto/seller-request';
 
       </div>
 
-    </div>
-
-  </div>
+    </div>  
+}
+   </div>
   `
 })
 export class AdminSellerRequestsComponent implements OnInit {
@@ -112,20 +120,24 @@ export class AdminSellerRequestsComponent implements OnInit {
   private adminService = inject(AdminService);
   requests = signal<SellerRequestUser[]>([]);
   notes: { [key: string]: string } = {};
+  isLoading = signal(true);
 
   ngOnInit() {
     this.loadRequests();
   }
 
   loadRequests() {
+    this.isLoading.set(true);
     this.adminService.getSellerRequests().subscribe({
       next: (res) => {
         console.log("Seller Requests:", res);
         this.requests.set(res);
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error(err);
         this.requests.set([]);
+        this.isLoading.set(false);
       }
     });
   }
@@ -137,7 +149,19 @@ export class AdminSellerRequestsComponent implements OnInit {
     });
   }
 
-  // approve(id: string) {
+  
+  reject(id: string) {
+    const note = this.notes[id] || '';
+    this.adminService.reviewSellerRequest(id, 'rejected', note).subscribe(() => {
+      this.loadRequests();
+    });
+  }
+
+}
+
+
+
+// approve(id: string) {
   //   const note = this.notes[id] || '';
   //   this.adminService.reviewSellerRequest(id, 'approved', note).subscribe({
   //   next: () => {
@@ -151,12 +175,3 @@ export class AdminSellerRequestsComponent implements OnInit {
   //   error: (err) => console.error('Error approving request:', err)
   // });
   // }
-
-  reject(id: string) {
-    const note = this.notes[id] || '';
-    this.adminService.reviewSellerRequest(id, 'rejected', note).subscribe(() => {
-      this.loadRequests();
-    });
-  }
-
-}
