@@ -3,7 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { HomeComponent } from './domains/home/home.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
-
+import {adminGuard} from './domains/categories/guards/admin.guard'
 export const routes: Routes = [
   {
     path: 'auth',
@@ -77,16 +77,18 @@ export const routes: Routes = [
           .then(m => m.ProfilePageComponent),
       canActivate: [authGuard] 
     },
-
-
-      // ── Admin ──────────────────────────────────────────────────────────────
-      // Category management (admin only — guard is inside the feature routes)
       {
         path: 'admin/categories',
         loadChildren: () =>
-          import('./domains/categories/routes').then((m) => m.categoryRoutes),
+        import('./domains/categories/routes').then((m) => m.categoryRoutes),
       },
-
+      {
+        path: 'admin/sellerrequest',
+        canActivate: [adminGuard,authGuard],
+        loadComponent: () =>
+        import('./domains/SellerReview/admin-seller-requests.component.ts/admin-seller-requests.component.ts')
+          .then(m => m.AdminSellerRequestsComponent), 
+      }
     ],
   },
 

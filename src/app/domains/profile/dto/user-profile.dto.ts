@@ -1,4 +1,4 @@
-
+import { SellerProfile } from '../../SellerReview/dto/seller-request';
 export interface UserProfile {
   id: string;
   name: string;
@@ -10,6 +10,7 @@ export interface UserProfile {
   marketing_preferences?: MarketingPreferences;
   preferred_language?: string;
   role: UserRole;
+  seller_profile: SellerProfile | null;
 }
 export type UserRole = 'customer' | 'seller' | 'admin';
 

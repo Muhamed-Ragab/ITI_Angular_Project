@@ -8,6 +8,8 @@ import { ProfileFormComponent } from '../Components/profile-form.component/profi
 import { SellerApplyComponent } from '../Components/seller-apply.component/seller-apply.component';
 import { SellerPayoutComponent } from '../Components/seller-payout.component.ts/seller-payout.component.ts';
 import { WalletCardComponent } from '../Components/wallet-card.component/wallet-card.component';
+// استيراد مكون الحالة الجديد (تأكد من صحة المسار لديك)
+import { CustomerSellerStatusComponent } from '../Components/customer-seller-status.component/customer-seller-status.component';
 
 @Component({
   selector: 'app-profile-page',
@@ -19,6 +21,7 @@ import { WalletCardComponent } from '../Components/wallet-card.component/wallet-
     SellerApplyComponent,
     SellerPayoutComponent,
     WalletCardComponent,
+    CustomerSellerStatusComponent, // أضفناه هنا
   ],
   template: `
 <div class="container py-5">
@@ -44,6 +47,10 @@ import { WalletCardComponent } from '../Components/wallet-card.component/wallet-
       </app-profile-form>
 
       @if(user.role === 'customer'){
+        <app-customer-seller-status 
+          [sellerProfile]="user.seller_profile">
+        </app-customer-seller-status>
+
         <app-seller-apply
           [form]="sellerForm"
           [isApplying]="isApplying()"
@@ -64,7 +71,6 @@ import { WalletCardComponent } from '../Components/wallet-card.component/wallet-
     </div>
 
     <div class="col-lg-4">
-
       <app-wallet-card
         [balance]="user.wallet_balance"
         [points]="user.loyalty_points">
@@ -73,7 +79,6 @@ import { WalletCardComponent } from '../Components/wallet-card.component/wallet-
   </div>
 }
 </div>
-
 `
 })
 export class ProfilePageComponent implements OnInit {
@@ -102,30 +107,31 @@ export class ProfilePageComponent implements OnInit {
   }
 
   initForms(){
-  this.profileForm = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(3)]],
-    phone: ['', [Validators.pattern(/^\+2[0-9]{10,15}$/)]],
-    preferred_language: ['en', Validators.required],
-    marketing_preferences: this.fb.group({
-      push_notifications: [false],
-      email_newsletter: [false],
-      promotional_notifications: [false]
-    })
-  });
+    this.profileForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      phone: ['', [Validators.pattern(/^\+2[0-9]{10,15}$/)]],
+      preferred_language: ['en', Validators.required],
+      marketing_preferences: this.fb.group({
+        push_notifications: [false],
+        email_newsletter: [false],
+        promotional_notifications: [false]
+      })
+    });
 
-  this.sellerForm = this.fb.group({
-    store_name: ['', [Validators.required, Validators.minLength(3)]],
-    bio: ['', [Validators.maxLength(300)]]
-  });
+    this.sellerForm = this.fb.group({
+      store_name: ['', [Validators.required, Validators.minLength(3)]],
+      bio: ['', [Validators.maxLength(300)]]
+    });
 
-  this.payoutForm = this.fb.group({
-    amount: [0, [
-      Validators.required,
-      Validators.min(1),
-      Validators.max(100000)
-    ]]
-  });
-}
+    this.payoutForm = this.fb.group({
+      amount: [0, [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(100000)
+      ]]
+    });
+  }
+
   loadData(){
     this.isLoading.set(true);
     this.profileService.getUserProfile().subscribe({
@@ -139,7 +145,6 @@ export class ProfilePageComponent implements OnInit {
   }
 
   applyForSeller(){
-
     if(this.sellerForm.invalid){
       this.sellerForm.markAllAsTouched();
       return;
@@ -161,13 +166,14 @@ export class ProfilePageComponent implements OnInit {
         this.sellerForm.reset();
         this.sellerForm.markAsPristine();
         this.sellerForm.markAsUntouched();
+        // تحديث البيانات فوراً لرؤية الحالة الجديدة
+        this.loadData();
       },
       error:(err)=>{
         this.isApplying.set(false);
         this.sellerStatus.set('Error: '+(err.error?.message || 'Invalid Data'));
       }
     });
-
   }
 
   saveAll(){
@@ -192,7 +198,7 @@ export class ProfilePageComponent implements OnInit {
     })
   }
 
-withdraw(){
+  withdraw(){
     if (this.payoutForm.invalid) {
       this.payoutForm.markAllAsTouched();
       return;
@@ -208,5 +214,4 @@ withdraw(){
       error:()=>this.isWithdrawing.set(false)
     })
   }
-  
 }

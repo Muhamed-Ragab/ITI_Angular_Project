@@ -107,6 +107,11 @@ import { HomeService } from '@app/domains/home/services/home-service';
                       <i class="bi bi-diagram-3 me-2"></i>Manage Categories
                     </a>
                   </li>
+                  <li>
+                    <a class="dropdown-item" routerLink="/admin/sellerrequest">
+                      <i class="bi bi-diagram-3 me-2"></i>Manage Seller Request
+                    </a>
+                  </li>
                 }
 
                 <li><hr class="dropdown-divider" /></li>
