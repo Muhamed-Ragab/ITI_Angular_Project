@@ -142,13 +142,6 @@ export class AdminSellerRequestsComponent implements OnInit {
     });
   }
 
-  // approve(id: string) {
-  //   const note = this.notes[id] || '';
-  //   this.adminService.reviewSellerRequest(id, 'approved', note).subscribe(() => {
-  //     this.loadRequests();
-  //   });
-  // }
-
   approve(id: string) {
     const note = this.notes[id] || '';
     this.adminService.reviewSellerRequest(id, 'approved', note).subscribe({
