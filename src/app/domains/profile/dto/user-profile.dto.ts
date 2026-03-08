@@ -11,7 +11,6 @@ export interface UserProfile {
   preferred_language?: string;
   role: UserRole;
 }
-
 export type UserRole = 'customer' | 'seller' | 'admin';
 
 export interface MarketingPreferences {
@@ -19,8 +18,6 @@ export interface MarketingPreferences {
   email_newsletter: boolean;
   promotional_notifications: boolean;
 }
-
-
 
 
 
