@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { UserProfile } from '../dto/user-profile.dto';
-import { sign } from 'node:crypto';
 import { ProfileService } from '../Services/profile.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -121,7 +120,6 @@ export class UserprofileComponent {
     this.isLoading.set(true);
     this.userService.getUserProfile().subscribe({
       next: (res) => {
-        console.log(res)
         this.profile.set(res);
         this.isLoading.set(false);
       },

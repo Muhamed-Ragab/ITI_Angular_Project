@@ -49,21 +49,13 @@ export class CartService {
    * @param product_id - Product ID to remove
    */
   removeFromCart(product_id: string): Observable<CartResponse> {
-    console.log('=== CartService.removeFromCart ===');
-    console.log('Product ID to remove:', product_id);
-    console.log('Product ID type:', typeof product_id);
-    console.log('DELETE URL:', `/users/cart/${product_id}`);
-
     return this.api.delete<CartResponse>(`/users/cart/${product_id}`).pipe(
       tap({
         next: (response) => {
-          console.log('Remove successful, response:', response);
           this.cart.set(response.data);
         },
-        error: (error) => {
-          console.error('Remove failed, error:', error);
-          console.error('Error status:', error.status);
-          console.error('Error message:', error.error?.message || error.message);
+        error: () => {
+          // Error handling - could add user notification here
         },
       }),
     );

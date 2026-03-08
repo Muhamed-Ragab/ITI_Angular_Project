@@ -108,10 +108,6 @@ export class StripePaymentComponent implements OnInit {
     try {
       const stripeKey = environment.stripePublishableKey;
 
-      console.log('=== Stripe Initialization ===');
-      console.log('Stripe Key:', stripeKey ? `${stripeKey.substring(0, 20)}...` : 'EMPTY');
-      console.log('Environment:', environment);
-
       if (!stripeKey || stripeKey.trim() === '') {
         throw new Error('Stripe publishable key is not configured. Please set NG_APP_STRIPE_PUBLISHABLE_KEY in your .env file.');
       }
