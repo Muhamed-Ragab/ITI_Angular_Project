@@ -126,7 +126,7 @@ export class ProductListComponent implements OnInit {
     this.filters = { ...this.filters, page };
     this.loadProducts();
   }
-    const { category_id, ...filtersWithoutCategory } = this.filters;
+
   clearCategoryFilter(): void {
     this.activeCategoryId.set(null);
     const { category_id, ...filtersWithoutCategory } = this.filters;
