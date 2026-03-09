@@ -22,26 +22,6 @@ export interface MarketingPreferences {
 
 
 
-export interface PaymentMethod {
-  id: string;
-  provider: string;
-  brand: string;
-  last4: string;
-  expiry_month: number;
-  expiry_year: number;
-  isDefault: boolean;
-}
-
-export interface AddPaymentMethodRequest {
-  provider: string;
-  provider_token: string;
-  brand: string;
-  last4: string;
-  expiry_month: number;
-  expiry_year: number;
-}
-
-
 export interface ReferralSummary {
   referralCode: string;
   referralsCount: number;
@@ -72,4 +52,6 @@ export interface PayoutResponse {
   amount: number;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;
+  requested_at: string;      
+  reviewed_at?: string | null;
 }
