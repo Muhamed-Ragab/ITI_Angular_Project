@@ -13,4 +13,8 @@ export const orderRoutes: Routes = [
         (m) => m.OrderDetailComponent,
       ),
   },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/routes').then((m) => m.adminOrderRoutes),
+  },
 ];
