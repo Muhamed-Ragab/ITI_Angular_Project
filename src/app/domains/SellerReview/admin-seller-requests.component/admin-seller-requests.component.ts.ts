@@ -9,7 +9,7 @@ import { SellerRequestUser } from '../dto/seller-request';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-  <div class="container mt-4">
+  <div class="container-fluid mt-4">
 
 
   @if(isLoading()) {

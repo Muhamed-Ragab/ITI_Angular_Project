@@ -4,6 +4,22 @@ import { LoginRequestDto, RegisterRequestDto } from '@domains/auth/dto';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 
+/**
+ * Route mapping based on user role
+ */
+const ROLE_ROUTES: Record<string, string> = {
+  admin: '/admin/orders',
+  seller: '/home',
+  customer: '/home',
+};
+
+/**
+ * Get the appropriate route based on user role
+ */
+function getRouteByRole(role: string | undefined): string {
+  return role ? ROLE_ROUTES[role] || '/home' : '/home';
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthFacadeService {
   private readonly authService = inject(AuthService);
@@ -15,7 +31,8 @@ export class AuthFacadeService {
   login$(credentials: LoginRequestDto): Observable<boolean> {
     return this.authService.login(credentials).pipe(
       tap(() => {
-        this.router.navigate(['/home'], { replaceUrl: true });
+        const route = getRouteByRole(this.currentUser()?.role);
+        this.router.navigate([route], { replaceUrl: true });
       }),
       map(() => true),
       catchError(() => of(false)),
@@ -48,7 +65,8 @@ export class AuthFacadeService {
   loginWithOtp$(email: string, otp: string): Observable<boolean> {
     return this.authService.loginWithOtp(email, otp).pipe(
       tap(() => {
-        this.router.navigate(['/home']);
+        const route = getRouteByRole(this.currentUser()?.role);
+        this.router.navigate([route]);
       }),
       map(() => true),
       catchError(() => of(false)),
@@ -58,7 +76,8 @@ export class AuthFacadeService {
   loginWithGoogle$(code: string): Observable<boolean> {
     return this.authService.loginWithGoogle(code).pipe(
       tap(() => {
-        this.router.navigate(['/home']);
+        const route = getRouteByRole(this.currentUser()?.role);
+        this.router.navigate([route]);
       }),
       map(() => true),
       catchError(() => of(false)),
@@ -83,7 +102,8 @@ export class AuthFacadeService {
   verifyEmailAndLogin$(token: string): Observable<boolean> {
     return this.authService.verifyEmailAndLogin(token).pipe(
       tap(() => {
-        this.router.navigate(['/home'], { replaceUrl: true });
+        const route = getRouteByRole(this.currentUser()?.role);
+        this.router.navigate([route], { replaceUrl: true });
       }),
       map(() => true),
       catchError(() => of(false)),
