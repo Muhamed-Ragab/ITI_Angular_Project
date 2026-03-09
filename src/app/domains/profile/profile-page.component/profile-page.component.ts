@@ -96,7 +96,6 @@ export class ProfilePageComponent implements OnInit {
   statusMessage = signal('');
   sellerStatus = signal('');
   payoutStatus = signal('');
-
   profileForm!: FormGroup;
   sellerForm!: FormGroup;
   payoutForm!: FormGroup;
@@ -122,12 +121,11 @@ export class ProfilePageComponent implements OnInit {
       store_name: ['', [Validators.required, Validators.minLength(3)]],
       bio: ['', [Validators.maxLength(300)]]
     });
-
+  
     this.payoutForm = this.fb.group({
       amount: [0, [
         Validators.required,
-        Validators.min(1),
-        Validators.max(100000)
+        Validators.min(1)
       ]]
     });
   }
@@ -138,6 +136,15 @@ export class ProfilePageComponent implements OnInit {
       next:(user)=>{
         this.profile.set(user);
         this.profileForm.patchValue(user);
+        this.isLoading.set(false);
+        this.payoutForm.get('amount')?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(user.wallet_balance)
+        ]);
+
+        this.payoutForm.get('amount')?.updateValueAndValidity();
+
         this.isLoading.set(false);
       },
       error:()=>this.isLoading.set(false)
@@ -166,7 +173,6 @@ export class ProfilePageComponent implements OnInit {
         this.sellerForm.reset();
         this.sellerForm.markAsPristine();
         this.sellerForm.markAsUntouched();
-        // تحديث البيانات فوراً لرؤية الحالة الجديدة
         this.loadData();
       },
       error:(err)=>{
