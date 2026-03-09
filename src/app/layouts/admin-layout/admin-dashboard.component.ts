@@ -55,6 +55,12 @@ interface StatCard {
             </div>
             <div class="card-body">
               <div class="row g-3">
+                 <div class="col-6">
+                  <a routerLink="/admin/users" class="btn btn-outline-primary w-100 py-3">
+                    <i class="bi bi-cart3 d-block fs-4 mb-1"></i>
+                    Manage Users
+                  </a>
+                </div>
                 <div class="col-6">
                   <a routerLink="/admin/orders" class="btn btn-outline-primary w-100 py-3">
                     <i class="bi bi-cart3 d-block fs-4 mb-1"></i>

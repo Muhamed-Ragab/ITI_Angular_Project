@@ -307,6 +307,7 @@ interface NavItem {
 export class AdminLayoutComponent {
   readonly navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'bi-grid-1x2', route: '/admin' },
+    { label: 'User Management', icon: 'bi-grid-1x2', route: '/admin/users' },
     { label: 'Orders', icon: 'bi-cart3', route: '/admin/orders' },
     { label: 'Products', icon: 'bi-box-seam', route: '/admin/products' },
     { label: 'Categories', icon: 'bi-tags', route: '/admin/categories' },
