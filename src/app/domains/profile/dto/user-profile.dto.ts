@@ -54,4 +54,5 @@ export interface PayoutResponse {
   createdAt: string;
   requested_at: string;      
   reviewed_at?: string | null;
+  note:string
 }

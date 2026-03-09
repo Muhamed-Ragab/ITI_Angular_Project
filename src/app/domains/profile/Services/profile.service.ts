@@ -62,8 +62,10 @@ requestSellerOnboarding(data: { store_name: string; bio: string; payout_method: 
       .pipe(map(res => res.data));
   }
   getSellerPayouts(): Observable<PayoutResponse[]> {
-  return this.api
-    .get<{ success: boolean; data: PayoutResponse[] }>('/users/seller/payouts')
-    .pipe(map(res => res.data));
+    return this.api
+      .get<{ success: boolean; data: any }>('/users/profile')
+      .pipe(
+        map(res => res.data?.seller_profile?.payout_requests || [])
+      );
   }
 }

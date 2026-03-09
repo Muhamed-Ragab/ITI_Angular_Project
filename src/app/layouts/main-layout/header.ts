@@ -95,8 +95,7 @@ import { HomeService } from '@app/domains/home/services/home-service';
                 </li>
 
                 <!-- Admin-only section -->
-                @if (isAdmin()) 
-                  {
+                @if (isAdmin()) {
                   <li><hr class="dropdown-divider" /></li>
                   <li>
                     <span class="dropdown-header text-uppercase small">
@@ -113,11 +112,23 @@ import { HomeService } from '@app/domains/home/services/home-service';
                       <i class="bi bi-box-seam me-2"></i>Manage Products
                     </a>
                   </li>
-                     <li>
+                  <li>
                     <a class="dropdown-item" routerLink="/admin/sellerrequest">
-                    <i class="bi bi-diagram-3 me-2"></i>Manage Seller Request
-                  </a>
-                    </li>
+                      <i class="bi bi-diagram-3 me-2"></i>Manage Seller Request
+                    </a>
+                  </li>
+                } @else if (isSeler()) {
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <span class="dropdown-header text-uppercase small">
+                      <i class="bi bi-shield-lock me-1"></i>Seller
+                    </span>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" routerLink="/seller/payout">
+                      <i class="bi bi-diagram-3 me-2"></i>Payout Status
+                    </a>
+                  </li>
                 }
 
                 <li><hr class="dropdown-divider" /></li>
@@ -168,6 +179,7 @@ export class Header {
   readonly cartItemCount = computed(() => this.cartService.getCartItemCount());
 
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
+  readonly isSeler = computed(() => this.authService.currentUser()?.role === 'seller');
 
   constructor() {
     this.loadCategories();

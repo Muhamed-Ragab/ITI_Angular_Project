@@ -96,6 +96,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),
       },
+      {
+        path:'seller/payout',
+        loadComponent:()=>
+          import('./domains/profile/Components/seller-payout-status/seller-payout-status').then((m)=>m.SellerPayoutsComponent),
+      }
     ],
   },
 

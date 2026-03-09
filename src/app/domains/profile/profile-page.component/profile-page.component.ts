@@ -9,7 +9,6 @@ import { SellerApplyComponent } from '../Components/seller-apply.component/selle
 import { SellerPayoutComponent } from '../Components/seller-payout.component.ts/seller-payout.component.ts';
 import { WalletCardComponent } from '../Components/wallet-card.component/wallet-card.component';
 import { CustomerSellerStatusComponent } from '../Components/customer-seller-status.component/customer-seller-status.component';
-import { SellerPayoutStatus } from '../Components/seller-payout-status/seller-payout-status';
 @Component({
   selector: 'app-profile-page',
   standalone: true,
@@ -21,7 +20,6 @@ import { SellerPayoutStatus } from '../Components/seller-payout-status/seller-pa
     SellerPayoutComponent,
     WalletCardComponent,
     CustomerSellerStatusComponent, 
-    SellerPayoutStatus
   ],
   template: `
 <div class="container py-5">
