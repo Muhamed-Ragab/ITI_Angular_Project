@@ -18,7 +18,7 @@ import { Category } from '@domains/categories/dto';
   imports: [FormsModule, AdminProductTableComponent, AdminProductFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="container py-4">
+    <div class="container-fluid py-4">
 
       <!-- Page header -->
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
