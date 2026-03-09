@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from '@core/services/api.service';
 import {
   AdminProductListResponse,
@@ -10,6 +11,7 @@ import {
   AdminUpdateProductDto,
   AdminProductFilters,
   SellerListResponse,
+  SellerUser,
 } from '../dto';
 import { CategoryListResponse } from '@domains/categories/dto';
 
@@ -19,7 +21,6 @@ export class AdminProductService {
 
   // ── Products ───────────────────────────────────────────────────────────────
 
-  /** GET /products — paginated + filterable list (public endpoint) */
   getProducts(filters: AdminProductFilters = {}): Observable<AdminProductListResponse> {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, val]) => {
@@ -30,35 +31,37 @@ export class AdminProductService {
     return this.api.get<AdminProductListResponse>('/products', params);
   }
 
-  /** GET /products/:id */
   getProductById(id: string): Observable<AdminProductDetailResponse> {
     return this.api.get<AdminProductDetailResponse>(`/products/${id}`);
   }
 
-  /** POST /products/admin — admin creates product on behalf of a seller */
   createProduct(dto: AdminCreateProductDto): Observable<AdminProductActionResponse> {
     return this.api.post<AdminProductActionResponse>('/products/admin', dto);
   }
 
-  /** PUT /products/admin/:id — admin updates any product */
   updateProduct(id: string, dto: AdminUpdateProductDto): Observable<AdminProductActionResponse> {
     return this.api.put<AdminProductActionResponse>(`/products/admin/${id}`, dto);
   }
 
-  /** DELETE /products/admin/:id — admin deletes any product */
   deleteProduct(id: string): Observable<AdminProductActionResponse> {
     return this.api.delete<AdminProductActionResponse>(`/products/admin/${id}`);
   }
 
   // ── Support data ───────────────────────────────────────────────────────────
 
-  /** GET /users?role=seller — fetch sellers for the product form dropdown */
-  getSellers(): Observable<SellerListResponse> {
+  // GET /users?role=seller
+  // Real API returns: { success, data: User[] } — flat array, each user has _id not id
+  getSellers(): Observable<SellerUser[]> {
     const params = new HttpParams().set('role', 'seller').set('limit', '100');
-    return this.api.get<SellerListResponse>('/users', params);
+    return this.api.get<{ success: boolean; data: any[] }>('/users', params).pipe(
+      map(res => (res.data ?? []).map((u: any) => ({
+        id:    u._id ?? u.id,        // API returns _id
+        name:  u.seller_profile?.store_name ?? u.name,  // prefer store name
+        email: u.email,
+      } as SellerUser)))
+    );
   }
 
-  /** GET /categories — fetch categories for the product form dropdown */
   getCategories(): Observable<CategoryListResponse> {
     return this.api.get<CategoryListResponse>('/categories');
   }

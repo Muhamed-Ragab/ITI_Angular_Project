@@ -272,7 +272,7 @@ export class AdminProductFormComponent implements OnInit {
     // Sellers
     this.adminProductService.getSellers().subscribe({
       next: (res) => {
-        this.sellers.set(res.data.users);
+        this.sellers.set(res);
         sellersDone = true;
         check();
       },
