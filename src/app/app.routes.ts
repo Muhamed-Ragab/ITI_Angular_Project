@@ -121,6 +121,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'payout',
+        loadComponent: () =>
+          import('./domains/AdminReviewPayout/payout-review/payout-review').then(
+            (m) => m.AdminPayoutsComponent,
+          ),
+      },
+      {
         path: 'products',
         loadChildren: () =>
           import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),

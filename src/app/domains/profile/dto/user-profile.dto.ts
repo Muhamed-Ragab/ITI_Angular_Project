@@ -43,12 +43,16 @@ export interface SellerOnboardingResponse {
 
 
 export interface PayoutRequest {
+  _id: string;          
   amount: number;
-  note?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requested_at: string;
+  reviewed_at?: string | null;
+  note: string;
 }
 
 export interface PayoutResponse {
-  id: string;
+  _id: string;
   amount: number;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;

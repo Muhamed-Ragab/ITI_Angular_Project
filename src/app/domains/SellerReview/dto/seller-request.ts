@@ -1,11 +1,14 @@
+import { PayoutResponse } from '../../profile/dto/user-profile.dto';
+
 export interface SellerProfile {
   store_name: string;
   bio: string;
   payout_method: string;
   approval_status: 'pending' | 'approved' | 'rejected';
   approval_note: string;
-}
 
+  payout_requests: PayoutResponse[];
+}
 
 export interface SellerRequestUser {
   _id: string;
