@@ -51,7 +51,7 @@ import { RouterLink } from '@angular/router';
 
     </div>
 
-  </div>>
+  </div>
   `,
 })
 export class NotFoundComponent {

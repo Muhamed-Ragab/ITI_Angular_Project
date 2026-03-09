@@ -67,9 +67,9 @@ import { HomeService } from '@app/domains/home/services/home-service';
           <!-- Authenticated: User Menu -->
           @if (authService.isAuthenticated()) {
             <div class="dropdown">
-              <button 
-                class="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2" 
-                type="button" 
+              <button
+                class="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2"
+                type="button"
                 data-bs-toggle="dropdown"
               >
                 <i class="bi bi-person-circle"></i>
@@ -80,7 +80,7 @@ import { HomeService } from '@app/domains/home/services/home-service';
               <ul class="dropdown-menu dropdown-menu-end">
                 <li>
                   <a class="dropdown-item" routerLink="/profile">
-                    <i class="bi bi-bag me-2"></i>Profile
+                    <i class="bi bi-person me-2"></i>Profile
                   </a>
                 </li>
                 <li>
@@ -93,7 +93,34 @@ import { HomeService } from '@app/domains/home/services/home-service';
                     <i class="bi bi-heart me-2"></i>Wishlist
                   </a>
                 </li>
-                <li><hr class="dropdown-divider"></li>
+
+                <!-- Admin-only section -->
+                @if (isAdmin()) 
+                  {
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <span class="dropdown-header text-uppercase small">
+                      <i class="bi bi-shield-lock me-1"></i>Admin
+                    </span>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" routerLink="/admin/categories">
+                      <i class="bi bi-diagram-3 me-2"></i>Manage Categories
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" routerLink="/admin/products">
+                      <i class="bi bi-box-seam me-2"></i>Manage Products
+                    </a>
+                  </li>
+                     <li>
+                    <a class="dropdown-item" routerLink="/admin/sellerrequest">
+                    <i class="bi bi-diagram-3 me-2"></i>Manage Seller Request
+                  </a>
+                    </li>
+                }
+
+                <li><hr class="dropdown-divider" /></li>
                 <li>
                   <button class="dropdown-item text-danger" (click)="logout()">
                     <i class="bi bi-box-arrow-right me-2"></i>Logout
@@ -139,6 +166,8 @@ export class Header {
   readonly categories = signal<Category[]>([]);
   readonly loading = signal(true);
   readonly cartItemCount = computed(() => this.cartService.getCartItemCount());
+
+  readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
 
   constructor() {
     this.loadCategories();

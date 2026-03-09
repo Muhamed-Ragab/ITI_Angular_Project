@@ -3,6 +3,9 @@ import { authGuard } from './core/guards/auth.guard';
 import { HomeComponent } from './domains/home/home.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
+import { AdminDashboardComponent } from './layouts/admin-layout/admin-dashboard.component';
+import { adminGuard } from './domains/categories/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -20,6 +23,7 @@ export const routes: Routes = [
       ),
   },
 
+  // Main application routes with auth guard
   {
     path: '',
     component: MainLayoutComponent,
@@ -67,17 +71,64 @@ export const routes: Routes = [
         path: 'payment',
         loadChildren: () => import('./domains/payment/routes').then((m) => m.paymentRoutes),
       },
+
+      // Profile
       {
-      path: 'profile',
-      loadComponent: () =>
-        import('./domains/profile/Components/userprofile.component')
-          .then(m => m.UserprofileComponent),
-      canActivate: [authGuard] 
-    }
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/profile/profile-page.component/profile-page.component').then(
+            (m) => m.ProfilePageComponent,
+          ),
+        canActivate: [authGuard],
+      },
+
     ],
   },
-  { path: '**', 
+
+  // Standalone admin routes with their own layout
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [adminGuard],
+    children: [
+      {
+        path: '',
+        component: AdminDashboardComponent,
+      },
+      {
+        path: 'orders',
+        loadChildren: () =>
+          import('./domains/orders/admin/routes').then((m) => m.adminOrderRoutes),
+      },
+      {
+        path: 'coupons',
+        loadChildren: () =>
+          import('./domains/coupons/admin/routes').then((m) => m.adminCouponRoutes),
+      },
+      {
+        path: 'categories',
+        loadChildren: () => import('./domains/categories/routes').then((m) => m.categoryRoutes),
+      },
+      {
+        path: 'sellerrequest',
+        loadComponent: () =>
+          import('./domains/SellerReview/admin-seller-requests.component/admin-seller-requests.component.ts').then(
+            (m) => m.AdminSellerRequestsComponent,
+          ),
+      },
+      {
+        path: 'products',
+        loadChildren: () =>
+          import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),
+      },
+    ],
+  },
+
+  {
+    path: '**',
     loadComponent: () =>
-    import('./shared/pages/not-found.component/not-found.component')
-      .then(m => m.NotFoundComponent), },
+      import('./shared/pages/not-found.component/not-found.component').then(
+        (m) => m.NotFoundComponent,
+      ),
+  },
 ];

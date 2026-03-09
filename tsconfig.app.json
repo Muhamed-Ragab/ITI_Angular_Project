@@ -16,6 +16,6 @@
       "@env/*": ["environments/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/app/domains/SellerReview/admin-seller-requests.component"],
   "exclude": ["src/**/*.spec.ts"]
 }

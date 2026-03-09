@@ -137,8 +137,6 @@ export class OrderService {
    * @param request - Order creation request with shipping address index, coupon, payment method
    */
   createOrder(request: Omit<CreateOrderRequest, 'items'>): Observable<OrderResponse> {
-    console.log('=== OrderService.createOrder ===');
-    console.log('Request payload:', JSON.stringify(request, null, 2));
     return this.api.post<OrderResponse>('/orders', request);
   }
 
@@ -147,8 +145,6 @@ export class OrderService {
    * @param request - Guest checkout request with guest info, shipping address, items
    */
   guestCheckout(request: GuestCheckoutRequest): Observable<OrderResponse> {
-    console.log('=== OrderService.guestCheckout ===');
-    console.log('Request:', request);
     return this.api.post<OrderResponse>('/orders/guest', request);
   }
 
