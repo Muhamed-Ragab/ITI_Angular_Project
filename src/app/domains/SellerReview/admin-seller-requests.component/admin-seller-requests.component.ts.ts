@@ -11,116 +11,146 @@ import { SellerRequestUser } from '../dto/seller-request';
   template: `
   <div class="container-fluid mt-4">
 
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h4 class="fw-bold mb-0">
+          <i class="bi bi-person-check me-2 text-primary"></i>Seller Onboarding Requests
+        </h4>
+        <p class="text-muted small mb-0 mt-1">Review and approve seller applications.</p>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" (click)="loadRequests()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+      </button>
+    </div>
 
-  @if(isLoading()) {
-  <div class="text-center py-5">
-    <div class="spinner-border text-primary"></div>
-    <p class="mt-2">Loading seller requests...</p>
+    @if (successMsg()) {
+      <div class="alert alert-success d-flex align-items-center gap-2 py-2 mb-3">
+        <i class="bi bi-check-circle-fill"></i>{{ successMsg() }}
+      </div>
+    }
+
+    @if (errorMsg()) {
+      <div class="alert alert-danger py-2 mb-3">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMsg() }}
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading seller requests...</p>
+      </div>
+    } @else {
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Applications</h5>
+          <span class="badge bg-warning text-dark">{{ requests().length }} Requests</span>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Applicant</th>
+                  <th>Email</th>
+                  <th>Store Name</th>
+                  <th>Bio</th>
+                  <th>Payout Method</th>
+                  <th>Status</th>
+                  <th style="width:200px">Admin Note</th>
+                  <th style="width:180px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                @for (req of requests(); track req._id; let i = $index) {
+                  <tr>
+                    <td class="text-muted">{{ i + 1 }}</td>
+                    <td class="fw-semibold">{{ req.name }}</td>
+                    <td class="text-muted small">{{ req.email }}</td>
+                    <td>{{ req.seller_profile.store_name }}</td>
+                    <td>
+                      <span class="text-muted small">
+                        {{ (req.seller_profile.bio && req.seller_profile.bio.length > 60)
+                            ? req.seller_profile.bio.slice(0, 60) + '…'
+                            : (req.seller_profile.bio ?? '—') }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-info">{{ req.seller_profile.payout_method }}</span>
+                    </td>
+                    <td>
+                      @if (req.seller_profile.approval_status === 'pending') {
+                        <span class="badge bg-warning text-dark">Pending</span>
+                      } @else if (req.seller_profile.approval_status === 'approved') {
+                        <span class="badge bg-success">Approved</span>
+                      } @else {
+                        <span class="badge bg-danger">Rejected</span>
+                      }
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Optional note…"
+                        [(ngModel)]="notes[req._id]"
+                      />
+                    </td>
+                    <td>
+                      <div class="d-flex gap-2">
+                        <button
+                          class="btn btn-sm btn-success"
+                          [disabled]="req.seller_profile.approval_status !== 'pending' || processingId() === req._id"
+                          (click)="approve(req._id)"
+                        >
+                          @if (processingId() === req._id) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else {
+                            Approve
+                          }
+                        </button>
+                        <button
+                          class="btn btn-sm btn-danger"
+                          [disabled]="req.seller_profile.approval_status !== 'pending' || processingId() === req._id"
+                          (click)="reject(req._id)"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+
+                @if (requests().length === 0) {
+                  <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                      <i class="bi bi-inbox" style="font-size:2rem"></i>
+                      <p class="mt-2 mb-0">No pending seller requests.</p>
+                    </td>
+                  </tr>
+                }
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+
   </div>
-} 
-@else {
- <div class="card shadow">
-
-      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Seller Onboarding Requests</h5>
-        <span class="badge bg-warning text-dark">
-          {{ requests().length }} Requests
-        </span>
-      </div>
-
-      <div class="card-body p-0">
-
-        <table class="table table-hover table-striped mb-0">
-
-          <thead class="table-light">
-            <tr>
-              <th>#</th>
-              <th>Seller</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Store</th>
-              <th>Bio</th>
-              <th>Payout</th>
-              <th>Status</th>
-              <th style="width:200px">Admin Note</th>
-              <th style="width:180px">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            <tr *ngFor="let req of requests(); let i = index">
-
-              <td>{{ i + 1 }}</td>
-
-              <td class="fw-bold">{{ req.name }}</td>
-              <td>{{ req.email }}</td>
-              <td>{{ req.phone }}</td>
-              <td>{{ req.seller_profile.store_name }}</td>
-              <td>{{ req.seller_profile.bio }}</td>
-              <td>
-                <span class="badge bg-info">{{ req.seller_profile.payout_method }}</span>
-              </td>
-              <td>
-                <span 
-                  *ngIf="req.seller_profile.approval_status === 'pending'" 
-                  class="badge bg-warning text-dark">Pending</span>
-                <span 
-                  *ngIf="req.seller_profile.approval_status === 'approved'" 
-                  class="badge bg-success">Approved</span>
-                <span 
-                  *ngIf="req.seller_profile.approval_status === 'rejected'" 
-                  class="badge bg-danger">Rejected</span>
-              </td>
-              <td>
-                <input 
-                  type="text" 
-                  class="form-control form-control-sm" 
-                  placeholder="Admin note..." 
-                  [(ngModel)]="notes[req._id]" />
-              </td>
-              <td>
-                <div class="d-flex gap-2">
-                  <button 
-                    class="btn btn-sm btn-success" 
-                    (click)="approve(req._id)" 
-                    [disabled]="req.seller_profile.approval_status !== 'pending'">
-                    Approve
-                  </button>
-                  <button 
-                    class="btn btn-sm btn-danger" 
-                    (click)="reject(req._id)" 
-                    [disabled]="req.seller_profile.approval_status !== 'pending'">
-                    Reject
-                  </button>
-                </div>
-              </td>
-
-            </tr>
-
-            <tr *ngIf="requests().length === 0">
-              <td colspan="10" class="text-center py-4 text-muted">
-                No seller requests found
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>  
-}
-   </div>
   `
 })
 export class AdminSellerRequestsComponent implements OnInit {
-
   private adminService = inject(AdminService);
+
   requests = signal<SellerRequestUser[]>([]);
-  notes: { [key: string]: string } = {};
   isLoading = signal(true);
+  processingId = signal<string | null>(null);
+  successMsg = signal<string | null>(null);
+  errorMsg = signal<string | null>(null);
+  notes: Record<string, string> = {};
 
   ngOnInit() {
     this.loadRequests();
@@ -128,44 +158,58 @@ export class AdminSellerRequestsComponent implements OnInit {
 
   loadRequests() {
     this.isLoading.set(true);
+    this.errorMsg.set(null);
     this.adminService.getSellerRequests().subscribe({
       next: (res) => {
-        console.log("Seller Requests:", res);
         this.requests.set(res);
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error(err);
+        this.errorMsg.set(err?.error?.message ?? 'Failed to load requests.');
         this.requests.set([]);
         this.isLoading.set(false);
       }
     });
   }
 
-  approve(id: string) {
-    const note = this.notes[id] || '';
-    this.adminService.reviewSellerRequest(id, 'approved', note).subscribe({
-    next: () => {
-      this.adminService.updateUserRole(id, 'seller').subscribe({
-        next: () => {
-          this.loadRequests();
-        },
-        error: (err) => console.error('Error updating role:', err)
-      });
-    },
-    error: (err) => console.error('Error approving request:', err)
-  });
-  }
-  
-  reject(id: string) {
-    const note = this.notes[id] || '';
-    this.adminService.reviewSellerRequest(id, 'rejected', note).subscribe(() => {
-      this.loadRequests();
+  approve(userId: string) {
+    this.processingId.set(userId);
+    this.errorMsg.set(null);
+    const note = this.notes[userId] || undefined;
+
+    this.adminService.reviewSellerRequest(userId, 'approved', note).subscribe({
+      next: () => {
+        this.processingId.set(null);
+        this.showSuccess('Seller approved! They can now create products.');
+        this.loadRequests();
+      },
+      error: (err) => {
+        this.processingId.set(null);
+        this.errorMsg.set(err?.error?.message ?? 'Failed to approve.');
+      }
     });
   }
 
+  reject(userId: string) {
+    this.processingId.set(userId);
+    this.errorMsg.set(null);
+    const note = this.notes[userId] || undefined;
+
+    this.adminService.reviewSellerRequest(userId, 'rejected', note).subscribe({
+      next: () => {
+        this.processingId.set(null);
+        this.showSuccess('Request rejected.');
+        this.loadRequests();
+      },
+      error: (err) => {
+        this.processingId.set(null);
+        this.errorMsg.set(err?.error?.message ?? 'Failed to reject.');
+      }
+    });
+  }
+
+  private showSuccess(msg: string) {
+    this.successMsg.set(msg);
+    setTimeout(() => this.successMsg.set(null), 4000);
+  }
 }
-
-
-
-
