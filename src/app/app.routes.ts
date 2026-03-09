@@ -13,7 +13,7 @@ export const routes: Routes = [
     component: AuthLayoutComponent,
     loadChildren: () => import('./domains/auth/routes').then((m) => m.authRoutes),
   },
-
+  
   // Guest checkout - public, no auth required
   {
     path: 'guest-checkout',
@@ -120,6 +120,11 @@ export const routes: Routes = [
         path: 'products',
         loadChildren: () =>
           import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./domains/usermanagment/admin-users-component/admin-users-component').then((m) => m.AdminUsersComponent),
       },
     ],
   },

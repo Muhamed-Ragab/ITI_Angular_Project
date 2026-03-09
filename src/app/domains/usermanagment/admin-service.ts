@@ -19,13 +19,16 @@ export class AdminService {
     return this.api.put(`${this.endpoint}/admin/${id}`, userData);
   }
 
+
   softDeleteUser(id: string): Observable<any> {
     return this.api.delete(`${this.endpoint}/admin/${id}`);
   }
 
+
   toggleBan(id: string, isRestricted: boolean): Observable<any> {
     return this.api.patch(`${this.endpoint}/admin/${id}/restriction`, { isRestricted });
   }
+
 
   grantLoyaltyPoints(id: string, points: number): Observable<any> {
     return this.api.patch(`${this.endpoint}/admin/${id}/loyalty`, { points });
