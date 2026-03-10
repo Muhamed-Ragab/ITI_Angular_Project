@@ -181,11 +181,11 @@ import { SellerService } from '../../services/seller.services';
                         item.product_id?.images?.[0] ||
                         'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'
                       "
-                      class="rounded-3 border flex-shrink-0"
+                      class="rounded-3 border shrink-0"
                       style="width:48px;height:48px;object-fit:cover"
                       (error)="onImgError($event)"
                     />
-                    <div class="flex-grow-1 min-width-0">
+                    <div class="grow min-width-0">
                       <div class="fw-semibold text-truncate">
                         {{ item.title || item.product_id?.title || 'Product' }}
                       </div>
@@ -193,7 +193,7 @@ import { SellerService } from '../../services/seller.services';
                         Qty: {{ item.quantity }} × \${{ item.price }}
                       </div>
                     </div>
-                    <div class="fw-bold flex-shrink-0">\${{ item.price * item.quantity }}</div>
+                    <div class="fw-bold shrink-0">\${{ item.price * item.quantity }}</div>
                   </div>
                 }
               </div>
