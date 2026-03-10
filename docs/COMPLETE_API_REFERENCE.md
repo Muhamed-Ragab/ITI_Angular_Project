@@ -2210,7 +2210,7 @@ GET /orders/seller?status=processing
 ```
 GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 ```
-
+status:paid page:1 limit 10
 **Response:**
 
 ```json

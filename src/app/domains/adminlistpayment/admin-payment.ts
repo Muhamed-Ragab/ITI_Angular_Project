@@ -4,19 +4,18 @@ import { map, Observable } from 'rxjs';
 
 export interface Payment {
   _id: string;
-  amount: number;
-  status: 'succeeded' | 'pending' | 'failed';
-  paymentMethod: string;
-  customerName?: string;
+  user: string;           
+  total_amount: number;  
+  status: string;
   createdAt: string;
 }
 
 export interface AdminPaymentsResponse {
   payments: Payment[];
-  totalRevenue: number;
   pagination: {
     total: number;
     page: number;
+    limit: number;
     pages: number;
   };
 }
@@ -29,7 +28,7 @@ export class AdminPaymentService {
 
   getAdminPayments(): Observable<AdminPaymentsResponse> {
     return this.api
-      .get<{ success: boolean; data: AdminPaymentsResponse }>('/payments/admin')
+      .get<{ success: boolean; data: AdminPaymentsResponse }>('/payments?status=paid&page=1&limit=10')
       .pipe(map(res => res.data));
   }
 }

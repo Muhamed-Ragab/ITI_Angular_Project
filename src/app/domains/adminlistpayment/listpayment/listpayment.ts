@@ -1,62 +1,143 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { AdminPaymentService, Payment } from '../admin-payment';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-payments',
+  selector: 'app-list-payment',
   standalone: true,
-  imports: [CommonModule], 
+  imports: [CommonModule],
   template: `
-    <div class="payment-container">
-      <h2>Admin Payments</h2>
+    <div class="container mt-5">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body bg-dark text-white rounded">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-1">Payments Dashboard</h2>
+              <p class="mb-0 opacity-75">Monitoring successful transactions</p>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-success fs-6">Status: Paid</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      @if (payments.length > 0) {
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (pay of payments; track pay._id) {
-              <tr>
-                <td>{{ pay._id }}</td>
-                <td>{{ pay.amount | currency }}</td>
-                <td>
-                  <span [class]="'badge-' + pay.status">
-                    {{ pay.status | uppercase }}
-                  </span>
-                </td>
-                <td>{{ pay.createdAt | date:'short' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      } @else {
-        <p>No payments found.</p>
-      }
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          @if (payments().length > 0) {
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="ps-4">Transaction ID</th>
+                    <th>Customer ID</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date & Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (pay of payments(); track pay._id) {
+                    <tr>
+                      <td class="ps-4">
+                        <span class="text-muted small">#{{ pay._id }}</span>
+                      </td>
+                      <td>
+                        <span class="badge bg-light text-dark border">{{ pay.user }}</span>
+                      </td>
+                      <td>
+                        <span class="fw-bold text-primary">
+                          {{ pay.total_amount | currency:'EGP ' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <span class="dot bg-success me-2"></span>
+                          <span class="text-success fw-medium">Succeeded</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="small">
+                          <div>{{ pay.createdAt | date:'mediumDate' }}</div>
+                          <div class="text-muted small">{{ pay.createdAt | date:'shortTime' }}</div>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else if (isLoading()) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary mb-3" role="status"></div>
+              <p class="text-muted">Fetching payment records...</p>
+            </div>
+          } @else {
+            <div class="text-center py-5">
+              <p class="text-muted">No payments found.</p>
+            </div>
+          }
+        </div>
+        
+        @if (pagination()) {
+          <div class="card-footer bg-white py-3 border-top">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">
+                Showing <b>{{ payments().length }}</b> out of <b>{{ pagination()?.total }}</b> payments
+              </span>
+              <div class="small text-muted">
+                Page {{ pagination()?.page }} of {{ pagination()?.pages }}
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     </div>
-  `,
-  styles: [`
-    .badge-succeeded { color: green; font-weight: bold; }
-    .badge-pending { color: orange; }
-    .badge-failed { color: red; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
-  `]
+
+    <style>
+      .dot {
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .table thead th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+      }
+      .table tbody td {
+        padding: 1rem;
+      }
+    </style>
+  `
 })
 export class PaymentsComponent implements OnInit {
-  payments: Payment[] = [];
+  private adminPaymentService = inject(AdminPaymentService);
+  
+  payments = signal<Payment[]>([]);
+  pagination = signal<any>(null);
+  isLoading = signal<boolean>(false);
 
-  constructor(private adminPaymentService: AdminPaymentService) {}
+  ngOnInit(): void {
+    this.loadPayments();
+  }
 
-  ngOnInit() {
+  loadPayments(): void {
+    this.isLoading.set(true);
+    
     this.adminPaymentService.getAdminPayments().subscribe({
-      next: (data) => (this.payments = data.payments),
-      error: (err) => console.error('API Error:', err)
+      next: (data) => {
+        this.payments.set(data.payments || []);
+        this.pagination.set(data.pagination || null);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load payments:', err);
+        this.isLoading.set(false);
+      }
     });
   }
 }
