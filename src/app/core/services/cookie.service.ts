@@ -11,15 +11,19 @@ export class CookieService {
       expires.setSeconds(expires.getSeconds() + this.expiresInSeconds);
       // Remove Secure flag for development (localhost without HTTPS)
       const secureFlag = location.protocol === 'https:' ? ';Secure' : '';
-      document.cookie = `${this.tokenCookieName}=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict${secureFlag}`;
+      const cookieString = `${this.tokenCookieName}=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict${secureFlag}`;
+      console.log('[CookieService] Setting cookie:', cookieString.substring(0, 100) + '...');
+      document.cookie = cookieString;
 
       // Verify cookie was set
       const cookieSet = this.getCookie();
       if (!cookieSet) {
-        console.error('Failed to set auth cookie');
+        console.error('[CookieService] Failed to set auth cookie');
+      } else {
+        console.log('[CookieService] Cookie set successfully, length:', cookieSet.length);
       }
     } catch (error) {
-      console.error('Error setting cookie:', error);
+      console.error('[CookieService] Error setting cookie:', error);
     }
   }
 
