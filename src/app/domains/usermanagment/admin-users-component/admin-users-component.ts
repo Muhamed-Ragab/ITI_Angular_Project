@@ -12,9 +12,7 @@ import { AdminService } from '../admin-service';
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
         <div class="mb-3 mb-md-0">
           <h2 class="fw-bold text-dark m-0">User Management</h2>
-          <p class="text-muted small m-0">
-            Control permissions, roles, and engagement for SouqMasr users.
-          </p>
+          <p class="text-muted small m-0">Control permissions, roles, and engagement for SouqMasr users.</p>
         </div>
         <div class="w-100 w-md-auto">
           <div class="input-group shadow-sm">
@@ -29,156 +27,160 @@ import { AdminService } from '../admin-service';
         </div>
       </div>
 
-      <div *ngIf="isLoading(); else userTable" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="text-muted mt-2">Loading users...</p>
-      </div>
-
-      <ng-template #userTable>
-        <div *ngIf="users().length > 0; else noUsers" class="card shadow-sm rounded-4 overflow-hidden">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th class="ps-4">User Profile</th>
-                  <th>Account Role</th>
-                  <th>Status</th>
-                  <th class="text-end pe-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of users(); trackBy: trackById" [class.table-secondary]="user.isDeleted">
-                  <td class="ps-4">
-                    <div class="d-flex align-items-center">
-                      <div
-                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3 shadow-sm"
-                        style="width:40px;height:40px; font-weight: bold;"
-                      >
-                        {{ user.name[0]?.toUpperCase() }}
-                      </div>
-                      <div>
-                        <div class="fw-bold">{{ user.name }}</div>
-                        <div class="text-muted small">{{ user.email }}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <select 
-                      class="form-select form-select-sm fw-bold border-0 shadow-none px-3"
-                      [ngClass]="{
-                        'text-primary bg-primary-subtle': user.role === 'admin',
-                        'text-success bg-success-subtle': user.role === 'seller',
-                        'text-secondary bg-light': user.role === 'customer'
-                      }"
-                      style="width: 130px; border-radius: 20px;"
-                      [disabled]="user.isDeleted"
-                      (change)="onRoleChange(user._id, $any($event.target).value)"
-                    >
-                      <option value="customer" [selected]="user.role === 'customer'"> Customer</option>
-                      <option value="seller" [selected]="user.role === 'seller'"> Seller</option>
-                      <option value="admin" [selected]="user.role === 'admin'"> Admin</option>
-                    </select>
-                  </td>
-                  <td>
-                    <span
-                      class="badge rounded-pill px-3"
-                      [ngClass]="
-                        user.isDeleted
-                          ? 'bg-secondary'
-                          : user.isRestricted
-                            ? 'bg-danger'
-                            : 'bg-success'
-                      "
-                    >
-                      {{ user.isDeleted ? 'Deleted' : user.isRestricted ? 'Banned' : 'Active' }}
-                    </span>
-                  </td>
-                  <td class="text-end pe-4">
-                    <button
-                      class="btn btn-sm btn-outline-warning me-1 shadow-sm"
-                      (click)="openPointsModal(user)"
-                      [disabled]="user.isDeleted"
-                      title="Grant Points"
-                    >
-                      <i class="bi bi-star-fill"></i>
-                    </button>
-                    <button
-                      class="btn btn-sm shadow-sm"
-                      [ngClass]="user.isRestricted ? 'btn-success' : 'btn-outline-danger'"
-                      (click)="openConfirmModal('Ban/Unban User', user)"
-                      [disabled]="user.isDeleted"
-                    >
-                      {{ user.isRestricted ? 'Unban' : 'Ban' }}
-                    </button>
-                    <button
-                      class="btn btn-sm btn-danger ms-1 shadow-sm"
-                      (click)="openConfirmModal('Delete User', user)"
-                      [disabled]="user.isDeleted"
-                    >
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template #noUsers>
+      @if (isLoading()) {
         <div class="text-center py-5">
-          <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
-          <p class="text-muted mt-3">No users found matching your criteria.</p>
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="text-muted mt-2">Loading users...</p>
         </div>
-      </ng-template>
+      } @else {
+        @if (users().length > 0) {
+          <div class="card shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-4">User Profile</th>
+                    <th>Account Role</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (user of users(); track user._id) {
+                    <tr [class.table-secondary]="user.isDeleted">
+                      <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                          <div
+                            class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3 shadow-sm"
+                            style="width:40px;height:40px; font-weight: bold;"
+                          >
+                            {{ user.name[0]?.toUpperCase() }}
+                          </div>
+                          <div>
+                            <div class="fw-bold">{{ user.name }}</div>
+                            <div class="text-muted small">{{ user.email }}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <select 
+                          class="form-select form-select-sm fw-bold border-0 shadow-none px-3"
+                          [ngClass]="{
+                            'text-primary bg-primary-subtle': user.role === 'admin',
+                            'text-success bg-success-subtle': user.role === 'seller',
+                            'text-secondary bg-light': user.role === 'customer'
+                          }"
+                          style="width: 130px; border-radius: 20px;"
+                          [disabled]="user.isDeleted"
+                          (change)="onRoleChange(user._id, $any($event.target).value)"
+                        >
+                          <option value="customer" [selected]="user.role === 'customer'">Customer</option>
+                          <option value="seller" [selected]="user.role === 'seller'">Seller</option>
+                          <option value="admin" [selected]="user.role === 'admin'"> Admin</option>
+                        </select>
+                      </td>
+                      <td>
+                        <span
+                          class="badge rounded-pill px-3"
+                          [ngClass]="
+                            user.isDeleted ? 'bg-secondary' : 
+                            user.isRestricted ? 'bg-danger' : 'bg-success'
+                          "
+                        >
+                          {{ user.isDeleted ? 'Deleted' : user.isRestricted ? 'Banned' : 'Active' }}
+                        </span>
+                      </td>
+                      <td class="text-end pe-4">
+                        <button
+                          class="btn btn-sm btn-outline-warning me-1 shadow-sm"
+                          (click)="openPointsModal(user)"
+                          [disabled]="user.isDeleted"
+                        >
+                          <i class="bi bi-star-fill"></i>
+                        </button>
+                        <button
+                          class="btn btn-sm shadow-sm"
+                          [ngClass]="user.isRestricted ? 'btn-success' : 'btn-outline-danger'"
+                          (click)="openConfirmModal('Ban/Unban User', user)"
+                          [disabled]="user.isDeleted"
+                        >
+                          {{ user.isRestricted ? 'Unban' : 'Ban' }}
+                        </button>
+                        <button
+                          class="btn btn-sm btn-danger ms-1 shadow-sm"
+                          (click)="openConfirmModal('Delete User', user)"
+                          [disabled]="user.isDeleted"
+                        >
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        } @else {
+          <div class="text-center py-5">
+            <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">No users found matching your criteria.</p>
+          </div>
+        }
+      }
 
       <div class="position-fixed top-0 end-0 p-3" style="z-index:2000">
-        <div *ngFor="let toast of toasts" class="toast show align-items-center text-bg-{{ toast.type }} border-0 mb-2 shadow-lg">
-          <div class="d-flex">
-            <div class="toast-body">{{ toast.message }}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="removeToast(toast)"></button>
+        @for (toast of toasts; track $index) {
+          <div class="toast show align-items-center text-bg-{{ toast.type }} border-0 mb-2 shadow-lg">
+            <div class="d-flex">
+              <div class="toast-body">{{ toast.message }}</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="removeToast(toast)"></button>
+            </div>
           </div>
-        </div>
+        }
       </div>
 
-      <div class="modal fade" [ngClass]="{ 'show d-block': showPointsModal }" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-warning text-dark">
-              <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i>Loyalty Points</h5>
-              <button type="button" class="btn-close" (click)="closePointsModal()"></button>
-            </div>
-            <div class="modal-body p-4">
-              <p>Grant points to <strong>{{ selectedUser?.name }}</strong></p>
-              <input type="number" class="form-control form-control-lg rounded-3" placeholder="Enter amount..." [(ngModel)]="pointsToAdd" />
-            </div>
-            <div class="modal-footer border-0">
-              <button class="btn btn-light px-4" (click)="closePointsModal()">Cancel</button>
-              <button class="btn btn-warning px-4 fw-bold" (click)="submitPoints()">Grant Points</button>
+      @if (showPointsModal) {
+        <div class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+              <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i>Loyalty Points</h5>
+                <button type="button" class="btn-close" (click)="closePointsModal()"></button>
+              </div>
+              <div class="modal-body p-4">
+                <p>Grant points to <strong>{{ selectedUser?.name }}</strong></p>
+                <input type="number" class="form-control form-control-lg rounded-3" placeholder="Enter amount..." [(ngModel)]="pointsToAdd" />
+              </div>
+              <div class="modal-footer border-0">
+                <button class="btn btn-light px-4" (click)="closePointsModal()">Cancel</button>
+                <button class="btn btn-warning px-4 fw-bold" (click)="submitPoints()">Grant Points</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      }
 
-      <div class="modal fade" [ngClass]="{ 'show d-block': showConfirmModal }" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header" [ngClass]="confirmTitle.includes('Delete') ? 'bg-danger text-white' : 'bg-primary text-white'">
-              <h5 class="modal-title fw-bold">{{ confirmTitle }}</h5>
-              <button type="button" class="btn-close btn-close-white" (click)="closeConfirmModal()"></button>
-            </div>
-            <div class="modal-body py-4 text-center">
-              <p class="m-0 fs-5">{{ confirmMessage }}</p>
-            </div>
-            <div class="modal-footer border-0 justify-content-center">
-              <button class="btn btn-light px-4" (click)="closeConfirmModal()">Cancel</button>
-              <button class="btn px-4 fw-bold" [ngClass]="confirmTitle.includes('Delete') ? 'btn-danger' : 'btn-primary'" (click)="confirmAction()">
-                Yes, Proceed
-              </button>
+      @if (showConfirmModal) {
+        <div class="modal fade show d-block" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+              <div class="modal-header" [ngClass]="confirmTitle.includes('Delete') ? 'bg-danger text-white' : 'bg-primary text-white'">
+                <h5 class="modal-title fw-bold">{{ confirmTitle }}</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeConfirmModal()"></button>
+              </div>
+              <div class="modal-body py-4 text-center">
+                <p class="m-0 fs-5">{{ confirmMessage }}</p>
+              </div>
+              <div class="modal-footer border-0 justify-content-center">
+                <button class="btn btn-light px-4" (click)="closeConfirmModal()">Cancel</button>
+                <button class="btn px-4 fw-bold" [ngClass]="confirmTitle.includes('Delete') ? 'btn-danger' : 'btn-primary'" (click)="confirmAction()">
+                  Yes, Proceed
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      }
     </div>
   `,
   styles: [`
@@ -186,10 +188,8 @@ import { AdminService } from '../admin-service';
     .bg-primary-subtle { background-color: #cfe2ff !important; color: #084298 !important; }
     .bg-success-subtle { background-color: #d1e7dd !important; color: #0f5132 !important; }
     .form-select-sm { cursor: pointer; transition: all 0.2s; }
-    .form-select-sm:hover { filter: brightness(0.95); }
     .toast { min-width: 280px; border-radius: 12px; }
     .card { border: none; border-radius: 15px; }
-    .table thead th { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
   `],
 })
 export class AdminUsersComponent implements OnInit {
@@ -229,7 +229,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onSearch(event: any) {
-    const value = event.target.value;
+    const value = (event.target as HTMLInputElement).value;
     this.searchTerm.set(value);
     if (this.searchTimeout) clearTimeout(this.searchTimeout);
     this.searchTimeout = setTimeout(() => this.loadData(), 300);
@@ -247,8 +247,6 @@ export class AdminUsersComponent implements OnInit {
       }
     });
   }
-
-  trackById(index: number, user: any) { return user._id; }
 
   showToast(message: string, type: string = 'success') {
     const toast = { message, type };
