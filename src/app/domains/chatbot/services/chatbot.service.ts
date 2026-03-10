@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { GeminiApiService } from '@core/services/gemini/gemini-api.service';
+import { GeminiApiService } from '../../../core/services/gemini/gemini-api.service';
 import { Observable, of } from 'rxjs';
 import { DEFAULT_CHATBOT_CONFIG } from '../models/chat-config.model';
 import { ChatStateService } from './chat-state.service';

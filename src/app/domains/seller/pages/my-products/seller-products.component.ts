@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy, Component, inject, OnInit, signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule, DecimalPipe, SlicePipe } from '@angular/common';
+import { CommonModule, SlicePipe } from '@angular/common';
 import { AuthService } from '@core/services/auth.service';
 import { SellerService } from '../../services/seller.services';
 import { SellerProductFormComponent } from '../../components/seller-product-form/seller-product-form.component';
@@ -11,7 +11,7 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
 @Component({
   selector: 'app-seller-products',
   standalone: true,
-  imports: [FormsModule, CommonModule, DecimalPipe, SlicePipe, SellerProductFormComponent],
+  imports: [FormsModule, CommonModule, SlicePipe, SellerProductFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="p-3 p-md-4">
@@ -145,9 +145,9 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
                     </td>
                     <td class="py-3 fw-semibold">\${{ p.price | number:'1.2-2' }}</td>
                     <td class="py-3">
-                      @if ((p.stock_quantity || 0) === 0) {
+                      @if (p.stock_quantity === 0) {
                         <span class="badge rounded-pill bg-danger">Out of Stock</span>
-                      } @else if ((p.stock_quantity || 0) <= 10) {
+                      } @else if (p.stock_quantity <= 10) {
                         <span class="badge rounded-pill fw-normal"
                           style="background:#fef9c3;color:#854d0e">
                           ⚠ Low: {{ p.stock_quantity }}
