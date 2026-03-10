@@ -6,6 +6,8 @@ import { MainLayoutComponent } from './layouts/main-layout/main-layout.component
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './layouts/admin-layout/admin-dashboard.component';
 import { adminGuard } from './domains/categories/guards/admin.guard';
+import { SellerLayoutComponent } from './domains/seller/seller-layout.component';
+import { sellerGuard } from './domains/seller/guards/seller.guard';
 
 export const routes: Routes = [
   {
@@ -13,7 +15,7 @@ export const routes: Routes = [
     component: AuthLayoutComponent,
     loadChildren: () => import('./domains/auth/routes').then((m) => m.authRoutes),
   },
-  
+
   // Guest checkout - public, no auth required
   {
     path: 'guest-checkout',
@@ -82,9 +84,25 @@ export const routes: Routes = [
         canActivate: [authGuard],
       },
       {
-        path:'seller/payout',
-        loadComponent:()=>
-          import('./domains/profile/Components/seller-payout-status/seller-payout-status').then((m)=>m.SellerPayoutsComponent),
+        path: 'seller/payout',
+        loadComponent: () =>
+          import('./domains/profile/Components/seller-payout-status/seller-payout-status').then(
+            (m) => m.SellerPayoutsComponent,
+          ),
+      },
+    ],
+  },
+
+  // Seller dashboard - role=seller only
+  {
+    path: 'seller',
+    component: SellerLayoutComponent,
+    canActivate: [authGuard, sellerGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./domains/seller/routes').then((m) => m.sellerRoutes),
       },
     ],
   },
@@ -125,13 +143,13 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),
       },
-      
       {
         path: 'users',
         loadComponent: () =>
-          import('./domains/usermanagment/admin-users-component/admin-users-component').then((m) => m.AdminUsersComponent),
+          import('./domains/usermanagment/admin-users-component/admin-users-component').then(
+            (m) => m.AdminUsersComponent,
+          ),
       },
-
     ],
   },
 
