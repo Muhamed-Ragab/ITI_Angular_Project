@@ -124,7 +124,7 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
                     <td class="ps-4 py-3">
                       <div class="d-flex align-items-center gap-3">
                         <img
-                          [src]="p.images?.[0] || 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'"
+                          [src]="p.images[0] || 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'"
                           class="rounded-3 border flex-shrink-0"
                           style="width:48px;height:48px;object-fit:cover"
                           (error)="onImgError($event)" />
@@ -145,9 +145,9 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
                     </td>
                     <td class="py-3 fw-semibold">\${{ p.price | number:'1.2-2' }}</td>
                     <td class="py-3">
-                      @if ((p.stock_quantity ?? 0) === 0) {
+                      @if ((p.stock_quantity || 0) === 0) {
                         <span class="badge rounded-pill bg-danger">Out of Stock</span>
-                      } @else if ((p.stock_quantity ?? 0) <= 10) {
+                      } @else if ((p.stock_quantity || 0) <= 10) {
                         <span class="badge rounded-pill fw-normal"
                           style="background:#fef9c3;color:#854d0e">
                           ⚠ Low: {{ p.stock_quantity }}
