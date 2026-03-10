@@ -1,12 +1,13 @@
 import { CurrencyPipe, NgClass } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { Product } from '../../dto';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CurrencyPipe, NgClass, RouterLink],
+  imports: [TranslateModule, CurrencyPipe, NgClass, RouterLink],
   template: `
     <a [routerLink]="['/products', product()._id]" class="text-decoration-none text-dark">
       <div class="card h-100 shadow-sm border-0">
@@ -19,7 +20,7 @@ import { Product } from '../../dto';
         <div class="card-body d-flex flex-column">
           <span class="badge bg-secondary mb-2 w-fit">{{ product().category_id.name }}</span>
           <h6 class="card-title fw-semibold">{{ product().title }}</h6>
-          <p class="text-muted small mb-1">by {{ product().seller_id.name }}</p>
+          <p class="text-muted small mb-1">{{ 'products.list.by' | translate }} {{ product().seller_id.name }}</p>
           <p class="fw-bold text-primary fs-5 mb-1">{{ product().price | currency }}</p>
 
           <div class="d-flex align-items-center gap-1 mb-2">
@@ -29,7 +30,7 @@ import { Product } from '../../dto';
           </div>
 
           <span class="badge mt-auto" [ngClass]="product().stock > 0 ? 'bg-success' : 'bg-danger'">
-            {{ product().stock > 0 ? 'In Stock' : 'Out of Stock' }}
+            {{ product().stock > 0 ? ('products.card.inStock' | translate) : ('products.card.outOfStock' | translate) }}
           </span>
         </div>
       </div>

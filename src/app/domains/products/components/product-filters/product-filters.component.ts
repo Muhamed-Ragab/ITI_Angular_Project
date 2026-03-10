@@ -1,20 +1,21 @@
 import { Component, input, output, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { ProductFilters } from '../../dto';
 
 @Component({
   selector: 'app-product-filters',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslateModule],
   template: `
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
         <div class="row g-2 align-items-end">
           <div class="col-md-3">
-            <label class="form-label small fw-semibold">Search</label>
+            <label class="form-label small fw-semibold">{{ 'products.filters.search' | translate }}</label>
             <input
               class="form-control form-control-sm"
-              placeholder="Search products..."
+              [placeholder]="'products.filters.searchPlaceholder' | translate"
               [ngModel]="filters().search"
               (ngModelChange)="patch('search', $event)"
               name="search"
@@ -22,7 +23,7 @@ import { ProductFilters } from '../../dto';
           </div>
 
           <div class="col-md-2">
-            <label class="form-label small fw-semibold">Min Price</label>
+            <label class="form-label small fw-semibold">{{ 'products.filters.minPrice' | translate }}</label>
             <input
               type="number"
               class="form-control form-control-sm"
@@ -33,7 +34,7 @@ import { ProductFilters } from '../../dto';
           </div>
 
           <div class="col-md-2">
-            <label class="form-label small fw-semibold">Max Price</label>
+            <label class="form-label small fw-semibold">{{ 'products.filters.maxPrice' | translate }}</label>
             <input
               type="number"
               class="form-control form-control-sm"
@@ -44,19 +45,19 @@ import { ProductFilters } from '../../dto';
           </div>
 
           <div class="col-md-2">
-            <label class="form-label small fw-semibold">Sort</label>
+            <label class="form-label small fw-semibold">{{ 'products.filters.sort' | translate }}</label>
             <select
               class="form-select form-select-sm"
               [ngModel]="filters().sort"
               (ngModelChange)="patch('sort', $event)"
               name="sort"
             >
-              <option value="">Sort by...</option>
-              <option value="newest">Newest</option>
-              <option value="price_asc">Price ↑</option>
-              <option value="price_desc">Price ↓</option>
-              <option value="rating">Rating</option>
-              <option value="popular">Popular</option>
+              <option value="">{{ 'products.filters.sortBy' | translate }}</option>
+              <option value="newest">{{ 'products.filters.newest' | translate }}</option>
+              <option value="price_asc">{{ 'products.filters.priceAsc' | translate }}</option>
+              <option value="price_desc">{{ 'products.filters.priceDesc' | translate }}</option>
+              <option value="rating">{{ 'products.filters.rating' | translate }}</option>
+              <option value="popular">{{ 'products.filters.popular' | translate }}</option>
             </select>
           </div>
 
