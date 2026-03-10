@@ -5,8 +5,8 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './layouts/admin-layout/admin-dashboard.component';
+import { SellerLayoutComponent } from './layouts/seller-layout/seller-layout.component';
 import { adminGuard } from './domains/categories/guards/admin.guard';
-import { SellerLayoutComponent } from './domains/seller/seller-layout.component';
 import { sellerGuard } from './domains/seller/guards/seller.guard';
 
 export const routes: Routes = [
@@ -25,7 +25,7 @@ export const routes: Routes = [
       ),
   },
 
-  // Main application routes with auth guard
+  // Main application routes (customer)
   {
     path: '',
     component: MainLayoutComponent,
@@ -34,26 +34,19 @@ export const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
 
-      // Products
       {
         path: 'products',
         loadChildren: () => import('./domains/products/routes').then((m) => m.productRoutes),
       },
-
-      // Wishlist
       {
         path: 'wishlist',
         canActivate: [authGuard],
         loadChildren: () => import('./domains/wishlist/routes').then((m) => m.wishlistRoutes),
       },
-
-      // Cart
       {
         path: 'cart',
         loadChildren: () => import('./domains/cart/routes').then((m) => m.cartRoutes),
       },
-
-      // Checkout - authenticated users only (protected by parent authGuard)
       {
         path: 'checkout',
         loadComponent: () =>
@@ -61,27 +54,21 @@ export const routes: Routes = [
             (m) => m.CheckoutComponent,
           ),
       },
-
-      // Orders
       {
         path: 'orders',
         loadChildren: () => import('./domains/orders/routes').then((m) => m.orderRoutes),
       },
-
-      // Payment
       {
         path: 'payment',
         loadChildren: () => import('./domains/payment/routes').then((m) => m.paymentRoutes),
       },
-
-      // Profile
       {
         path: 'profile',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./domains/profile/profile-page.component/profile-page.component').then(
             (m) => m.ProfilePageComponent,
           ),
-        canActivate: [authGuard],
       },
       {
         path: 'seller/payout',
@@ -93,7 +80,7 @@ export const routes: Routes = [
     ],
   },
 
-  // Seller dashboard - role=seller only
+  // ── Seller Dashboard ─────────────────────────────────────────────────────────
   {
     path: 'seller',
     component: SellerLayoutComponent,
@@ -107,15 +94,19 @@ export const routes: Routes = [
     ],
   },
 
-  // Standalone admin routes with their own layout
+  // ── Admin Dashboard ───────────────────────────────────────────────────────────
   {
     path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [adminGuard],
     children: [
+      { path: '', component: AdminDashboardComponent },
       {
-        path: '',
-        component: AdminDashboardComponent,
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/profile/profile-page.component/profile-page.component').then(
+            (m) => m.ProfilePageComponent,
+          ),
       },
       {
         path: 'orders',
@@ -150,6 +141,7 @@ export const routes: Routes = [
             (m) => m.AdminUsersComponent,
           ),
       },
+  
     ],
   },
 

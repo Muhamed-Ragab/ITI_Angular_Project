@@ -1,4 +1,4 @@
-// ─── Product ──────────────────────────────────────────────────────────────────
+// ─── Products ─────────────────────────────────────────────────────────────────
 
 export interface SellerProduct {
   _id?: string;
@@ -7,11 +7,12 @@ export interface SellerProduct {
   description: string;
   price: number;
   stock_quantity: number;
-  category_id?: { _id?: string; id?: string; name: string };
+  category_id?: { _id?: string; id?: string; name: string } | string;
   images: string[];
   average_rating?: number;
   ratings_count?: number;
   is_active?: boolean;
+  seller_id?: string;
 }
 
 export interface SellerProductListResponse {
@@ -22,26 +23,21 @@ export interface SellerProductListResponse {
   };
 }
 
-export interface SellerProductDetailResponse {
-  success: boolean;
-  data: SellerProduct;
+export interface SellerPagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
 }
 
-export interface SellerProductActionResponse {
-  success: boolean;
-  message: string;
-  data?: { _id?: string; id?: string; title?: string };
-}
-
-// ─── Create / Update DTOs — field names match backend validation exactly ───────
-
+// Field names match backend validation schema exactly
 export interface SellerCreateProductDto {
   title: string;           // min 3, max 100
   description: string;     // min 10, max 2000
   price: number;           // >= 0
   category_id: string;     // objectId
   stock_quantity: number;  // int >= 0
-  images?: string[];       // array of URLs
+  images?: string[];
 }
 
 export interface SellerUpdateProductDto {
@@ -70,7 +66,6 @@ export interface SellerOrder {
   items: SellerOrderItem[];
   total_price: number;
   createdAt: string;
-  customer?: { name?: string; email?: string };
   shipping_address?: {
     street?: string;
     city?: string;
@@ -83,14 +78,13 @@ export interface SellerOrdersResponse {
   data: SellerOrder[];
 }
 
-// Seller can set: shipped | delivered | cancelled
+// Seller can only set: shipped | delivered | cancelled
 export type SellerUpdateStatus = 'shipped' | 'delivered' | 'cancelled';
 
 // ─── Payouts ──────────────────────────────────────────────────────────────────
 
-export interface SellerPayoutRequest {
+export interface SellerPayoutItem {
   _id?: string;
-  id?: string;
   amount: number;
   status: 'pending' | 'approved' | 'rejected';
   note?: string;
@@ -104,13 +98,5 @@ export interface SellerProductFilters {
   page?: number;
   limit?: number;
   search?: string;
-  category_id?: string;
   sort?: string;
-}
-
-export interface SellerPagination {
-  page: number;
-  limit: number;
-  total: number;
-  pages: number;
 }
