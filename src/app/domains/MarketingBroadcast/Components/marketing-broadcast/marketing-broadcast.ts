@@ -9,71 +9,87 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container marketing-form">
-      <h2>Send Marketing Broadcast</h2>
-      
-      <form (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label>Select Channel:</label>
-          <select [(ngModel)]="channel" name="channel" class="form-control">
-            <option value="email">Email Newsletter</option>
-            <option value="push">Push Notification</option>
-            <option value="promotional">Promotional</option>
-          </select>
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+              <h4 class="mb-0"><i class="bi bi-megaphone-fill me-2"></i>Send Marketing Broadcast</h4>
+            </div>
+            
+            <div class="card-body p-4">
+              <form (ngSubmit)="onSubmit()">
+                
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Target Channel</label>
+                  <select [(ngModel)]="channel" name="channel" class="form-select shadow-none">
+                    <option value="email">Email Newsletter</option>
+                    <option value="push">Push Notification</option>
+                    <option value="promotional">Promotional Offer</option>
+                  </select>
+                  <div class="form-text">Choose how users will receive this message.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Broadcast Title</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="title" 
+                    name="title" 
+                    class="form-control" 
+                    placeholder="e.g., Summer Sale 2026"
+                    required>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label fw-bold">Message Content</label>
+                  <textarea 
+                    [(ngModel)]="body" 
+                    name="body" 
+                    class="form-control" 
+                    rows="5"
+                    placeholder="Enter the full message details here..."
+                    required></textarea>
+                </div>
+
+                <div class="d-grid">
+                  <button type="submit" 
+                          class="btn btn-primary btn-lg" 
+                          [disabled]="loading() || isFormInvalid()">
+                    <span *ngIf="loading()" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ loading() ? 'Processing Broadcast...' : 'Broadcast Now' }}
+                  </button>
+                </div>
+              </form>
+
+              <div *ngIf="lastResponse()" class="alert alert-success mt-4 d-flex align-items-center" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <div>{{ lastResponse() }}</div>
+              </div>
+
+            </div>
+          </div>
+
         </div>
-
-        <div class="form-group">
-          <label>Broadcast Title:</label>
-          <input 
-            type="text" 
-            [(ngModel)]="title" 
-            name="title" 
-            placeholder="Enter title..."
-            required>
-        </div>
-
-        <div class="form-group">
-          <label>Message Body:</label>
-          <textarea 
-            [(ngModel)]="body" 
-            name="body" 
-            rows="4"
-            placeholder="Write your message here..."
-            required></textarea>
-        </div>
-
-        <button type="submit" [disabled]="loading() || isFormInvalid()">
-          {{ loading() ? 'Sending...' : 'Send Broadcast' }}
-        </button>
-      </form>
-
-      <p *ngIf="lastResponse()" class="success-msg">
-        ✅ {{ lastResponse() }}
-      </p>
+      </div>
     </div>
   `,
   styles: [`
-    .marketing-form { max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    .success-msg { color: green; margin-top: 15px; font-weight: bold; }
+    .card { border: none; border-radius: 12px; }
+    .card-header { border-radius: 12px 12px 0 0 !important; }
+    .form-control:focus, .form-select:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1); }
   `]
 })
 export class MarketingBroadcast {
-  // تعريف الـ Signals
   channel = signal<'email' | 'push' | 'promotional'>('email');
   title = signal('');
   body = signal('');
   loading = signal(false);
   lastResponse = signal<string | null>(null);
-
-  // منطق التحقق من البيانات (Computed)
+  
   isFormInvalid = computed(() => !this.title().trim() || !this.body().trim());
-
-  // حقن الخدمة
+  
   private marketingService = inject(BrodcastMarketing);
 
   onSubmit() {
@@ -92,17 +108,14 @@ export class MarketingBroadcast {
       next: (res) => {
         this.loading.set(false);
         this.lastResponse.set(res.message);
-        
-        // تصفير الفورم بعد النجاح
         this.title.set('');
         this.body.set('');
+        setTimeout(() => this.lastResponse.set(null), 5000);
       },
       error: (err) => {
         this.loading.set(false);
-        // التعامل مع الخطأ اللي جالنا من السيرفر
-        const errorMessage = err.error?.message || 'Something went wrong';
+        const errorMessage = err.error?.message || 'Failed to send broadcast';
         alert('Error: ' + errorMessage);
-        console.error('Broadcast Error Details:', err.error);
       }
     });
   }
