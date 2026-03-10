@@ -37,7 +37,7 @@ import { PayoutResponse } from '../../dto/user-profile.dto';
           </tr>
         </thead>
         <tbody>
-          @for(payout of payouts(); track payout.id) {
+          @for(payout of payouts(); track payout._id) {
             <tr>
               <td class="fw-bold">{{ payout.amount | currency:'EGP ':'code':'1.2-2' }}</td>
               <td>

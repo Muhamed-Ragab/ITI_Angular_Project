@@ -61,11 +61,16 @@ requestSellerOnboarding(data: { store_name: string; bio: string; payout_method: 
       .get<{ success: boolean; data: ReferralSummary }>('/users/referrals')
       .pipe(map(res => res.data));
   }
-  getSellerPayouts(): Observable<PayoutResponse[]> {
-    return this.api
-      .get<{ success: boolean; data: any }>('/users/profile')
-      .pipe(
-        map(res => res.data?.seller_profile?.payout_requests || [])
-      );
-  }
+
+getSellerPayouts(): Observable<any> {
+  return this.api
+    .get<{ success: boolean; data: any }>('/users/profile')
+    .pipe(
+      map(res => res.data) 
+    );
+}
+
+reviewPayout(payoutId: string, status: 'approved' | 'rejected', note: string = ''): Observable<any> {
+  return this.api.patch<any>(`/users/payouts/${payoutId}/review`, { status, note });
+}
 }
