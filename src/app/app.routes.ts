@@ -100,6 +100,13 @@ export const routes: Routes = [
         component: AdminDashboardComponent,
       },
       {
+        path: 'profile',
+        loadComponent: () =>
+          import('./domains/profile/profile-page.component/profile-page.component').then(
+            (m) => m.ProfilePageComponent,
+          )
+      },
+      {
         path: 'orders',
         loadChildren: () =>
           import('./domains/orders/admin/routes').then((m) => m.adminOrderRoutes),

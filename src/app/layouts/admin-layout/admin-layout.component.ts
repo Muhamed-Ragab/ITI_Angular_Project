@@ -306,14 +306,16 @@ interface NavItem {
 })
 export class AdminLayoutComponent {
   readonly navItems: NavItem[] = [
+    { label: 'Profile Data', icon: 'bi bi-person-circle', route: '/admin/profile' },
     { label: 'Dashboard', icon: 'bi-grid-1x2', route: '/admin' },
-    { label: 'User Management', icon: 'bi-grid-1x2', route: '/admin/users' },
+    { label: 'User Management', icon: 'bi bi-person-fill-gear', route: '/admin/users' },
     { label: 'Orders', icon: 'bi-cart3', route: '/admin/orders' },
     { label: 'Products', icon: 'bi-box-seam', route: '/admin/products' },
     { label: 'Categories', icon: 'bi-tags', route: '/admin/categories' },
     { label: 'Coupons', icon: 'bi-percent', route: '/admin/coupons' },
-    { label: 'Seller Requests', icon: 'bi-people', route: '/admin/sellerrequest' },
-    { label: 'Payment Done', icon: 'bi-people', route: '/admin/payment' },
+    { label: 'Seller Requests', icon: 'bi bi-terminal-plus', route: '/admin/sellerrequest' },
+    { label: 'Payment Done', icon: 'bi bi-credit-card-2-front', route: '/admin/payment' },
+
   ];
 
   readonly sidebarOpen = signal(false);
