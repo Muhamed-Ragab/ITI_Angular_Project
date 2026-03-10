@@ -9,10 +9,7 @@ import { AdminService } from '../admin-service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="container py-5">
-      <!-- Header + Search -->
-      <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4"
-      >
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
         <div class="mb-3 mb-md-0">
           <h2 class="fw-bold text-dark m-0">User Management</h2>
           <p class="text-muted small m-0">
@@ -32,18 +29,13 @@ import { AdminService } from '../admin-service';
         </div>
       </div>
 
-      <!-- Loading Spinner -->
       <div *ngIf="isLoading(); else userTable" class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
         <p class="text-muted mt-2">Loading users...</p>
       </div>
 
-      <!-- Users Table -->
       <ng-template #userTable>
-        <div
-          *ngIf="users().length > 0; else noUsers"
-          class="card shadow-sm rounded-4 overflow-hidden"
-        >
+        <div *ngIf="users().length > 0; else noUsers" class="card shadow-sm rounded-4 overflow-hidden">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
@@ -55,17 +47,14 @@ import { AdminService } from '../admin-service';
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  *ngFor="let user of users(); trackBy: trackById"
-                  [class.table-secondary]="user.isDeleted"
-                >
+                <tr *ngFor="let user of users(); trackBy: trackById" [class.table-secondary]="user.isDeleted">
                   <td class="ps-4">
                     <div class="d-flex align-items-center">
                       <div
-                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3"
-                        style="width:40px;height:40px;"
+                        class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3 shadow-sm"
+                        style="width:40px;height:40px; font-weight: bold;"
                       >
-                        {{ user.name[0] }}
+                        {{ user.name[0]?.toUpperCase() }}
                       </div>
                       <div>
                         <div class="fw-bold">{{ user.name }}</div>
@@ -74,15 +63,25 @@ import { AdminService } from '../admin-service';
                     </div>
                   </td>
                   <td>
-                    <span
-                      class="badge rounded-pill"
-                      [ngClass]="user.role === 'admin' ? 'bg-primary' : 'bg-secondary'"
-                      >{{ user.role }}</span
+                    <select 
+                      class="form-select form-select-sm fw-bold border-0 shadow-none px-3"
+                      [ngClass]="{
+                        'text-primary bg-primary-subtle': user.role === 'admin',
+                        'text-success bg-success-subtle': user.role === 'seller',
+                        'text-secondary bg-light': user.role === 'customer'
+                      }"
+                      style="width: 130px; border-radius: 20px;"
+                      [disabled]="user.isDeleted"
+                      (change)="onRoleChange(user._id, $any($event.target).value)"
                     >
+                      <option value="customer" [selected]="user.role === 'customer'"> Customer</option>
+                      <option value="seller" [selected]="user.role === 'seller'"> Seller</option>
+                      <option value="admin" [selected]="user.role === 'admin'"> Admin</option>
+                    </select>
                   </td>
                   <td>
                     <span
-                      class="badge rounded-pill"
+                      class="badge rounded-pill px-3"
                       [ngClass]="
                         user.isDeleted
                           ? 'bg-secondary'
@@ -94,22 +93,25 @@ import { AdminService } from '../admin-service';
                       {{ user.isDeleted ? 'Deleted' : user.isRestricted ? 'Banned' : 'Active' }}
                     </span>
                   </td>
-                  <td class="text-end">
+                  <td class="text-end pe-4">
                     <button
-                      class="btn btn-sm btn-outline-warning me-1"
+                      class="btn btn-sm btn-outline-warning me-1 shadow-sm"
                       (click)="openPointsModal(user)"
+                      [disabled]="user.isDeleted"
+                      title="Grant Points"
                     >
-                      <i class="bi bi-star-fill"></i> Points
+                      <i class="bi bi-star-fill"></i>
                     </button>
                     <button
-                      class="btn btn-sm"
+                      class="btn btn-sm shadow-sm"
                       [ngClass]="user.isRestricted ? 'btn-success' : 'btn-outline-danger'"
                       (click)="openConfirmModal('Ban/Unban User', user)"
+                      [disabled]="user.isDeleted"
                     >
                       {{ user.isRestricted ? 'Unban' : 'Ban' }}
                     </button>
                     <button
-                      class="btn btn-sm btn-danger ms-1"
+                      class="btn btn-sm btn-danger ms-1 shadow-sm"
                       (click)="openConfirmModal('Delete User', user)"
                       [disabled]="user.isDeleted"
                     >
@@ -123,93 +125,72 @@ import { AdminService } from '../admin-service';
         </div>
       </ng-template>
 
-      <!-- No Users Found -->
       <ng-template #noUsers>
         <div class="text-center py-5">
+          <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
           <p class="text-muted mt-3">No users found matching your criteria.</p>
         </div>
       </ng-template>
 
-      <!-- Toast Notifications -->
-      <div class="position-fixed top-0 end-0 p-3" style="z-index:1050">
-        <ng-container *ngFor="let toast of toasts">
-          <div
-            class="toast show align-items-center text-bg-{{ toast.type }} border-0 mb-2"
-            role="alert"
-          >
-            <div class="d-flex">
-              <div class="toast-body">{{ toast.message }}</div>
-              <button
-                type="button"
-                class="btn-close btn-close-white me-2 m-auto"
-                (click)="removeToast(toast)"
-              ></button>
-            </div>
+      <div class="position-fixed top-0 end-0 p-3" style="z-index:2000">
+        <div *ngFor="let toast of toasts" class="toast show align-items-center text-bg-{{ toast.type }} border-0 mb-2 shadow-lg">
+          <div class="d-flex">
+            <div class="toast-body">{{ toast.message }}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="removeToast(toast)"></button>
           </div>
-        </ng-container>
+        </div>
       </div>
 
-      <!-- Grant Points Modal -->
-      <div
-        class="modal fade"
-        tabindex="-1"
-        [ngClass]="{ 'show d-block': showPointsModal }"
-        style="background: rgba(0,0,0,0.5);"
-      >
+      <div class="modal fade" [ngClass]="{ 'show d-block': showPointsModal }" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
         <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Grant Points to {{ selectedUser?.name }}</h5>
+          <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-warning text-dark">
+              <h5 class="modal-title fw-bold"><i class="bi bi-award me-2"></i>Loyalty Points</h5>
               <button type="button" class="btn-close" (click)="closePointsModal()"></button>
             </div>
-            <div class="modal-body">
-              <input
-                type="number"
-                class="form-control"
-                placeholder="Enter points"
-                [(ngModel)]="pointsToAdd"
-              />
+            <div class="modal-body p-4">
+              <p>Grant points to <strong>{{ selectedUser?.name }}</strong></p>
+              <input type="number" class="form-control form-control-lg rounded-3" placeholder="Enter amount..." [(ngModel)]="pointsToAdd" />
             </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" (click)="closePointsModal()">Cancel</button>
-              <button class="btn btn-primary" (click)="submitPoints()">Grant</button>
+            <div class="modal-footer border-0">
+              <button class="btn btn-light px-4" (click)="closePointsModal()">Cancel</button>
+              <button class="btn btn-warning px-4 fw-bold" (click)="submitPoints()">Grant Points</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Confirm Modal -->
-      <div
-        class="modal fade"
-        tabindex="-1"
-        [ngClass]="{ 'show d-block': showConfirmModal }"
-        style="background: rgba(0,0,0,0.5);"
-      >
+      <div class="modal fade" [ngClass]="{ 'show d-block': showConfirmModal }" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
         <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">{{ confirmTitle }}</h5>
-              <button type="button" class="btn-close" (click)="closeConfirmModal()"></button>
+          <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header" [ngClass]="confirmTitle.includes('Delete') ? 'bg-danger text-white' : 'bg-primary text-white'">
+              <h5 class="modal-title fw-bold">{{ confirmTitle }}</h5>
+              <button type="button" class="btn-close btn-close-white" (click)="closeConfirmModal()"></button>
             </div>
-            <div class="modal-body">
-              <p>{{ confirmMessage }}</p>
+            <div class="modal-body py-4 text-center">
+              <p class="m-0 fs-5">{{ confirmMessage }}</p>
             </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" (click)="closeConfirmModal()">Cancel</button>
-              <button class="btn btn-danger" (click)="confirmAction()">Yes</button>
+            <div class="modal-footer border-0 justify-content-center">
+              <button class="btn btn-light px-4" (click)="closeConfirmModal()">Cancel</button>
+              <button class="btn px-4 fw-bold" [ngClass]="confirmTitle.includes('Delete') ? 'btn-danger' : 'btn-primary'" (click)="confirmAction()">
+                Yes, Proceed
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   `,
-  styles: [
-    `
-      .table-responsive {
-        overflow-x: auto;
-      }
-    `,
-  ],
+  styles: [`
+    .table-responsive { overflow-x: auto; }
+    .bg-primary-subtle { background-color: #cfe2ff !important; color: #084298 !important; }
+    .bg-success-subtle { background-color: #d1e7dd !important; color: #0f5132 !important; }
+    .form-select-sm { cursor: pointer; transition: all 0.2s; }
+    .form-select-sm:hover { filter: brightness(0.95); }
+    .toast { min-width: 280px; border-radius: 12px; }
+    .card { border: none; border-radius: 15px; }
+    .table thead th { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+  `],
 })
 export class AdminUsersComponent implements OnInit {
   private adminService = inject(AdminService);
@@ -219,16 +200,11 @@ export class AdminUsersComponent implements OnInit {
   searchTerm = signal('');
   searchTimeout: any;
 
-  // Toasts
-  toasts: { message: string; type: 'success' | 'danger' | 'warning' }[] = [];
-
-  // Grant Points Modal
+  toasts: { message: string; type: string }[] = [];
   showPointsModal = false;
+  showConfirmModal = false;
   selectedUser: any = null;
   pointsToAdd: number | null = null;
-
-  // Confirm Modal
-  showConfirmModal = false;
   confirmTitle = '';
   confirmMessage = '';
   confirmCallback: (() => void) | null = null;
@@ -259,73 +235,74 @@ export class AdminUsersComponent implements OnInit {
     this.searchTimeout = setTimeout(() => this.loadData(), 300);
   }
 
-  trackById(index: number, user: any) {
-    return user._id;
+  onRoleChange(userId: string, newRole: string) {
+    this.adminService.updateUserRole(userId, newRole).subscribe({
+      next: () => {
+        this.showToast(`User role updated to ${newRole.toUpperCase()}`, 'success');
+        this.users.update(list => list.map(u => u._id === userId ? { ...u, role: newRole } : u));
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || 'Failed to update role', 'danger');
+        this.loadData();
+      }
+    });
   }
 
-  // Toasts
-  showToast(message: string, type: 'success' | 'danger' | 'warning' = 'success') {
-    this.toasts.push({ message, type });
-    setTimeout(() => this.toasts.shift(), 4000);
+  trackById(index: number, user: any) { return user._id; }
+
+  showToast(message: string, type: string = 'success') {
+    const toast = { message, type };
+    this.toasts.push(toast);
+    setTimeout(() => this.removeToast(toast), 4000);
   }
+
   removeToast(toast: any) {
-    const idx = this.toasts.indexOf(toast);
-    if (idx > -1) this.toasts.splice(idx, 1);
+    this.toasts = this.toasts.filter(t => t !== toast);
   }
 
-  // Grant Points Modal
   openPointsModal(user: any) {
     this.selectedUser = user;
     this.pointsToAdd = null;
     this.showPointsModal = true;
   }
-  closePointsModal() {
-    this.showPointsModal = false;
-  }
+
+  closePointsModal() { this.showPointsModal = false; }
+
   submitPoints() {
     if (this.pointsToAdd && !isNaN(this.pointsToAdd)) {
       this.adminService.grantLoyaltyPoints(this.selectedUser._id, this.pointsToAdd).subscribe({
-        next: () => this.showToast('Points added!', 'success'),
-        error: (err) => this.showToast(err.error?.message || 'Error', 'danger'),
-        complete: () => {
-          this.loadData();
+        next: () => {
+          this.showToast(`${this.pointsToAdd} points added to ${this.selectedUser.name}`, 'success');
           this.closePointsModal();
+          this.loadData();
         },
+        error: (err) => this.showToast(err.error?.message || 'Error', 'danger')
       });
-    } else this.showToast('Enter a valid number', 'warning');
+    }
   }
 
-  // Confirm Modal
   openConfirmModal(action: string, user: any) {
     this.selectedUser = user;
     this.confirmTitle = action;
-    this.confirmMessage =
-      action === 'Delete User'
-        ? `Delete ${user.name}?`
-        : `${user.isRestricted ? 'Unban' : 'Ban'} ${user.name}?`;
+    this.confirmMessage = action === 'Delete User' ? `Are you sure? This will delete ${user.name} permanently.` : `Toggle restriction for ${user.name}?`;
     this.confirmCallback = () => {
       if (action === 'Delete User') {
         this.adminService.softDeleteUser(user._id).subscribe({
-          next: () => {
-            this.showToast(`${user.name} deleted!`, 'warning');
-            this.loadData();
-          },
-          error: (err) => this.showToast(err.error?.message || 'Error', 'danger'),
+          next: () => { this.showToast('User deleted', 'warning'); this.loadData(); },
+          error: (err) => this.showToast(err.error?.message || 'Error', 'danger')
         });
       } else {
         this.adminService.toggleBan(user._id, !user.isRestricted).subscribe({
-          next: () =>
-            this.showToast(user.isRestricted ? 'User unbanned' : 'User banned', 'success'),
-          error: (err) => this.showToast(err.error?.message || 'Error', 'danger'),
-          complete: () => this.loadData(),
+          next: () => { this.showToast('User status updated', 'success'); this.loadData(); },
+          error: (err) => this.showToast(err.error?.message || 'Error', 'danger')
         });
       }
     };
     this.showConfirmModal = true;
   }
-  closeConfirmModal() {
-    this.showConfirmModal = false;
-  }
+
+  closeConfirmModal() { this.showConfirmModal = false; }
+
   confirmAction() {
     if (this.confirmCallback) this.confirmCallback();
     this.closeConfirmModal();
