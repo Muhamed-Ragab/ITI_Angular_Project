@@ -130,6 +130,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'brodcust',
+        loadComponent: () =>
+          import('./domains/MarketingBroadcast/Components/marketing-broadcast/marketing-broadcast').then(
+            (m) => m.MarketingBroadcast 
+          ),
+      },
+      {
         path: 'products',
         loadChildren: () =>
           import('./domains/products/admin/routes').then((m) => m.adminProductRoutes),

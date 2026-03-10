@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { Footer } from './footer';
 import { Header } from './header';
+import { ChatbotWidgetComponent } from '@domains/chatbot/components/chatbot-widget/chatbot-widget.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, Header, Footer],
+  imports: [RouterOutlet, Header, Footer, ChatbotWidgetComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Navbar -->
@@ -22,6 +23,9 @@ import { Header } from './header';
 
     <!-- Footer -->
     <app-footer />
+
+    <!-- Chatbot Widget -->
+    <app-chatbot-widget />
   `,
   styles: [
     `
