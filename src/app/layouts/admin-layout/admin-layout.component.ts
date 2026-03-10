@@ -315,6 +315,7 @@ export class AdminLayoutComponent {
     { label: 'Coupons', icon: 'bi-percent', route: '/admin/coupons' },
     { label: 'Seller Requests', icon: 'bi bi-terminal-plus', route: '/admin/sellerrequest' },
     { label: 'Payment Done', icon: 'bi bi-credit-card-2-front', route: '/admin/payment' },
+    { label: 'Marketing Brodcust', icon: 'bi bi-credit-card-2-front', route: '/admin/brodcust' },
 
   ];
 
