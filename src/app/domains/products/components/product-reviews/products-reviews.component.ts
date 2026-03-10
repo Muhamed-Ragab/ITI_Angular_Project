@@ -1,23 +1,24 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { Review, ReviewsPagination } from '../../dto';
 
 @Component({
   selector: 'app-product-reviews',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, TranslateModule],
   template: `
     <div class="mt-5">
       <h5 class="fw-bold mb-4">
         <i class="bi bi-chat-left-text me-2"></i>
-        Customer Reviews ({{ reviewsPagination()?.total ?? reviews().length }})
+        {{ 'products.reviews.title' | translate }} ({{ reviewsPagination()?.total ?? reviews().length }})
       </h5>
 
       @if (reviewsPagination(); as pagination) {
         <div class="text-muted small mb-3">
-          Page {{ pagination.page }} of {{ pagination.pages }} · Showing up to {{ pagination.limit }} · Total {{ pagination.total }}
+          {{ 'products.pagination.page' | translate }} {{ pagination.page }} {{ 'products.pagination.of' | translate }} {{ pagination.pages }} · {{ 'products.reviews.showing' | translate }} {{ pagination.limit }} · {{ 'products.reviews.total' | translate }} {{ pagination.total }}
         </div>
       }
 
@@ -29,7 +30,7 @@ import { Review, ReviewsPagination } from '../../dto';
               <div>
                 <span class="fw-semibold">{{ review.user_id.name }}</span>
                 @if (review.user_id.verified_purchase) {
-                  <span class="badge bg-success ms-2 small">Verified Purchase</span>
+                  <span class="badge bg-success ms-2 small">{{ 'products.reviews.verifiedPurchase' | translate }}</span>
                 }
               </div>
               <small class="text-muted">{{ review.createdAt | date: 'mediumDate' }}</small>
@@ -55,17 +56,17 @@ import { Review, ReviewsPagination } from '../../dto';
       }
 
       @if (reviews().length === 0) {
-        <p class="text-muted">No reviews yet. Be the first to review!</p>
+        <p class="text-muted">{{ 'products.reviews.noReviews' | translate }}</p>
       }
 
       <!-- Submit Review Form -->
       <div class="card border-0 shadow-sm mt-4">
         <div class="card-body">
-          <h6 class="fw-bold mb-3">Write a Review</h6>
+          <h6 class="fw-bold mb-3">{{ 'products.reviews.writeReview' | translate }}</h6>
 
           <!-- Rating Picker -->
           <div class="mb-3">
-            <label class="form-label small fw-semibold">Rating</label>
+            <label class="form-label small fw-semibold">{{ 'products.reviews.rating' | translate }}</label>
             <div class="d-flex gap-1">
               @for (star of [1, 2, 3, 4, 5]; track star) {
                 <i
@@ -83,11 +84,11 @@ import { Review, ReviewsPagination } from '../../dto';
           </div>
 
           <div class="mb-3">
-            <label class="form-label small fw-semibold">Comment</label>
+            <label class="form-label small fw-semibold">{{ 'products.reviews.comment' | translate }}</label>
             <textarea
               class="form-control"
               rows="3"
-              placeholder="Share your experience..."
+              [placeholder]="'products.reviews.commentPlaceholder' | translate"
               [ngModel]="newComment()"
               (ngModelChange)="newComment.set($event)"
               name="comment"
@@ -99,7 +100,7 @@ import { Review, ReviewsPagination } from '../../dto';
             [disabled]="newRating() === 0 || !newComment()"
             (click)="submitReview()"
           >
-            <i class="bi bi-send me-2"></i>Submit Review
+            <i class="bi bi-send me-2"></i>{{ 'products.reviews.submitReview' | translate }}
           </button>
         </div>
       </div>

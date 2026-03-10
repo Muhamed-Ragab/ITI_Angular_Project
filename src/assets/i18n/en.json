@@ -1,0 +1,242 @@
+{
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "arabic": "Arabic",
+    "logout": "Logout",
+    "login": "Login",
+    "profile": "Profile",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "categories": "Categories",
+    "orders": "My Orders"
+  },
+  "roles": {
+    "admin": "Admin",
+    "seller": "Seller"
+  },
+  "nav": {
+    "manageCategories": "Manage Categories",
+    "manageProducts": "Manage Products",
+    "manageSellerRequest": "Manage Seller Request",
+    "payoutStatus": "Payout Status"
+  },
+  "footer": {
+    "brand": "Goshop",
+    "description": "Goshop is an online store that offers the best products at the best prices in Egypt. Shop easily and enjoy a smooth and unique shopping experience.",
+    "shop": "Shop",
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "offers": "Offers",
+    "customerService": "Customer Service",
+    "myAccount": "My Account",
+    "orders": "Orders",
+    "wishlist": "Wishlist",
+    "help": "Help",
+    "contact": "Contact",
+    "location": "Egypt",
+    "copyright": "© {{year}} SouqMasr - All Rights Reserved"
+  },
+  "products": {
+    "title": "Products",
+    "list": {
+      "categoryFilterActive": "Category Filter Active",
+      "clearCategoryFilter": "Clear Category Filter",
+      "loading": "Loading...",
+      "noProducts": "No products found. Try adjusting your filters.",
+      "errorLoading": "Failed to load products",
+      "by": "by",
+      "reviews": "reviews"
+    },
+    "card": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock"
+    },
+    "detail": {
+      "backToProducts": "Back to Products",
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "left": "left",
+      "addToCart": "Add to Cart",
+      "buyNow": "Buy Now",
+      "removeFromWishlist": "Remove from wishlist",
+      "addToWishlist": "Add to wishlist",
+      "notFound": "Product not found",
+      "reviewSubmitError": "Failed to submit review"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Search products...",
+      "minPrice": "Min Price",
+      "maxPrice": "Max Price",
+      "sort": "Sort",
+      "sortBy": "Sort by...",
+      "newest": "Newest",
+      "priceAsc": "Price ↑",
+      "priceDesc": "Price ↓",
+      "rating": "Rating",
+      "popular": "Popular"
+    },
+    "pagination": {
+      "page": "Page",
+      "of": "of",
+      "items": "items"
+    },
+    "reviews": {
+      "title": "Customer Reviews",
+      "showing": "Showing up to",
+      "total": "Total",
+      "verifiedPurchase": "Verified Purchase",
+      "noReviews": "No reviews yet. Be the first to review!",
+      "writeReview": "Write a Review",
+      "rating": "Rating",
+      "comment": "Comment",
+      "commentPlaceholder": "Share your experience...",
+      "submitReview": "Submit Review"
+    },
+    "admin": {
+      "management": {
+        "title": "Product Management",
+        "description": "Edit and moderate all products in the marketplace.",
+        "totalProducts": "Total Products",
+        "inStock": "In Stock",
+        "outOfStock": "Out of Stock",
+        "lowStock": "Low Stock (≤10)",
+        "search": "Search",
+        "searchPlaceholder": "Name or description…",
+        "category": "Category",
+        "allCategories": "All Categories",
+        "sort": "Sort",
+        "default": "Default",
+        "stock": "Stock",
+        "all": "All",
+        "perPage": "Per page",
+        "deleteConfirm": "Delete",
+        "deleteQuestion": "Delete",
+        "deleteWarning": "This cannot be undone.",
+        "cancel": "Cancel",
+        "retry": "Retry",
+        "success": "Product updated successfully.",
+        "deleteSuccess": "deleted successfully.",
+        "errorLoading": "Failed to load products.",
+        "errorDelete": "Failed to delete product."
+      },
+      "form": {
+        "editProduct": "Edit Product",
+        "loading": "Loading…",
+        "productName": "Product Name",
+        "description": "Description",
+        "descriptionHint": "(min 10 characters)",
+        "descriptionPlaceholder": "Describe the product…",
+        "price": "Price ($)",
+        "stockQuantity": "Stock Quantity",
+        "category": "Category",
+        "selectCategory": "— Select category —",
+        "imageUrls": "Image URLs",
+        "imageUrlsHint": "One URL per line",
+        "imagePlaceholder": "https://cdn.example.com/img1.jpg",
+        "cancel": "Cancel",
+        "saving": "Saving…",
+        "updateProduct": "Update Product",
+        "errorSaving": "Failed to update product."
+      },
+      "table": {
+        "image": "Image",
+        "name": "Name",
+        "category": "Category",
+        "seller": "Seller",
+        "price": "Price",
+        "stock": "Stock",
+        "rating": "Rating",
+        "actions": "Actions",
+        "edit": "Edit",
+        "delete": "Delete",
+        "outOfStock": "Out of stock",
+        "low": "low",
+        "noProducts": "No products found.",
+        "showing": "Showing",
+        "of": "of",
+        "products": "products"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "loginButton": "Login",
+      "loggingIn": "Logging in...",
+      "loginWithOtp": "Login with OTP",
+      "continueWithGoogle": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "registerButton": "Register",
+      "emailVerified": "Email verified successfully! Please login.",
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "loginFailed": "Login failed"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "phoneLabel": "Phone (Optional)",
+      "phonePlaceholder": "+1234567890",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a password",
+      "registerButton": "Register",
+      "creatingAccount": "Creating account...",
+      "signUpWithGoogle": "Sign up with Google",
+      "hasAccount": "Already have an account?",
+      "loginButton": "Login",
+      "successMessage": "Registration successful! Please check your email to verify your account.",
+      "errors": {
+        "registrationFailed": "Registration failed"
+      }
+    },
+    "otpLogin": {
+      "title": "Login with OTP",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "sendOtpButton": "Send OTP",
+      "sendingOtp": "Sending OTP...",
+      "otpLabel": "Enter OTP",
+      "otpPlaceholder": "Enter 6-digit OTP",
+      "verifyButton": "Verify & Login",
+      "verifying": "Verifying...",
+      "resendOtp": "Resend OTP",
+      "backToLogin": "Back to password login",
+      "otpSent": "OTP sent to {{email}}. Please check your inbox.",
+      "errors": {
+        "sendFailed": "Failed to send OTP",
+        "invalidOtp": "Invalid OTP"
+      }
+    },
+    "verifyEmail": {
+      "verifying": "Verifying your email...",
+      "success": {
+        "title": "Email Verified!",
+        "message": "Your email has been successfully verified. Redirecting you to login..."
+      },
+      "info": {
+        "title": "Registration Successful!",
+        "message": "Please check your email to verify your account.",
+        "sentTo": "We've sent a verification link to"
+      },
+      "goToLogin": "Go to Login",
+      "error": {
+        "title": "Verification Failed",
+        "tryAgain": "Try Again",
+        "noToken": "No verification token provided",
+        "invalidToken": "Invalid or expired verification token",
+        "verificationFailed": "Verification failed. Please check your email and try again."
+      }
+    }
+  }
+}

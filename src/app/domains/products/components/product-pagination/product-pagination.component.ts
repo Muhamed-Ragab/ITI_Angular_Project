@@ -1,9 +1,11 @@
 import { Component, input, output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ProductPagination } from '../../dto';
 
 @Component({
   selector: 'app-product-pagination',
   standalone: true,
+  imports: [TranslateModule],
   template: `
     @if (pagination()) {
       <nav class="mt-4">
@@ -15,8 +17,8 @@ import { ProductPagination } from '../../dto';
           </li>
           <li class="page-item disabled">
             <span class="page-link">
-              Page {{ pagination()!.page }} of {{ pagination()!.pages }} &nbsp;·&nbsp;
-              {{ pagination()!.total }} items
+              {{ 'products.pagination.page' | translate }} {{ pagination()!.page }} {{ 'products.pagination.of' | translate }} {{ pagination()!.pages }} &nbsp;·&nbsp;
+              {{ pagination()!.total }} {{ 'products.pagination.items' | translate }}
             </span>
           </li>
           <li class="page-item" [class.disabled]="pagination()!.page >= pagination()!.pages">

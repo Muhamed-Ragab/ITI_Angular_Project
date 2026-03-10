@@ -1,12 +1,14 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { AuthFacadeService } from '../../services/auth-facade.service';
 
 @Component({
   selector: 'app-otp-login',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container mt-5">
@@ -14,7 +16,7 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
         <div class="col-md-6 col-lg-4">
           <div class="card shadow-sm">
             <div class="card-body p-4">
-              <h2 class="card-title text-center mb-4">Login with OTP</h2>
+              <h2 class="card-title text-center mb-4">{{ 'auth.otpLogin.title' | translate }}</h2>
 
               @if (error()) {
                 <div class="alert alert-danger" role="alert">
@@ -24,17 +26,17 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
 
               @if (otpSent()) {
                 <div class="alert alert-info" role="alert">
-                  OTP sent to {{ email() }}. Please check your inbox.
+                  {{ 'auth.otpLogin.otpSent' | translate: {email: email()} }}
                 </div>
 
                 <form (ngSubmit)="onVerifyOtp()">
                   <div class="mb-3">
-                    <label for="otp" class="form-label">Enter OTP</label>
+                    <label for="otp" class="form-label">{{ 'auth.otpLogin.otpLabel' | translate }}</label>
                     <input
                       type="text"
                       id="otp"
                       class="form-control"
-                      placeholder="Enter 6-digit OTP"
+                      [placeholder]="'auth.otpLogin.otpPlaceholder' | translate"
                       [ngModel]="otp()"
                       (ngModelChange)="otp.set($event)"
                       name="otp"
@@ -54,9 +56,9 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                   >
                     @if (isLoading()) {
                       <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                      Verifying...
+                      {{ 'auth.otpLogin.verifying' | translate }}
                     } @else {
-                      Verify & Login
+                      {{ 'auth.otpLogin.verifyButton' | translate }}
                     }
                   </button>
 
@@ -66,18 +68,18 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                     (click)="onRequestOtp()"
                     [disabled]="isLoading()"
                   >
-                    Resend OTP
+                    {{ 'auth.otpLogin.resendOtp' | translate }}
                   </button>
                 </form>
               } @else {
                 <form (ngSubmit)="onRequestOtp()">
                   <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
+                    <label for="email" class="form-label">{{ 'auth.otpLogin.emailLabel' | translate }}</label>
                     <input
                       type="email"
                       id="email"
                       class="form-control"
-                      placeholder="Enter your email"
+                      [placeholder]="'auth.otpLogin.emailPlaceholder' | translate"
                       [ngModel]="email()"
                       (ngModelChange)="email.set($event)"
                       name="email"
@@ -93,9 +95,9 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                   >
                     @if (isLoading()) {
                       <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                      Sending OTP...
+                      {{ 'auth.otpLogin.sendingOtp' | translate }}
                     } @else {
-                      Send OTP
+                      {{ 'auth.otpLogin.sendOtpButton' | translate }}
                     }
                   </button>
                 </form>
@@ -104,7 +106,7 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
               <hr class="my-3" />
 
               <div class="text-center">
-                <a routerLink="/auth/login" class="link-primary"> Back to password login </a>
+                <a routerLink="/auth/login" class="link-primary"> {{ 'auth.otpLogin.backToLogin' | translate }} </a>
               </div>
             </div>
           </div>
@@ -116,6 +118,7 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
 })
 export class OtpLoginComponent {
   private readonly authFacade = inject(AuthFacadeService);
+  private readonly translate = inject(TranslateService);
 
   readonly email = signal('');
   readonly otp = signal('');
@@ -133,12 +136,12 @@ export class OtpLoginComponent {
         if (success) {
           this.otpSent.set(true);
         } else {
-          this.error.set('Failed to send OTP');
+          this.error.set(this.translate.instant('auth.otpLogin.errors.sendFailed'));
         }
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.message || 'Failed to send OTP');
+        this.error.set(err.message || this.translate.instant('auth.otpLogin.errors.sendFailed'));
       },
     });
   }
@@ -151,12 +154,12 @@ export class OtpLoginComponent {
       next: (success) => {
         this.isLoading.set(false);
         if (!success) {
-          this.error.set('Invalid OTP');
+          this.error.set(this.translate.instant('auth.otpLogin.errors.invalidOtp'));
         }
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.message || 'Invalid OTP');
+        this.error.set(err.message || this.translate.instant('auth.otpLogin.errors.invalidOtp'));
       },
     });
   }

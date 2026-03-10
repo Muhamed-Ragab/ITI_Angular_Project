@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Category } from '@domains/categories/dto';
 import { AdminProduct, AdminUpdateProductDto } from '../../dto';
 import { AdminProductService } from '../../services/admin-product.service';
@@ -15,7 +16,7 @@ import { AdminProductService } from '../../services/admin-product.service';
 @Component({
   selector: 'app-admin-product-form',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
@@ -24,7 +25,7 @@ import { AdminProductService } from '../../services/admin-product.service';
 
           <div class="modal-header">
             <h5 class="modal-title">
-              <i class="bi bi-pencil-square me-2 text-primary"></i>Edit Product
+              <i class="bi bi-pencil-square me-2 text-primary"></i>{{ 'products.admin.form.editProduct' | translate }}
             </h5>
             <button type="button" class="btn-close" (click)="cancel.emit()"></button>
           </div>
@@ -40,7 +41,7 @@ import { AdminProductService } from '../../services/admin-product.service';
             @if (loadingSupport()) {
               <div class="text-center py-4">
                 <div class="spinner-border text-primary spinner-border-sm"></div>
-                <p class="small text-muted mt-2">Loading…</p>
+                <p class="small text-muted mt-2">{{ 'products.admin.form.loading' | translate }}</p>
               </div>
             } @else {
               <div class="row g-3">
@@ -48,7 +49,7 @@ import { AdminProductService } from '../../services/admin-product.service';
                 <!-- Title -->
                 <div class="col-12">
                   <label class="form-label fw-semibold">
-                    Product Name <span class="text-danger">*</span>
+                    {{ 'products.admin.form.productName' | translate }} <span class="text-danger">*</span>
                   </label>
                   <input
                     class="form-control"
@@ -61,13 +62,13 @@ import { AdminProductService } from '../../services/admin-product.service';
                 <!-- Description -->
                 <div class="col-12">
                   <label class="form-label fw-semibold">
-                    Description <span class="text-danger">*</span>
-                    <small class="text-muted fw-normal ms-1">(min 10 characters)</small>
+                    {{ 'products.admin.form.description' | translate }} <span class="text-danger">*</span>
+                    <small class="text-muted fw-normal ms-1">{{ 'products.admin.form.descriptionHint' | translate }}</small>
                   </label>
                   <textarea
                     class="form-control"
                     rows="3"
-                    placeholder="Describe the product…"
+                    [placeholder]="'products.admin.form.descriptionPlaceholder' | translate"
                     [(ngModel)]="form.description"
                     name="description"
                   ></textarea>
@@ -76,7 +77,7 @@ import { AdminProductService } from '../../services/admin-product.service';
                 <!-- Price + Stock -->
                 <div class="col-md-6">
                   <label class="form-label fw-semibold">
-                    Price ($) <span class="text-danger">*</span>
+                    {{ 'products.admin.form.price' | translate }} <span class="text-danger">*</span>
                   </label>
                   <input
                     type="number" class="form-control"
@@ -87,7 +88,7 @@ import { AdminProductService } from '../../services/admin-product.service';
 
                 <div class="col-md-6">
                   <label class="form-label fw-semibold">
-                    Stock Quantity <span class="text-danger">*</span>
+                    {{ 'products.admin.form.stockQuantity' | translate }} <span class="text-danger">*</span>
                   </label>
                   <input
                     type="number" class="form-control"
@@ -99,10 +100,10 @@ import { AdminProductService } from '../../services/admin-product.service';
                 <!-- Category -->
                 <div class="col-md-6">
                   <label class="form-label fw-semibold">
-                    Category <span class="text-danger">*</span>
+                    {{ 'products.admin.form.category' | translate }} <span class="text-danger">*</span>
                   </label>
                   <select class="form-select" [(ngModel)]="form.category_id" name="category_id">
-                    <option value="">— Select category —</option>
+                    <option value="">{{ 'products.admin.form.selectCategory' | translate }}</option>
                     @for (cat of flatCategories(); track cat._id) {
                       <option [value]="cat._id">
                         {{ cat.parentId ? '↳ ' : '' }}{{ cat.name }}
@@ -113,11 +114,11 @@ import { AdminProductService } from '../../services/admin-product.service';
 
                 <!-- Image URLs -->
                 <div class="col-12">
-                  <label class="form-label fw-semibold">Image URLs</label>
-                  <small class="text-muted d-block mb-1">One URL per line</small>
+                  <label class="form-label fw-semibold">{{ 'products.admin.form.imageUrls' | translate }}</label>
+                  <small class="text-muted d-block mb-1">{{ 'products.admin.form.imageUrlsHint' | translate }}</small>
                   <textarea
                     class="form-control font-monospace" rows="3"
-                    placeholder="https://cdn.example.com/img1.jpg"
+                    [placeholder]="'products.admin.form.imagePlaceholder' | translate"
                     [ngModel]="imagesText()"
                     (ngModelChange)="onImagesChange($event)"
                     name="images"
@@ -143,7 +144,7 @@ import { AdminProductService } from '../../services/admin-product.service';
 
           <div class="modal-footer">
             <button class="btn btn-outline-secondary" (click)="cancel.emit()" [disabled]="isSaving()">
-              Cancel
+              {{ 'products.admin.form.cancel' | translate }}
             </button>
             <button
               class="btn btn-primary"
@@ -151,9 +152,9 @@ import { AdminProductService } from '../../services/admin-product.service';
               [disabled]="isSaving() || loadingSupport() || !isValid()"
             >
               @if (isSaving()) {
-                <span class="spinner-border spinner-border-sm me-1"></span>Saving…
+                <span class="spinner-border spinner-border-sm me-1"></span>{{ 'products.admin.form.saving' | translate }}
               } @else {
-                <i class="bi bi-check-lg me-1"></i>Update Product
+                <i class="bi bi-check-lg me-1"></i>{{ 'products.admin.form.updateProduct' | translate }}
               }
             </button>
           </div>
@@ -165,6 +166,7 @@ import { AdminProductService } from '../../services/admin-product.service';
 })
 export class AdminProductFormComponent implements OnInit {
   private readonly adminProductService = inject(AdminProductService);
+  private readonly translate = inject(TranslateService);
 
   readonly editTarget = input<AdminProduct | null>(null);
   readonly saved  = output<void>();
@@ -252,7 +254,7 @@ export class AdminProductFormComponent implements OnInit {
     this.adminProductService.updateProduct(id, dto).subscribe({
       next:  () => { this.isSaving.set(false); this.saved.emit(); },
       error: (err) => {
-        this.error.set(err?.error?.message ?? 'Failed to update product.');
+        this.error.set(err?.error?.message ?? this.translate.instant('products.admin.form.errorSaving'));
         this.isSaving.set(false);
       },
     });

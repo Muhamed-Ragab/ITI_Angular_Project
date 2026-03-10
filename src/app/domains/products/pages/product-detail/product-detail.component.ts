@@ -1,6 +1,7 @@
 import { CurrencyPipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
 import { GuestCartService } from '@core/services/guest-cart.service';
@@ -14,7 +15,7 @@ import { ProductDetail, Review, ReviewsPagination } from '../../dto';
   selector: 'app-product-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, NgClass, ProductReviewsComponent, RouterLink],
+  imports: [TranslateModule, CurrencyPipe, NgClass, ProductReviewsComponent, RouterLink],
   template: `
     <div class="container py-4">
       <!-- Back Button -->
@@ -186,6 +187,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly guestWishlistService = inject(GuestWishlistService);
   private readonly cartService = inject(CartService);
   private readonly guestCartService = inject(GuestCartService);
+  private readonly translate = inject(TranslateService);
   readonly authService = inject(AuthService);
 
   readonly product = signal<ProductDetail | null>(null);
@@ -226,7 +228,7 @@ export class ProductDetailComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set(err.message || 'Product not found');
+        this.error.set(err.message || this.translate.instant('products.detail.notFound'));
         this.isLoading.set(false);
       },
     });
@@ -240,7 +242,7 @@ export class ProductDetailComponent implements OnInit {
       })
       .subscribe({
         next: () => this.loadProduct(), // refresh to show new review
-        error: (err) => this.error.set(err.message || 'Failed to submit review'),
+        error: (err) => this.error.set(err.message || this.translate.instant('products.detail.reviewSubmitError')),
       });
   }
 

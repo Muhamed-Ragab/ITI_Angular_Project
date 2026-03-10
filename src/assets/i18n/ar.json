@@ -1,0 +1,242 @@
+{
+  "common": {
+    "language": "اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "profile": "الملف الشخصي",
+    "cart": "سلة المشتريات",
+    "wishlist": "المفضلة",
+    "categories": "الفئات",
+    "orders": "طلباتي"
+  },
+  "roles": {
+    "admin": "المشرف",
+    "seller": "البائع"
+  },
+  "nav": {
+    "manageCategories": "إدارة الفئات",
+    "manageProducts": "إدارة المنتجات",
+    "manageSellerRequest": "إدارة طلبات البائعين",
+    "payoutStatus": "حالة الأرباح"
+  },
+  "footer": {
+    "brand": "جو شوب",
+    "description": "جو شوب متجر إلكتروني يقدم أفضل المنتجات بأفضل الأسعار في مصر. تسوق بسهولة واستمتع بتجربة شراء سلسة ومميزة.",
+    "shop": "تسوق",
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "categories": "الفئات",
+    "offers": "العروض",
+    "customerService": "خدمة العملاء",
+    "myAccount": "حسابي",
+    "orders": "الطلبات",
+    "wishlist": "المفضلة",
+    "help": "المساعدة",
+    "contact": "اتصل بنا",
+    "location": "مصر",
+    "copyright": "© {{year}} سوق مصر - جميع الحقوق محفوظة"
+  },
+  "products": {
+    "title": "المنتجات",
+    "list": {
+      "categoryFilterActive": "تصفية الفئة نشطة",
+      "clearCategoryFilter": "مسح تصفية الفئة",
+      "loading": "جاري التحميل...",
+      "noProducts": "لم يتم العثور على منتجات. حاول تعديل عوامل التصفية.",
+      "errorLoading": "فشل تحميل المنتجات",
+      "by": "بواسطة",
+      "reviews": "تقييمات"
+    },
+    "card": {
+      "inStock": "متوفر",
+      "outOfStock": "غير متوفر"
+    },
+    "detail": {
+      "backToProducts": "العودة للمنتجات",
+      "inStock": "متوفر",
+      "outOfStock": "غير متوفر",
+      "left": "متبقي",
+      "addToCart": "إضافة للسلة",
+      "buyNow": "اشتر الآن",
+      "removeFromWishlist": "إزالة من المفضلة",
+      "addToWishlist": "إضافة للمفضلة",
+      "notFound": "المنتج غير موجود",
+      "reviewSubmitError": "فشل إرسال التقييم"
+    },
+    "filters": {
+      "search": "بحث",
+      "searchPlaceholder": "ابحث عن منتجات...",
+      "minPrice": "السعر الأدنى",
+      "maxPrice": "السعر الأعلى",
+      "sort": "ترتيب",
+      "sortBy": "ترتيب حسب...",
+      "newest": "الأحدث",
+      "priceAsc": "السعر ↑",
+      "priceDesc": "السعر ↓",
+      "rating": "التقييم",
+      "popular": "الأشهر"
+    },
+    "pagination": {
+      "page": "صفحة",
+      "of": "من",
+      "items": "عنصر"
+    },
+    "reviews": {
+      "title": "تقييمات العملاء",
+      "showing": "عرض حتى",
+      "total": "الإجمالي",
+      "verifiedPurchase": "مشتري موثق",
+      "noReviews": "لا توجد تقييمات بعد. كن أول من يقيّم!",
+      "writeReview": "اكتب تقييماً",
+      "rating": "التقييم",
+      "comment": "التعليق",
+      "commentPlaceholder": "شارك تجربتك...",
+      "submitReview": "إرسال التقييم"
+    },
+    "admin": {
+      "management": {
+        "title": "إدارة المنتجات",
+        "description": "تعديل ومراجعة جميع المنتجات في السوق.",
+        "totalProducts": "إجمالي المنتجات",
+        "inStock": "متوفر",
+        "outOfStock": "غير متوفر",
+        "lowStock": "مخزون منخفض (≤10)",
+        "search": "بحث",
+        "searchPlaceholder": "الاسم أو الوصف...",
+        "category": "الفئة",
+        "allCategories": "جميع الفئات",
+        "sort": "ترتيب",
+        "default": "افتراضي",
+        "stock": "المخزون",
+        "all": "الكل",
+        "perPage": "لكل صفحة",
+        "deleteConfirm": "حذف",
+        "deleteQuestion": "حذف",
+        "deleteWarning": "لا يمكن التراجع عن هذا.",
+        "cancel": "إلغاء",
+        "retry": "إعادة المحاولة",
+        "success": "تم تحديث المنتج بنجاح.",
+        "deleteSuccess": "تم الحذف بنجاح.",
+        "errorLoading": "فشل تحميل المنتجات.",
+        "errorDelete": "فشل حذف المنتج."
+      },
+      "form": {
+        "editProduct": "تعديل المنتج",
+        "loading": "جاري التحميل...",
+        "productName": "اسم المنتج",
+        "description": "الوصف",
+        "descriptionHint": "(الحد الأدنى 10 أحرف)",
+        "descriptionPlaceholder": "صف المنتج...",
+        "price": "السعر ($)",
+        "stockQuantity": "الكمية في المخزون",
+        "category": "الفئة",
+        "selectCategory": "— اختر الفئة —",
+        "imageUrls": "روابط الصور",
+        "imageUrlsHint": "رابط واحد لكل سطر",
+        "imagePlaceholder": "https://cdn.example.com/img1.jpg",
+        "cancel": "إلغاء",
+        "saving": "جاري الحفظ...",
+        "updateProduct": "تحديث المنتج",
+        "errorSaving": "فشل تحديث المنتج."
+      },
+      "table": {
+        "image": "صورة",
+        "name": "الاسم",
+        "category": "الفئة",
+        "seller": "البائع",
+        "price": "السعر",
+        "stock": "المخزون",
+        "rating": "التقييم",
+        "actions": "إجراءات",
+        "edit": "تعديل",
+        "delete": "حذف",
+        "outOfStock": "غير متوفر",
+        "low": "منخفض",
+        "noProducts": "لم يتم العثور على منتجات.",
+        "showing": "عرض",
+        "of": "من",
+        "products": "منتجات"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "loginButton": "تسجيل الدخول",
+      "loggingIn": "جاري تسجيل الدخول...",
+      "loginWithOtp": "تسجيل الدخول برمز OTP",
+      "continueWithGoogle": "المتابعة عبر Google",
+      "noAccount": "ليس لديك حساب؟",
+      "registerButton": "إنشاء حساب",
+      "emailVerified": "تم التحقق من البريد الإلكتروني بنجاح! يرجى تسجيل الدخول.",
+      "errors": {
+        "invalidCredentials": "بريد إلكتروني أو كلمة مرور غير صحيحة",
+        "loginFailed": "فشل تسجيل الدخول"
+      }
+    },
+    "register": {
+      "title": "إنشاء حساب",
+      "nameLabel": "الاسم الكامل",
+      "namePlaceholder": "أدخل اسمك",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "phoneLabel": "الهاتف (اختياري)",
+      "phonePlaceholder": "+1234567890",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أنشئ كلمة مرور",
+      "registerButton": "إنشاء حساب",
+      "creatingAccount": "جاري إنشاء الحساب...",
+      "signUpWithGoogle": "التسجيل عبر Google",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "loginButton": "تسجيل الدخول",
+      "successMessage": "تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك.",
+      "errors": {
+        "registrationFailed": "فشل التسجيل"
+      }
+    },
+    "otpLogin": {
+      "title": "تسجيل الدخول برمز OTP",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "sendOtpButton": "إرسال رمز OTP",
+      "sendingOtp": "جاري إرسال رمز OTP...",
+      "otpLabel": "أدخل رمز OTP",
+      "otpPlaceholder": "أدخل رمز OTP المكون من 6 أرقام",
+      "verifyButton": "تحقق وتسجيل الدخول",
+      "verifying": "جاري التحقق...",
+      "resendOtp": "إعادة إرسال رمز OTP",
+      "backToLogin": "العودة لتسجيل الدخول بكلمة المرور",
+      "otpSent": "تم إرسال رمز OTP إلى {{email}}. يرجى فحص صندوق الوارد.",
+      "errors": {
+        "sendFailed": "فشل إرسال رمز OTP",
+        "invalidOtp": "رمز OTP غير صحيح"
+      }
+    },
+    "verifyEmail": {
+      "verifying": "جاري التحقق من بريدك الإلكتروني...",
+      "success": {
+        "title": "تم التحقق من البريد الإلكتروني!",
+        "message": "تم التحقق من بريدك الإلكتروني بنجاح. جاري توجيهك لتسجيل الدخول..."
+      },
+      "info": {
+        "title": "تم التسجيل بنجاح!",
+        "message": "يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك.",
+        "sentTo": "أرسلنا رابط التحقق إلى"
+      },
+      "goToLogin": "انتقل لتسجيل الدخول",
+      "error": {
+        "title": "فشل التحقق",
+        "tryAgain": "حاول مرة أخرى",
+        "noToken": "لم يتم توفير رمز التحقق",
+        "invalidToken": "رمز التحقق غير صالح أو منتهي الصلاحية",
+        "verificationFailed": "فشل التحقق. يرجى التحقق من بريدك الإلكتروني والمحاولة مرة أخرى."
+      }
+    }
+  }
+}

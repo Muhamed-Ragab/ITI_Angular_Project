@@ -1,11 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { AuthFacadeService } from '../../services/auth-facade.service';
 
 @Component({
   selector: 'app-verify-email',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   template: `
     <div class="container mt-5">
       <div class="row justify-content-center">
@@ -16,15 +18,14 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 <div class="spinner-border text-primary mb-3" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="text-muted">Verifying your email...</p>
+                <p class="text-muted">{{ 'auth.verifyEmail.verifying' | translate }}</p>
               } @else if (success()) {
                 <div class="text-success mb-3">
                   <i class="bi bi-check-circle-fill" style="font-size: 3rem;"></i>
                 </div>
-                <h3 class="mb-3">Email Verified!</h3>
+                <h3 class="mb-3">{{ 'auth.verifyEmail.success.title' | translate }}</h3>
                 <p class="text-muted mb-4">
-                  Your email has been successfully verified.<br />
-                  Redirecting you to login...
+                  {{ 'auth.verifyEmail.success.message' | translate }}
                 </p>
                 <div class="spinner-border text-success spinner-border-sm" role="status">
                   <span class="visually-hidden">Loading...</span>
@@ -33,26 +34,26 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 <div class="text-info mb-3">
                   <i class="bi bi-envelope-check-fill" style="font-size: 3rem;"></i>
                 </div>
-                <h3 class="mb-3">Registration Successful!</h3>
+                <h3 class="mb-3">{{ 'auth.verifyEmail.info.title' | translate }}</h3>
                 <p class="text-muted mb-4">
-                  <strong>Please check your email</strong> to verify your account.
+                  {{ 'auth.verifyEmail.info.message' | translate }}
                 </p>
                 <p class="text-muted small">
-                  We've sent a verification link to<br />
+                  {{ 'auth.verifyEmail.info.sentTo' | translate }}<br />
                   <strong>{{ email() }}</strong>
                 </p>
                 <a routerLink="/auth/login" class="btn btn-primary">
-                  <i class="bi bi-box-arrow-in-right me-2"></i>Go to Login
+                  <i class="bi bi-box-arrow-in-right me-2"></i>{{ 'auth.verifyEmail.goToLogin' | translate }}
                 </a>
               } @else {
                 <div class="text-danger mb-3">
                   <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
                 </div>
-                <h3 class="mb-3">Verification Failed</h3>
+                <h3 class="mb-3">{{ 'auth.verifyEmail.error.title' | translate }}</h3>
                 <p class="text-muted mb-4">
                   {{ errorMessage() }}
                 </p>
-                <a routerLink="/auth/register" class="btn btn-primary"> Try Again </a>
+                <a routerLink="/auth/register" class="btn btn-primary"> {{ 'auth.verifyEmail.error.tryAgain' | translate }} </a>
               }
             </div>
           </div>
@@ -66,6 +67,7 @@ export class VerifyEmailComponent {
   private readonly authFacade = inject(AuthFacadeService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly success = signal(false);
@@ -89,7 +91,7 @@ export class VerifyEmailComponent {
       this.verifyEmailAndAutoLogin(token);
     } else {
       this.loading.set(false);
-      this.errorMessage.set('No verification token provided');
+      this.errorMessage.set(this.translate.instant('auth.verifyEmail.error.noToken'));
     }
   }
 
@@ -107,14 +109,14 @@ export class VerifyEmailComponent {
           }, 2000);
         } else {
           this.loading.set(false);
-          this.errorMessage.set('Invalid or expired verification token');
+          this.errorMessage.set(this.translate.instant('auth.verifyEmail.error.invalidToken'));
         }
       },
       error: (err) => {
         this.loading.set(false);
         this.success.set(false);
         this.errorMessage.set(
-          err?.message || 'Verification failed. Please check your email and try again.',
+          err?.message || this.translate.instant('auth.verifyEmail.error.verificationFailed'),
         );
       },
     });

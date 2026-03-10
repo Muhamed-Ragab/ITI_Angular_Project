@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { AuthFacadeService } from '../../services/auth-facade.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container mt-5">
@@ -14,7 +16,7 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
         <div class="col-md-8 col-lg-6">
           <div class="card shadow-sm">
             <div class="card-body p-4">
-              <h2 class="card-title text-center mb-4">Create Account</h2>
+              <h2 class="card-title text-center mb-4">{{ 'auth.register.title' | translate }}</h2>
 
               @if (error()) {
                 <div class="alert alert-danger" role="alert">
@@ -24,18 +26,18 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
 
               @if (success()) {
                 <div class="alert alert-success" role="alert">
-                  Registration successful! Please check your email to verify your account.
+                  {{ 'auth.register.successMessage' | translate }}
                 </div>
               }
 
               <form (ngSubmit)="onRegister()">
                 <div class="mb-3">
-                  <label for="name" class="form-label">Full Name</label>
+                  <label for="name" class="form-label">{{ 'auth.register.nameLabel' | translate }}</label>
                   <input
                     type="text"
                     id="name"
                     class="form-control"
-                    placeholder="Enter your name"
+                    [placeholder]="'auth.register.namePlaceholder' | translate"
                     [ngModel]="name()"
                     (ngModelChange)="name.set($event)"
                     name="name"
@@ -45,12 +47,12 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 </div>
 
                 <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
+                  <label for="email" class="form-label">{{ 'auth.register.emailLabel' | translate }}</label>
                   <input
                     type="email"
                     id="email"
                     class="form-control"
-                    placeholder="Enter your email"
+                    [placeholder]="'auth.register.emailPlaceholder' | translate"
                     [ngModel]="email()"
                     (ngModelChange)="email.set($event)"
                     name="email"
@@ -60,12 +62,12 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 </div>
 
                 <div class="mb-3">
-                  <label for="phone" class="form-label">Phone (Optional)</label>
+                  <label for="phone" class="form-label">{{ 'auth.register.phoneLabel' | translate }}</label>
                   <input
                     type="tel"
                     id="phone"
                     class="form-control"
-                    placeholder="+1234567890"
+                    [placeholder]="'auth.register.phonePlaceholder' | translate"
                     [ngModel]="phone()"
                     (ngModelChange)="phone.set($event)"
                     name="phone"
@@ -74,12 +76,12 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 </div>
 
                 <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
+                  <label for="password" class="form-label">{{ 'auth.register.passwordLabel' | translate }}</label>
                   <input
                     type="password"
                     id="password"
                     class="form-control"
-                    placeholder="Create a password"
+                    [placeholder]="'auth.register.passwordPlaceholder' | translate"
                     [ngModel]="password()"
                     (ngModelChange)="password.set($event)"
                     name="password"
@@ -96,24 +98,24 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 >
                   @if (isLoading()) {
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                    Creating account...
+                    {{ 'auth.register.creatingAccount' | translate }}
                   } @else {
-                    Register
+                    {{ 'auth.register.registerButton' | translate }}
                   }
                 </button>
 
                 <div class="d-grid gap-2 my-3">
                   <button type="button" class="btn btn-outline-danger" (click)="onGoogleRegister()">
                     <i class="bi bi-google me-2"></i>
-                    Sign up with Google
+                    {{ 'auth.register.signUpWithGoogle' | translate }}
                   </button>
                 </div>
 
                 <hr class="my-3" />
 
                 <div class="text-center">
-                  <p class="mb-2 text-muted">Already have an account?</p>
-                  <a routerLink="/auth/login" class="btn btn-outline-secondary w-100"> Login </a>
+                  <p class="mb-2 text-muted">{{ 'auth.register.hasAccount' | translate }}</p>
+                  <a routerLink="/auth/login" class="btn btn-outline-secondary w-100"> {{ 'auth.register.loginButton' | translate }} </a>
                 </div>
               </form>
             </div>
@@ -126,6 +128,7 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
 })
 export class RegisterComponent {
   private readonly authFacade = inject(AuthFacadeService);
+  private readonly translate = inject(TranslateService);
 
   readonly name = signal('');
   readonly email = signal('');
@@ -150,7 +153,7 @@ export class RegisterComponent {
         next: (result) => {
           if (!result.success) {
             this.isLoading.set(false);
-            this.error.set(result.error?.message || 'Registration failed');
+            this.error.set(result.error?.message || this.translate.instant('auth.register.errors.registrationFailed'));
             return;
           }
           this.isLoading.set(false);
@@ -158,7 +161,7 @@ export class RegisterComponent {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.error.set(err.message || 'Registration failed');
+          this.error.set(err.message || this.translate.instant('auth.register.errors.registrationFailed'));
         },
       });
   }

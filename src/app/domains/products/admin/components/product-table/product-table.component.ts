@@ -6,13 +6,14 @@ import {
 } from '@angular/core';
 // ✅ FIX: DecimalPipe + CurrencyPipe added — required for | number and | currency pipes in template
 import { DecimalPipe, CurrencyPipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { AdminProduct, AdminProductPagination } from '../../dto';
 
 @Component({
   selector: 'app-admin-product-table',
   standalone: true,
   // ✅ FIX: was empty [], now has the two pipes the template uses
-  imports: [DecimalPipe, CurrencyPipe],
+  imports: [DecimalPipe, CurrencyPipe, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Table -->
@@ -20,14 +21,14 @@ import { AdminProduct, AdminProductPagination } from '../../dto';
       <table class="table table-hover align-middle mb-0">
         <thead class="table-dark">
           <tr>
-            <th style="width:60px">Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Seller</th>
-            <th class="text-end">Price</th>
-            <th class="text-center">Stock</th>
-            <th class="text-center">Rating</th>
-            <th class="text-end">Actions</th>
+            <th style="width:60px">{{ 'products.admin.table.image' | translate }}</th>
+            <th>{{ 'products.admin.table.name' | translate }}</th>
+            <th>{{ 'products.admin.table.category' | translate }}</th>
+            <th>{{ 'products.admin.table.seller' | translate }}</th>
+            <th class="text-end">{{ 'products.admin.table.price' | translate }}</th>
+            <th class="text-center">{{ 'products.admin.table.stock' | translate }}</th>
+            <th class="text-center">{{ 'products.admin.table.rating' | translate }}</th>
+            <th class="text-end">{{ 'products.admin.table.actions' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -75,9 +76,9 @@ import { AdminProduct, AdminProductPagination } from '../../dto';
               <!-- Stock -->
               <td class="text-center">
                 @if (stockQty(p) === 0) {
-                  <span class="badge bg-danger">Out of stock</span>
+                  <span class="badge bg-danger">{{ 'products.admin.table.outOfStock' | translate }}</span>
                 } @else if (stockQty(p) <= 10) {
-                  <span class="badge bg-warning text-dark">{{ stockQty(p) }} low</span>
+                  <span class="badge bg-warning text-dark">{{ stockQty(p) }} {{ 'products.admin.table.low' | translate }}</span>
                 } @else {
                   <span class="badge bg-success">{{ stockQty(p) }}</span>
                 }
@@ -94,14 +95,14 @@ import { AdminProduct, AdminProductPagination } from '../../dto';
                 <div class="d-flex gap-1 justify-content-end">
                   <button
                     class="btn btn-outline-primary btn-sm"
-                    title="Edit"
+                    [title]="'products.admin.table.edit' | translate"
                     (click)="edit.emit(p)"
                   >
                     <i class="bi bi-pencil"></i>
                   </button>
                   <button
                     class="btn btn-outline-danger btn-sm"
-                    title="Delete"
+                    [title]="'products.admin.table.delete' | translate"
                     (click)="delete.emit(p)"
                   >
                     <i class="bi bi-trash"></i>
@@ -115,7 +116,7 @@ import { AdminProduct, AdminProductPagination } from '../../dto';
             <tr>
               <td colspan="8" class="text-center py-5 text-muted">
                 <i class="bi bi-inbox" style="font-size:2rem"></i>
-                <p class="mt-2 mb-0">No products found.</p>
+                <p class="mt-2 mb-0">{{ 'products.admin.table.noProducts' | translate }}</p>
               </td>
             </tr>
           }
@@ -127,7 +128,7 @@ import { AdminProduct, AdminProductPagination } from '../../dto';
     @if (pagination() && pagination()!.pages > 1) {
       <div class="d-flex align-items-center justify-content-between px-3 py-2 border-top">
         <small class="text-muted">
-          Showing {{ pageStart() }}–{{ pageEnd() }} of {{ pagination()!.total }} products
+          {{ 'products.admin.table.showing' | translate }} {{ pageStart() }}–{{ pageEnd() }} {{ 'products.admin.table.of' | translate }} {{ pagination()!.total }} {{ 'products.admin.table.products' | translate }}
         </small>
         <div class="d-flex gap-1">
           <button
