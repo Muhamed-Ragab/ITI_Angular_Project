@@ -153,7 +153,7 @@ import { SellerOrder, SellerUpdateStatus } from '../../dto/seller.dto';
                       </div>
                     </div>
                     <div class="fw-bold flex-shrink-0">
-                      \${{ (item.price * item.quantity) | number:'1.2-2' }}
+                      \${{ ((item.price * item.quantity)) | number:'1.2-2' }}
                     </div>
                   </div>
                 }
@@ -182,7 +182,7 @@ export class SellerOrdersComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
     this.sellerService.getMyOrders().subscribe({
-      next: (res) => { this.orders.set(res.data); this.isLoading.set(false); },
+      next: (res) => { this.orders.set(res.data.orders); this.isLoading.set(false); },
       error: (err) => {
         this.error.set(err?.error?.message ?? 'Failed to load orders.');
         this.isLoading.set(false);

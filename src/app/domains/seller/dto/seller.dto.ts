@@ -30,13 +30,12 @@ export interface SellerPagination {
   pages: number;
 }
 
-// Field names match backend validation schema exactly
 export interface SellerCreateProductDto {
-  title: string;           // min 3, max 100
-  description: string;     // min 10, max 2000
-  price: number;           // >= 0
-  category_id: string;     // objectId
-  stock_quantity: number;  // int >= 0
+  title: string;
+  description: string;
+  price: number;
+  category_id: string;
+  stock_quantity: number;
   images?: string[];
 }
 
@@ -52,6 +51,7 @@ export interface SellerUpdateProductDto {
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
 export interface SellerOrderItem {
+  product?: string;
   product_id?: { _id?: string; title?: string; images?: string[] };
   seller_id?: string;
   title: string;
@@ -62,23 +62,29 @@ export interface SellerOrderItem {
 
 export interface SellerOrder {
   _id: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: string;
   items: SellerOrderItem[];
-  total_price: number;
+  total_amount: number;       // ← backend uses total_amount (not total_price)
+  total_price?: number;       // fallback alias
   createdAt: string;
   shipping_address?: {
     street?: string;
     city?: string;
     country?: string;
+    zip?: string;
   };
 }
 
+// ─── FIXED: backend wraps orders in data.orders, not data directly ─────────
 export interface SellerOrdersResponse {
   success: boolean;
-  data: SellerOrder[];
+  data: {
+    orders: SellerOrder[];
+    pagination: SellerPagination;
+  };
+  message?: string;
 }
 
-// Seller can only set: shipped | delivered | cancelled
 export type SellerUpdateStatus = 'shipped' | 'delivered' | 'cancelled';
 
 // ─── Payouts ──────────────────────────────────────────────────────────────────
