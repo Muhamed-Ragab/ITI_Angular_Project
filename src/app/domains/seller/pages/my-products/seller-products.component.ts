@@ -1,12 +1,10 @@
-import {
-  ChangeDetectionStrategy, Component, inject, OnInit, signal,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CommonModule, SlicePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '@core/services/auth.service';
-import { SellerService } from '../../services/seller.services';
 import { SellerProductFormComponent } from '../../components/seller-product-form/seller-product-form.component';
-import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto/seller.dto';
+import { SellerPagination, SellerProduct, SellerProductFilters } from '../../dto/seller.dto';
+import { SellerService } from '../../services/seller.services';
 
 @Component({
   selector: 'app-seller-products',
@@ -15,7 +13,6 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="p-3 p-md-4">
-
       <!-- Header -->
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
@@ -24,9 +21,11 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
             {{ pagination()?.total ?? 0 }} product(s) in your store
           </p>
         </div>
-        <button class="btn fw-semibold rounded-pill px-4 shadow-sm"
+        <button
+          class="btn fw-semibold rounded-pill px-4 shadow-sm"
           style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#fff;border:none"
-          (click)="openCreate()">
+          (click)="openCreate()"
+        >
           <i class="bi bi-plus-lg me-2"></i>Add Product
         </button>
       </div>
@@ -36,10 +35,13 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
         <div class="card-body py-3 px-3">
           <div class="row g-2 align-items-end">
             <div class="col-md-6">
-              <input class="form-control border-0 bg-light rounded-3"
+              <input
+                class="form-control border-0 bg-light rounded-3"
                 placeholder="🔍 Search products by name…"
-                [(ngModel)]="searchText" name="search"
-                (keyup.enter)="applySearch()" />
+                [(ngModel)]="searchText"
+                name="search"
+                (keyup.enter)="applySearch()"
+              />
             </div>
             <div class="col-auto">
               <select class="form-select border-0 bg-light rounded-3" [(ngModel)]="filters.limit">
@@ -52,7 +54,11 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
               <button class="btn btn-primary rounded-3 px-3" (click)="applySearch()">
                 <i class="bi bi-search"></i>
               </button>
-              <button class="btn btn-outline-secondary rounded-3" (click)="resetFilters()" title="Clear">
+              <button
+                class="btn btn-outline-secondary rounded-3"
+                (click)="resetFilters()"
+                title="Clear"
+              >
                 <i class="bi bi-x-lg"></i>
               </button>
             </div>
@@ -62,28 +68,43 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
 
       <!-- Alerts -->
       @if (successMsg()) {
-        <div class="alert alert-success border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2">
+        <div
+          class="alert alert-success border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2"
+        >
           <i class="bi bi-check-circle-fill"></i>{{ successMsg() }}
         </div>
       }
       @if (error()) {
-        <div class="alert alert-danger border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2">
+        <div
+          class="alert alert-danger border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2"
+        >
           <i class="bi bi-exclamation-triangle-fill"></i>{{ error() }}
         </div>
       }
       @if (pendingDelete()) {
-        <div class="alert alert-warning border-0 rounded-3 d-flex align-items-center
-          justify-content-between flex-wrap gap-2 mb-3">
+        <div
+          class="alert alert-warning border-0 rounded-3 d-flex align-items-center
+          justify-content-between flex-wrap gap-2 mb-3"
+        >
           <span>
             <i class="bi bi-exclamation-triangle me-2"></i>
             Delete <strong>"{{ pendingDelete()!.title }}"</strong>? This cannot be undone.
           </span>
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary rounded-pill"
-              (click)="pendingDelete.set(null)">Cancel</button>
-            <button class="btn btn-sm btn-danger rounded-pill"
-              [disabled]="isDeleting()" (click)="confirmDelete()">
-              @if (isDeleting()) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            <button
+              class="btn btn-sm btn-outline-secondary rounded-pill"
+              (click)="pendingDelete.set(null)"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn btn-sm btn-danger rounded-pill"
+              [disabled]="isDeleting()"
+              (click)="confirmDelete()"
+            >
+              @if (isDeleting()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
               Yes, Delete
             </button>
           </div>
@@ -109,7 +130,10 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead style="background:#f8fafc">
-                <tr class="text-muted" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">
+                <tr
+                  class="text-muted"
+                  style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em"
+                >
                   <th class="ps-4 py-3">Product</th>
                   <th class="py-3">Category</th>
                   <th class="py-3">Price</th>
@@ -125,36 +149,48 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
                       <div class="d-flex align-items-center gap-3">
                         <img
                           [src]="p.images[0] || 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'"
-                          class="rounded-3 border flex-shrink-0"
+                          class="rounded-3 border shrink-0"
                           style="width:48px;height:48px;object-fit:cover"
-                          (error)="onImgError($event)" />
+                          (error)="onImgError($event)"
+                        />
                         <div>
-                          <div class="fw-semibold" style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                          <div
+                            class="fw-semibold"
+                            style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+                          >
                             {{ p.title }}
                           </div>
                           <div class="text-muted small">
-                            {{ p.description | slice:0:55 }}{{ p.description.length > 55 ? '…' : '' }}
+                            {{ p.description | slice: 0 : 55
+                            }}{{ p.description.length > 55 ? '…' : '' }}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td class="py-3">
-                      <span class="badge rounded-pill border fw-normal" style="background:#f0f9ff;color:#0369a1;border-color:#bae6fd!important">
+                      <span
+                        class="badge rounded-pill border fw-normal"
+                        style="background:#f0f9ff;color:#0369a1;border-color:#bae6fd!important"
+                      >
                         {{ getCategoryName(p) }}
                       </span>
                     </td>
-                    <td class="py-3 fw-semibold">\${{ p.price | number:'1.2-2' }}</td>
+                    <td class="py-3 fw-semibold">\${{ p.price | number: '1.2-2' }}</td>
                     <td class="py-3">
                       @if (p.stock_quantity === 0) {
                         <span class="badge rounded-pill bg-danger">Out of Stock</span>
                       } @else if (p.stock_quantity <= 10) {
-                        <span class="badge rounded-pill fw-normal"
-                          style="background:#fef9c3;color:#854d0e">
+                        <span
+                          class="badge rounded-pill fw-normal"
+                          style="background:#fef9c3;color:#854d0e"
+                        >
                           ⚠ Low: {{ p.stock_quantity }}
                         </span>
                       } @else {
-                        <span class="badge rounded-pill fw-normal"
-                          style="background:#dcfce7;color:#166534">
+                        <span
+                          class="badge rounded-pill fw-normal"
+                          style="background:#dcfce7;color:#166534"
+                        >
                           {{ p.stock_quantity }}
                         </span>
                       }
@@ -162,7 +198,7 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
                     <td class="py-3">
                       @if ((p.ratings_count ?? 0) > 0) {
                         <span class="text-warning me-1">★</span>
-                        <span class="fw-semibold">{{ p.average_rating | number:'1.1-1' }}</span>
+                        <span class="fw-semibold">{{ p.average_rating | number: '1.1-1' }}</span>
                         <span class="text-muted small ms-1">({{ p.ratings_count }})</span>
                       } @else {
                         <span class="text-muted small">No ratings</span>
@@ -170,12 +206,18 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
                     </td>
                     <td class="pe-4 py-3 text-end">
                       <div class="d-flex gap-2 justify-content-end">
-                        <button class="btn btn-sm btn-outline-primary rounded-3"
-                          (click)="openEdit(p)" title="Edit">
+                        <button
+                          class="btn btn-sm btn-outline-primary rounded-3"
+                          (click)="openEdit(p)"
+                          title="Edit"
+                        >
                           <i class="bi bi-pencil"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger rounded-3"
-                          (click)="requestDelete(p)" title="Delete">
+                        <button
+                          class="btn btn-sm btn-outline-danger rounded-3"
+                          (click)="requestDelete(p)"
+                          title="Delete"
+                        >
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -188,32 +230,46 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
 
           <!-- Pagination -->
           @if (pagination() && pagination()!.pages > 1) {
-            <div class="d-flex justify-content-between align-items-center px-4 py-3"
-              style="border-top:1px solid #f1f5f9">
+            <div
+              class="d-flex justify-content-between align-items-center px-4 py-3"
+              style="border-top:1px solid #f1f5f9"
+            >
               <small class="text-muted">
                 Showing {{ ((filters.page ?? 1) - 1) * (filters.limit ?? 10) + 1 }}–{{
-                  minVal(((filters.page ?? 1)) * (filters.limit ?? 10), pagination()!.total)
-                }} of {{ pagination()!.total }}
+                  minVal((filters.page ?? 1) * (filters.limit ?? 10), pagination()!.total)
+                }}
+                of {{ pagination()!.total }}
               </small>
               <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-outline-secondary rounded-3"
+                <button
+                  class="btn btn-sm btn-outline-secondary rounded-3"
                   [disabled]="(filters.page ?? 1) <= 1"
-                  (click)="changePage((filters.page ?? 1) - 1)">‹</button>
+                  (click)="changePage((filters.page ?? 1) - 1)"
+                >
+                  ‹
+                </button>
                 @for (p of pageRange(); track p) {
-                  <button class="btn btn-sm rounded-3"
+                  <button
+                    class="btn btn-sm rounded-3"
                     [class.btn-primary]="p === filters.page"
                     [class.btn-outline-secondary]="p !== filters.page"
-                    (click)="changePage(p)">{{ p }}</button>
+                    (click)="changePage(p)"
+                  >
+                    {{ p }}
+                  </button>
                 }
-                <button class="btn btn-sm btn-outline-secondary rounded-3"
+                <button
+                  class="btn btn-sm btn-outline-secondary rounded-3"
                   [disabled]="(filters.page ?? 1) >= pagination()!.pages"
-                  (click)="changePage((filters.page ?? 1) + 1)">›</button>
+                  (click)="changePage((filters.page ?? 1) + 1)"
+                >
+                  ›
+                </button>
               </div>
             </div>
           }
         }
       </div>
-
     </div>
 
     <!-- Product Form Modal -->
@@ -221,28 +277,31 @@ import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto
       <app-seller-product-form
         [editTarget]="editTarget()"
         (saved)="onSaved()"
-        (cancel)="showForm.set(false)" />
+        (cancel)="showForm.set(false)"
+      />
     }
   `,
 })
 export class SellerProductsComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
-  private readonly authService   = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
-  readonly products    = signal<SellerProduct[]>([]);
-  readonly pagination  = signal<SellerPagination | null>(null);
-  readonly isLoading   = signal(false);
-  readonly isDeleting  = signal(false);
-  readonly error       = signal<string | null>(null);
-  readonly successMsg  = signal<string | null>(null);
-  readonly showForm    = signal(false);
-  readonly editTarget  = signal<SellerProduct | null>(null);
+  readonly products = signal<SellerProduct[]>([]);
+  readonly pagination = signal<SellerPagination | null>(null);
+  readonly isLoading = signal(false);
+  readonly isDeleting = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly successMsg = signal<string | null>(null);
+  readonly showForm = signal(false);
+  readonly editTarget = signal<SellerProduct | null>(null);
   readonly pendingDelete = signal<SellerProduct | null>(null);
 
   filters: SellerProductFilters = { page: 1, limit: 10 };
   searchText = '';
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+  }
 
   private get sellerId(): string {
     const u: any = this.authService.currentUser();
@@ -267,36 +326,49 @@ export class SellerProductsComponent implements OnInit {
 
   applySearch(): void {
     this.filters.search = this.searchText || undefined;
-    this.filters.page   = 1;
+    this.filters.page = 1;
     this.load();
   }
 
   resetFilters(): void {
-    this.searchText  = '';
-    this.filters     = { page: 1, limit: 10 };
+    this.searchText = '';
+    this.filters = { page: 1, limit: 10 };
     this.load();
   }
 
-  changePage(p: number): void { this.filters.page = p; this.load(); }
+  changePage(p: number): void {
+    this.filters.page = p;
+    this.load();
+  }
 
   pageRange(): number[] {
     const total = this.pagination()?.pages ?? 1;
-    const cur   = this.filters.page ?? 1;
+    const cur = this.filters.page ?? 1;
     const start = Math.max(1, cur - 2);
-    const end   = Math.min(total, cur + 2);
+    const end = Math.min(total, cur + 2);
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
-  openCreate(): void { this.editTarget.set(null); this.showForm.set(true); }
-  openEdit(p: SellerProduct): void { this.editTarget.set(p); this.showForm.set(true); }
+  openCreate(): void {
+    this.editTarget.set(null);
+    this.showForm.set(true);
+  }
+  openEdit(p: SellerProduct): void {
+    this.editTarget.set(p);
+    this.showForm.set(true);
+  }
 
   onSaved(): void {
     this.showForm.set(false);
-    this.flash(this.editTarget() ? 'Product updated successfully.' : 'Product created successfully.');
+    this.flash(
+      this.editTarget() ? 'Product updated successfully.' : 'Product created successfully.',
+    );
     this.load();
   }
 
-  requestDelete(p: SellerProduct): void { this.pendingDelete.set(p); }
+  requestDelete(p: SellerProduct): void {
+    this.pendingDelete.set(p);
+  }
 
   confirmDelete(): void {
     const p = this.pendingDelete();
@@ -327,7 +399,9 @@ export class SellerProductsComponent implements OnInit {
     (e.target as HTMLImageElement).src = 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?';
   }
 
-  minVal(a: number, b: number): number { return Math.min(a, b); }
+  minVal(a: number, b: number): number {
+    return Math.min(a, b);
+  }
 
   private flash(msg: string): void {
     this.successMsg.set(msg);

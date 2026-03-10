@@ -6,6 +6,12 @@ export const sellerGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);
 
+  // Wait for authentication to finish loading before checking role
+  // This prevents redirect to /home when auth state is being restored on page reload
+  if (auth.isLoading()) {
+    return true;
+  }
+
   const user = auth.currentUser();
   if (user?.role === 'seller') return true;
 
