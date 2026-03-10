@@ -13,24 +13,25 @@ export interface AdminProductSeller {
   store_name?: string;
 }
 
-// ─── Product (as returned by GET /products list) ──────────────────────────────
+// ─── Product (as returned by GET /products) ───────────────────────────────────
+// Backend uses: title, stock_quantity, category_id, seller_id
 
 export interface AdminProduct {
   id?: string;
   _id?: string;
-  name?: string;
-  title?: string;           // best-sellers uses "title"
+  title?: string;             // backend field name
+  name?: string;              // fallback alias
   description: string;
   price: number;
-  category?: AdminProductCategory;
   category_id?: AdminProductCategory;
-  stock?: number;
-  stock_quantity?: number;
+  category?: AdminProductCategory;  // fallback alias
+  stock_quantity?: number;    // backend field name
+  stock?: number;             // fallback alias
   images: string[];
   average_rating: number;
   ratings_count: number;
-  seller?: AdminProductSeller;
   seller_id?: AdminProductSeller;
+  seller?: AdminProductSeller;  // fallback alias
   is_active?: boolean;
 }
 
@@ -51,26 +52,20 @@ export interface AdminProductPagination {
   pages: number;
 }
 
-// ─── Single product response ──────────────────────────────────────────────────
+// ─── Single / action responses ────────────────────────────────────────────────
 
 export interface AdminProductDetailResponse {
   success: boolean;
   data: AdminProduct;
 }
 
-// ─── Action response ──────────────────────────────────────────────────────────
-
 export interface AdminProductActionResponse {
   success: boolean;
   message: string;
-  data?: {
-    id: string;
-    name: string;
-    seller_id?: string;
-  };
+  data?: { id: string; title?: string; seller_id?: string };
 }
 
-// ─── Seller (from GET /users?role=seller) ────────────────────────────────────
+// ─── Seller dropdown ──────────────────────────────────────────────────────────
 
 export interface SellerUser {
   id: string;
@@ -78,43 +73,25 @@ export interface SellerUser {
   email: string;
 }
 
-export interface SellerListResponse {
-  success: boolean;
-  data: {
-    users: SellerUser[];
-    pagination: AdminProductPagination;
-  };
-}
-
-// ─── Request DTOs ─────────────────────────────────────────────────────────────
-
-export interface AdminCreateProductDto {
-  name: string;
-  description: string;
-  price: number;
-  category: string;   // category _id
-  stock: number;
-  seller: string;     // seller user _id
-  images: string[];
-}
+// ─── Request DTOs — names match backend validation schema exactly ─────────────
 
 export interface AdminUpdateProductDto {
-  name?: string;
+  title?: string;           // backend: title
   description?: string;
   price?: number;
-  category?: string;
-  stock?: number;
+  category_id?: string;     // backend: category_id
+  stock_quantity?: number;  // backend: stock_quantity
   images?: string[];
 }
 
-// ─── Filters ─────────────────────────────────────────────────────────────────
+// ─── Filters — names match backend query schema exactly ──────────────────────
 
 export interface AdminProductFilters {
   page?: number;
   limit?: number;
   search?: string;
-  category_id?: string;   // ← was: category?: string
-  sellerId?: string;
-  inStock?: boolean;
+  category_id?: string;
+  seller_id?: string;
+  in_stock?: boolean;       // backend: in_stock
   sort?: string;
 }

@@ -313,7 +313,7 @@ export class AdminLayoutComponent {
     { label: 'Categories', icon: 'bi-tags', route: '/admin/categories' },
     { label: 'Coupons', icon: 'bi-percent', route: '/admin/coupons' },
     { label: 'Seller Requests', icon: 'bi-people', route: '/admin/sellerrequest' },
-    { label: 'Payout Review', icon: 'bi-people', route: '/admin/payout' },
+    { label: 'Payment Done', icon: 'bi-people', route: '/admin/payment' },
   ];
 
   readonly sidebarOpen = signal(false);

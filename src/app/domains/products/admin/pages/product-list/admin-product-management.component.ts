@@ -20,19 +20,16 @@ import { Category } from '@domains/categories/dto';
   template: `
     <div class="container-fluid py-4">
 
-      <!-- Page header -->
+      <!-- Page header — no "Add Product" button (POST /products/admin not implemented in backend) -->
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
           <h4 class="fw-bold mb-0">
             <i class="bi bi-box-seam me-2 text-primary"></i>Product Management
           </h4>
           <p class="text-muted small mb-0 mt-1">
-            Create, edit, and moderate all products in the marketplace.
+            Edit and moderate all products in the marketplace.
           </p>
         </div>
-        <button class="btn btn-primary" (click)="openCreate()">
-          <i class="bi bi-plus-lg me-1"></i>Add Product
-        </button>
       </div>
 
       <!-- Stats bar -->
@@ -68,7 +65,6 @@ import { Category } from '@domains/categories/dto';
         <div class="card-body py-3">
           <div class="row g-2 align-items-end">
 
-            <!-- Search -->
             <div class="col-md-3">
               <label class="form-label small fw-semibold mb-1">Search</label>
               <input
@@ -79,7 +75,6 @@ import { Category } from '@domains/categories/dto';
               />
             </div>
 
-            <!-- Category filter ← NEW -->
             <div class="col-md-2">
               <label class="form-label small fw-semibold mb-1">Category</label>
               <select
@@ -96,7 +91,6 @@ import { Category } from '@domains/categories/dto';
               </select>
             </div>
 
-            <!-- Sort -->
             <div class="col-md-2">
               <label class="form-label small fw-semibold mb-1">Sort</label>
               <select class="form-select form-select-sm" [(ngModel)]="filters.sort" name="sort">
@@ -109,7 +103,6 @@ import { Category } from '@domains/categories/dto';
               </select>
             </div>
 
-            <!-- Stock -->
             <div class="col-md-1">
               <label class="form-label small fw-semibold mb-1">Stock</label>
               <select class="form-select form-select-sm" [(ngModel)]="inStockFilter" name="inStock">
@@ -119,7 +112,6 @@ import { Category } from '@domains/categories/dto';
               </select>
             </div>
 
-            <!-- Per page -->
             <div class="col-md-1">
               <label class="form-label small fw-semibold mb-1">Per page</label>
               <select class="form-select form-select-sm" [(ngModel)]="filters.limit" name="limit">
@@ -129,7 +121,6 @@ import { Category } from '@domains/categories/dto';
               </select>
             </div>
 
-            <!-- Buttons -->
             <div class="col-md-3 d-flex gap-2">
               <button class="btn btn-primary btn-sm w-100" (click)="applyFilters()">
                 <i class="bi bi-search me-1"></i>Search
@@ -155,7 +146,7 @@ import { Category } from '@domains/categories/dto';
         <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
           <span>
             <i class="bi bi-exclamation-triangle me-2"></i>
-            Delete <strong>{{ productName(pendingDelete()!) }}</strong>? This action cannot be undone.
+            Delete <strong>{{ productName(pendingDelete()!) }}</strong>? This cannot be undone.
           </span>
           <div class="d-flex gap-2">
             <button class="btn btn-sm btn-outline-secondary" (click)="pendingDelete.set(null)">
@@ -166,9 +157,7 @@ import { Category } from '@domains/categories/dto';
               [disabled]="isDeleting()"
               (click)="confirmDelete()"
             >
-              @if (isDeleting()) {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
+              @if (isDeleting()) { <span class="spinner-border spinner-border-sm me-1"></span> }
               <i class="bi bi-trash me-1"></i>Delete
             </button>
           </div>
@@ -183,7 +172,7 @@ import { Category } from '@domains/categories/dto';
         </div>
       }
 
-      <!-- Table card -->
+      <!-- Table -->
       <div class="card border-0 shadow-sm">
         @if (isLoading()) {
           <div class="text-center py-5">
@@ -204,7 +193,7 @@ import { Category } from '@domains/categories/dto';
 
     </div>
 
-    <!-- Form Modal -->
+    <!-- Edit Modal -->
     @if (showForm()) {
       <app-admin-product-form
         [editTarget]="editTarget()"
@@ -217,46 +206,33 @@ import { Category } from '@domains/categories/dto';
 export class AdminProductManagementComponent implements OnInit {
   private readonly adminProductService = inject(AdminProductService);
 
-  // ── State ──────────────────────────────────────────────────────────────────
-  readonly products = signal<AdminProduct[]>([]);
-  readonly pagination = signal<AdminProductPagination | null>(null);
-  readonly isLoading = signal(false);
-  readonly isDeleting = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly successMsg = signal<string | null>(null);
-  readonly showForm = signal(false);
-  readonly editTarget = signal<AdminProduct | null>(null);
+  readonly products     = signal<AdminProduct[]>([]);
+  readonly pagination   = signal<AdminProductPagination | null>(null);
+  readonly isLoading    = signal(false);
+  readonly isDeleting   = signal(false);
+  readonly error        = signal<string | null>(null);
+  readonly successMsg   = signal<string | null>(null);
+  readonly showForm     = signal(false);
+  readonly editTarget   = signal<AdminProduct | null>(null);
   readonly pendingDelete = signal<AdminProduct | null>(null);
-
-  // ── Category list for filter dropdown ─────────────────────────────────────
   readonly flatCategories = signal<Category[]>([]);
 
-  // ── Filters ────────────────────────────────────────────────────────────────
   filters: AdminProductFilters = { page: 1, limit: 10 };
-  inStockFilter = '';   // 'true' | 'false' | ''
+  inStockFilter = '';
 
-  // ── Computed stats ─────────────────────────────────────────────────────────
-  inStockCount(): number {
-    return this.products().filter(p => (p.stock ?? p.stock_quantity ?? 0) > 0).length;
-  }
-  outOfStockCount(): number {
-    return this.products().filter(p => (p.stock ?? p.stock_quantity ?? 0) === 0).length;
-  }
-  lowStockCount(): number {
+  inStockCount():    number { return this.products().filter(p => (p.stock_quantity ?? p.stock ?? 0) > 0).length; }
+  outOfStockCount(): number { return this.products().filter(p => (p.stock_quantity ?? p.stock ?? 0) === 0).length; }
+  lowStockCount():   number {
     return this.products().filter(p => {
-      const s = p.stock ?? p.stock_quantity ?? 0;
+      const s = p.stock_quantity ?? p.stock ?? 0;
       return s > 0 && s <= 10;
     }).length;
   }
-
-  // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.loadCategories();
     this.load();
   }
-
-  // ── Load categories for the filter dropdown ────────────────────────────────
 
   private loadCategories(): void {
     this.adminProductService.getCategories().subscribe({
@@ -271,15 +247,14 @@ export class AdminProductManagementComponent implements OnInit {
     });
   }
 
-  // ── Load products ──────────────────────────────────────────────────────────
-
   load(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
     const f: AdminProductFilters = { ...this.filters };
-    if (this.inStockFilter === 'true') f.inStock = true;
-    else if (this.inStockFilter === 'false') f.inStock = false;
+    // Fix: use in_stock (backend field name), not inStock
+    if (this.inStockFilter === 'true')  f.in_stock = true;
+    else if (this.inStockFilter === 'false') f.in_stock = false;
 
     this.adminProductService.getProducts(f).subscribe({
       next: (res) => {
@@ -294,12 +269,7 @@ export class AdminProductManagementComponent implements OnInit {
     });
   }
 
-  // ── Filters ────────────────────────────────────────────────────────────────
-
-  applyFilters(): void {
-    this.filters.page = 1;
-    this.load();
-  }
+  applyFilters(): void { this.filters.page = 1; this.load(); }
 
   resetFilters(): void {
     this.filters = { page: 1, limit: 10 };
@@ -307,17 +277,7 @@ export class AdminProductManagementComponent implements OnInit {
     this.load();
   }
 
-  onPageChange(page: number): void {
-    this.filters.page = page;
-    this.load();
-  }
-
-  // ── Form modal ─────────────────────────────────────────────────────────────
-
-  openCreate(): void {
-    this.editTarget.set(null);
-    this.showForm.set(true);
-  }
+  onPageChange(page: number): void { this.filters.page = page; this.load(); }
 
   openEdit(product: AdminProduct): void {
     this.editTarget.set(product);
@@ -326,24 +286,17 @@ export class AdminProductManagementComponent implements OnInit {
 
   onSaved(): void {
     this.showForm.set(false);
-    this.showSuccess(
-      this.editTarget() ? 'Product updated successfully.' : 'Product created successfully.',
-    );
+    this.showSuccess('Product updated successfully.');
     this.load();
   }
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
-
-  requestDelete(product: AdminProduct): void {
-    this.pendingDelete.set(product);
-  }
+  requestDelete(product: AdminProduct): void { this.pendingDelete.set(product); }
 
   confirmDelete(): void {
     const p = this.pendingDelete();
     if (!p) return;
-
     this.isDeleting.set(true);
-    const id = (p.id ?? p._id) as string;
+    const id = (p._id ?? p.id) as string;
 
     this.adminProductService.deleteProduct(id).subscribe({
       next: () => {
@@ -360,11 +313,7 @@ export class AdminProductManagementComponent implements OnInit {
     });
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-
-  productName(p: AdminProduct): string {
-    return (p.name ?? p.title) as string;
-  }
+  productName(p: AdminProduct): string { return (p.title ?? p.name) as string; }
 
   private showSuccess(msg: string): void {
     this.successMsg.set(msg);
