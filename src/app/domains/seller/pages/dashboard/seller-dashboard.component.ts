@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { ProfileService } from '@domains/profile/Services/profile.service';
@@ -384,7 +384,9 @@ export class SellerDashboardComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
 
-  readonly isLoading = signal(true);
+  readonly isLoadingProducts = signal(true);
+  readonly isLoadingOrders = signal(true);
+  readonly isLoading = computed(() => this.isLoadingProducts() || this.isLoadingOrders());
   readonly totalProducts = signal(0);
   readonly totalOrders = signal(0);
   readonly pendingOrders = signal(0);
