@@ -35,11 +35,11 @@ interface NavItem {
                   <h5 class="mb-0 fw-bold text-white">{{ 'sellerLayout.panel' | translate }}</h5>
                 </div>
                 @if (storeName()) {
-                  <small class="text-white-50">{{ storeName() }}</small>
+                  <small class="opacity-50">{{ storeName() }}</small>
                 }
               </div>
             } @else {
-              <i class="bi bi-shop" style="color:#4ade80;font-size:1.2rem"></i>
+              <i class="bi bi-shop" style="font-size:1.3rem"></i>
             }
             <button class="btn btn-sm btn-outline-light d-lg-none" (click)="closeSidebar()">
               <i class="bi bi-x-lg"></i>

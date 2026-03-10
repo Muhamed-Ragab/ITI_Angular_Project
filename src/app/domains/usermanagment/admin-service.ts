@@ -30,4 +30,8 @@ export class AdminService {
   grantLoyaltyPoints(id: string, points: number): Observable<any> {
     return this.api.patch(`${this.endpoint}/admin/${id}/loyalty`, { points });
   }
+
+  updateUserRole(id: string, role: string): Observable<any> {
+  return this.api.put(`${this.endpoint}/admin/${id}/role`, { role });
+}
 }
