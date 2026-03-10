@@ -7,6 +7,14 @@ export const sellerRoutes: Routes = [
       import('./pages/dashboard/seller-dashboard.component').then(m => m.SellerDashboardComponent),
   },
   {
+    // Profile inside seller layout — same pattern as /admin/profile
+    path: 'profile',
+    loadComponent: () =>
+      import('../../domains/profile/profile-page.component/profile-page.component').then(
+        m => m.ProfilePageComponent,
+      ),
+  },
+  {
     path: 'products',
     loadComponent: () =>
       import('./pages/my-products/seller-products.component').then(m => m.SellerProductsComponent),
