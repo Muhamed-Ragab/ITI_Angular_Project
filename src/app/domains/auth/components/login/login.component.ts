@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { AuthFacadeService } from '../../services/auth-facade.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container mt-5">
@@ -14,12 +16,12 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
         <div class="col-md-6 col-lg-4">
           <div class="card shadow-sm">
             <div class="card-body p-4">
-              <h2 class="card-title text-center mb-4">Login</h2>
+              <h2 class="card-title text-center mb-4">{{ 'auth.login.title' | translate }}</h2>
 
               @if (verified()) {
                 <div class="alert alert-success" role="alert">
                   <i class="bi bi-check-circle me-2"></i>
-                  Email verified successfully! Please login.
+                  {{ 'auth.login.emailVerified' | translate }}
                 </div>
               }
 
@@ -31,12 +33,12 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
 
               <form (ngSubmit)="onLogin()">
                 <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
+                  <label for="email" class="form-label">{{ 'auth.login.emailLabel' | translate }}</label>
                   <input
                     type="email"
                     id="email"
                     class="form-control"
-                    placeholder="Enter your email"
+                    [placeholder]="'auth.login.emailPlaceholder' | translate"
                     [ngModel]="email()"
                     (ngModelChange)="email.set($event)"
                     name="email"
@@ -46,12 +48,12 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 </div>
 
                 <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
+                  <label for="password" class="form-label">{{ 'auth.login.passwordLabel' | translate }}</label>
                   <input
                     type="password"
                     id="password"
                     class="form-control"
-                    placeholder="Enter your password"
+                    [placeholder]="'auth.login.passwordPlaceholder' | translate"
                     [ngModel]="password()"
                     (ngModelChange)="password.set($event)"
                     name="password"
@@ -67,29 +69,29 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
                 >
                   @if (isLoading()) {
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                    Logging in...
+                    {{ 'auth.login.loggingIn' | translate }}
                   } @else {
-                    Login
+                    {{ 'auth.login.loginButton' | translate }}
                   }
                 </button>
 
                 <div class="text-center">
-                  <a routerLink="/auth/otp-login" class="link-primary">Login with OTP</a>
+                  <a routerLink="/auth/otp-login" class="link-primary">{{ 'auth.login.loginWithOtp' | translate }}</a>
                 </div>
 
                 <div class="d-grid gap-2 my-3">
                   <button type="button" class="btn btn-outline-danger" (click)="onGoogleLogin()">
                     <i class="bi bi-google me-2"></i>
-                    Continue with Google
+                    {{ 'auth.login.continueWithGoogle' | translate }}
                   </button>
                 </div>
 
                 <hr class="my-3" />
 
                 <div class="text-center">
-                  <p class="mb-2 text-muted">Don't have an account?</p>
+                  <p class="mb-2 text-muted">{{ 'auth.login.noAccount' | translate }}</p>
                   <a routerLink="/auth/register" class="btn btn-outline-secondary w-100">
-                    Register
+                    {{ 'auth.login.registerButton' | translate }}
                   </a>
                 </div>
               </form>
@@ -104,6 +106,7 @@ import { AuthFacadeService } from '../../services/auth-facade.service';
 export class LoginComponent {
   private readonly authFacade = inject(AuthFacadeService);
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
   readonly email = signal('');
   readonly password = signal('');
@@ -124,12 +127,12 @@ export class LoginComponent {
         next: (success) => {
           this.isLoading.set(false);
           if (!success) {
-            this.error.set('Invalid email or password');
+            this.error.set(this.translate.instant('auth.login.errors.invalidCredentials'));
           }
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.error.set(err.message || 'Login failed');
+          this.error.set(err.message || this.translate.instant('auth.login.errors.loginFailed'));
         },
       });
   }

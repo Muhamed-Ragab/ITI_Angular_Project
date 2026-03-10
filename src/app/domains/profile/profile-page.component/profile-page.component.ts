@@ -3,14 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { ProfileService } from '../Services/profile.service';
-import { UserProfile } from '../dto/user-profile.dto';
+import { PayoutResponse, UserProfile } from '../dto/user-profile.dto';
 import { ProfileFormComponent } from '../Components/profile-form.component/profile-form.component';
 import { SellerApplyComponent } from '../Components/seller-apply.component/seller-apply.component';
 import { SellerPayoutComponent } from '../Components/seller-payout.component.ts/seller-payout.component.ts';
 import { WalletCardComponent } from '../Components/wallet-card.component/wallet-card.component';
-// استيراد مكون الحالة الجديد (تأكد من صحة المسار لديك)
 import { CustomerSellerStatusComponent } from '../Components/customer-seller-status.component/customer-seller-status.component';
-
 @Component({
   selector: 'app-profile-page',
   standalone: true,
@@ -21,7 +19,7 @@ import { CustomerSellerStatusComponent } from '../Components/customer-seller-sta
     SellerApplyComponent,
     SellerPayoutComponent,
     WalletCardComponent,
-    CustomerSellerStatusComponent, // أضفناه هنا
+    CustomerSellerStatusComponent, 
   ],
   template: `
 <div class="container py-5">
@@ -85,7 +83,7 @@ export class ProfilePageComponent implements OnInit {
 
   private profileService = inject(ProfileService);
   private fb = inject(FormBuilder);
-
+  lastPayout = signal<PayoutResponse | null>(null);
   profile = signal<UserProfile | null>(null);
 
   isLoading = signal(true);

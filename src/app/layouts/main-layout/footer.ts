@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   template: `
     <!-- Footer -->
     <footer class="bg-dark text-light pt-5">
@@ -12,10 +13,9 @@ import { RouterLink } from '@angular/router';
         <div class="row">
           <!-- Logo + Description -->
           <div class="col-md-4 mb-4">
-            <h5 class="fw-bold text-warning">Goshop</h5>
+            <h5 class="fw-bold text-warning">{{ 'footer.brand' | translate }}</h5>
             <p class="small">
-              Goshop is an online store that offers the best products at the best prices in Egypt.
-              Shop easily and enjoy a smooth and unique shopping experience.
+              {{ 'footer.description' | translate }}
             </p>
 
             <!-- Social -->
@@ -29,33 +29,33 @@ import { RouterLink } from '@angular/router';
 
           <!-- Shop Links -->
           <div class="col-md-2 mb-4">
-            <h6 class="fw-bold">Shop</h6>
+            <h6 class="fw-bold">{{ 'footer.shop' | translate }}</h6>
             <ul class="list-unstyled">
-              <li><a routerLink="/" class="text-decoration-none text-light">Home</a></li>
+              <li><a routerLink="/" class="text-decoration-none text-light">{{ 'footer.home' | translate }}</a></li>
               <li>
-                <a routerLink="/products" class="text-decoration-none text-light">Products</a>
+                <a routerLink="/products" class="text-decoration-none text-light">{{ 'footer.products' | translate }}</a>
               </li>
               <li>
-                <a routerLink="/categories" class="text-decoration-none text-light">Categories</a>
+                <a routerLink="/categories" class="text-decoration-none text-light">{{ 'footer.categories' | translate }}</a>
               </li>
-              <li><a routerLink="/offers" class="text-decoration-none text-light">Offers</a></li>
+              <li><a routerLink="/offers" class="text-decoration-none text-light">{{ 'footer.offers' | translate }}</a></li>
             </ul>
           </div>
 
           <!-- Customer -->
           <div class="col-md-3 mb-4">
-            <h6 class="fw-bold">Customer Service</h6>
+            <h6 class="fw-bold">{{ 'footer.customerService' | translate }}</h6>
             <ul class="list-unstyled">
-              <li><a routerLink="/profile" class="text-decoration-none text-light">My Account</a></li>
-              <li><a routerLink="/orders" class="text-decoration-none text-light">Orders</a></li>
-              <li><a routerLink="/wishlist" class="text-decoration-none text-light">Wishlist</a></li>
-              <li><a routerLink="/" class="text-decoration-none text-light">Help</a></li>
+              <li><a routerLink="/profile" class="text-decoration-none text-light">{{ 'footer.myAccount' | translate }}</a></li>
+              <li><a routerLink="/orders" class="text-decoration-none text-light">{{ 'footer.orders' | translate }}</a></li>
+              <li><a routerLink="/wishlist" class="text-decoration-none text-light">{{ 'footer.wishlist' | translate }}</a></li>
+              <li><a routerLink="/" class="text-decoration-none text-light">{{ 'footer.help' | translate }}</a></li>
             </ul>
           </div>
 
           <div class="col-md-3 mb-4">
-            <h6 class="fw-bold">Contact</h6>
-            <p class="small mb-1"><i class="fas fa-map-marker-alt me-2"></i>Egypt</p>
+            <h6 class="fw-bold">{{ 'footer.contact' | translate }}</h6>
+            <p class="small mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ 'footer.location' | translate }}</p>
             <p class="small mb-1"><i class="fas fa-envelope me-2"></i>support@goshop.com</p>
             <p class="small mb-1"><i class="fas fa-phone me-2"></i>+20 100 568 253</p>
           </div>
@@ -63,17 +63,10 @@ import { RouterLink } from '@angular/router';
       </div>
 
       <div class="text-center py-3 border-top border-secondary">
-        © 2026 SouqMasr - All Rights Reserved
+        {{ 'footer.copyright' | translate:{ year: 2026 } }}
       </div>
     </footer>
 
-    <button
-      class="btn btn-warning position-fixed bottom-0 end-0 m-4 rounded-circle shadow"
-      onclick="window.scrollTo({top:0, behavior:'smooth'})"
-      style="width:45px;height:45px"
-    >
-      ↑
-    </button>
   `,
 })
 export class Footer {}

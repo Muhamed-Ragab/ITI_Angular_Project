@@ -8,14 +8,11 @@ import { AuthService } from '../../../core/services/auth.service';
  * Route mapping based on user role
  */
 const ROLE_ROUTES: Record<string, string> = {
-  admin: '/admin/orders',
-  seller: '/home',
+  admin:    '/admin/orders',
+  seller:   '/seller',       // ← sends seller to their dashboard
   customer: '/home',
 };
 
-/**
- * Get the appropriate route based on user role
- */
 function getRouteByRole(role: string | undefined): string {
   return role ? ROLE_ROUTES[role] || '/home' : '/home';
 }
@@ -23,10 +20,10 @@ function getRouteByRole(role: string | undefined): string {
 @Injectable({ providedIn: 'root' })
 export class AuthFacadeService {
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+  private readonly router      = inject(Router);
 
   readonly isAuthenticated = this.authService.isAuthenticated;
-  readonly currentUser = this.authService.currentUser;
+  readonly currentUser     = this.authService.currentUser;
 
   login$(credentials: LoginRequestDto): Observable<boolean> {
     return this.authService.login(credentials).pipe(
@@ -39,12 +36,9 @@ export class AuthFacadeService {
     );
   }
 
-  register$(
-    userData: RegisterRequestDto,
-  ): Observable<{ success: boolean; error?: { message: string } }> {
+  register$(userData: RegisterRequestDto): Observable<{ success: boolean; error?: { message: string } }> {
     return this.authService.register(userData).pipe(
       tap(() => {
-        // Navigate to verify email page with email parameter
         this.router.navigate(['/auth/verify-email'], {
           queryParams: { email: userData.email },
           replaceUrl: true,

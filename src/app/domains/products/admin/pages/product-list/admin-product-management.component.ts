@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminProduct, AdminProductFilters, AdminProductPagination } from '../../dto';
 import { AdminProductService } from '../../services/admin-product.service';
 import { AdminProductTableComponent } from '../../components/product-table/product-table.component';
@@ -15,24 +16,21 @@ import { Category } from '@domains/categories/dto';
 @Component({
   selector: 'app-admin-product-management',
   standalone: true,
-  imports: [FormsModule, AdminProductTableComponent, AdminProductFormComponent],
+  imports: [FormsModule, TranslateModule, AdminProductTableComponent, AdminProductFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container-fluid py-4">
 
-      <!-- Page header -->
+      <!-- Page header — no "Add Product" button (POST /products/admin not implemented in backend) -->
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
           <h4 class="fw-bold mb-0">
-            <i class="bi bi-box-seam me-2 text-primary"></i>Product Management
+            <i class="bi bi-box-seam me-2 text-primary"></i>{{ 'products.admin.management.title' | translate }}
           </h4>
           <p class="text-muted small mb-0 mt-1">
-            Create, edit, and moderate all products in the marketplace.
+            {{ 'products.admin.management.description' | translate }}
           </p>
         </div>
-        <button class="btn btn-primary" (click)="openCreate()">
-          <i class="bi bi-plus-lg me-1"></i>Add Product
-        </button>
       </div>
 
       <!-- Stats bar -->
@@ -40,25 +38,25 @@ import { Category } from '@domains/categories/dto';
         <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-4 fw-bold text-primary">{{ pagination()?.total ?? '—' }}</div>
-            <div class="small text-muted">Total Products</div>
+            <div class="small text-muted">{{ 'products.admin.management.totalProducts' | translate }}</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-4 fw-bold text-success">{{ inStockCount() }}</div>
-            <div class="small text-muted">In Stock</div>
+            <div class="small text-muted">{{ 'products.admin.management.inStock' | translate }}</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-4 fw-bold text-danger">{{ outOfStockCount() }}</div>
-            <div class="small text-muted">Out of Stock</div>
+            <div class="small text-muted">{{ 'products.admin.management.outOfStock' | translate }}</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-4 fw-bold text-warning">{{ lowStockCount() }}</div>
-            <div class="small text-muted">Low Stock (≤10)</div>
+            <div class="small text-muted">{{ 'products.admin.management.lowStock' | translate }}</div>
           </div>
         </div>
       </div>
@@ -68,26 +66,24 @@ import { Category } from '@domains/categories/dto';
         <div class="card-body py-3">
           <div class="row g-2 align-items-end">
 
-            <!-- Search -->
             <div class="col-md-3">
-              <label class="form-label small fw-semibold mb-1">Search</label>
+              <label class="form-label small fw-semibold mb-1">{{ 'products.admin.management.search' | translate }}</label>
               <input
                 class="form-control form-control-sm"
-                placeholder="Name or description…"
+                [placeholder]="'products.admin.management.searchPlaceholder' | translate"
                 [(ngModel)]="filters.search"
                 name="search"
               />
             </div>
 
-            <!-- Category filter ← NEW -->
             <div class="col-md-2">
-              <label class="form-label small fw-semibold mb-1">Category</label>
+              <label class="form-label small fw-semibold mb-1">{{ 'products.admin.management.category' | translate }}</label>
               <select
                 class="form-select form-select-sm"
                 [(ngModel)]="filters.category_id"
                 name="category"
               >
-                <option value="">All Categories</option>
+                <option value="">{{ 'products.admin.management.allCategories' | translate }}</option>
                 @for (cat of flatCategories(); track cat._id) {
                   <option [value]="cat._id">
                     {{ cat.parentId ? '↳ ' : '' }}{{ cat.name }}
@@ -96,32 +92,29 @@ import { Category } from '@domains/categories/dto';
               </select>
             </div>
 
-            <!-- Sort -->
             <div class="col-md-2">
-              <label class="form-label small fw-semibold mb-1">Sort</label>
+              <label class="form-label small fw-semibold mb-1">{{ 'products.admin.management.sort' | translate }}</label>
               <select class="form-select form-select-sm" [(ngModel)]="filters.sort" name="sort">
-                <option value="">Default</option>
-                <option value="newest">Newest</option>
-                <option value="price_asc">Price ↑</option>
-                <option value="price_desc">Price ↓</option>
-                <option value="rating">Rating</option>
-                <option value="popular">Popular</option>
+                <option value="">{{ 'products.admin.management.default' | translate }}</option>
+                <option value="newest">{{ 'products.filters.newest' | translate }}</option>
+                <option value="price_asc">{{ 'products.filters.priceAsc' | translate }}</option>
+                <option value="price_desc">{{ 'products.filters.priceDesc' | translate }}</option>
+                <option value="rating">{{ 'products.filters.rating' | translate }}</option>
+                <option value="popular">{{ 'products.filters.popular' | translate }}</option>
               </select>
             </div>
 
-            <!-- Stock -->
             <div class="col-md-1">
-              <label class="form-label small fw-semibold mb-1">Stock</label>
+              <label class="form-label small fw-semibold mb-1">{{ 'products.admin.management.stock' | translate }}</label>
               <select class="form-select form-select-sm" [(ngModel)]="inStockFilter" name="inStock">
-                <option value="">All</option>
-                <option value="true">In Stock</option>
-                <option value="false">Out of Stock</option>
+                <option value="">{{ 'products.admin.management.all' | translate }}</option>
+                <option value="true">{{ 'products.admin.management.inStock' | translate }}</option>
+                <option value="false">{{ 'products.admin.management.outOfStock' | translate }}</option>
               </select>
             </div>
 
-            <!-- Per page -->
             <div class="col-md-1">
-              <label class="form-label small fw-semibold mb-1">Per page</label>
+              <label class="form-label small fw-semibold mb-1">{{ 'products.admin.management.perPage' | translate }}</label>
               <select class="form-select form-select-sm" [(ngModel)]="filters.limit" name="limit">
                 <option [value]="10">10</option>
                 <option [value]="25">25</option>
@@ -129,10 +122,9 @@ import { Category } from '@domains/categories/dto';
               </select>
             </div>
 
-            <!-- Buttons -->
             <div class="col-md-3 d-flex gap-2">
               <button class="btn btn-primary btn-sm w-100" (click)="applyFilters()">
-                <i class="bi bi-search me-1"></i>Search
+                <i class="bi bi-search me-1"></i>{{ 'products.admin.management.search' | translate }}
               </button>
               <button class="btn btn-outline-secondary btn-sm" (click)="resetFilters()" title="Reset">
                 <i class="bi bi-x-lg"></i>
@@ -155,21 +147,19 @@ import { Category } from '@domains/categories/dto';
         <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
           <span>
             <i class="bi bi-exclamation-triangle me-2"></i>
-            Delete <strong>{{ productName(pendingDelete()!) }}</strong>? This action cannot be undone.
+            {{ 'products.admin.management.deleteQuestion' | translate }} <strong>{{ productName(pendingDelete()!) }}</strong>? {{ 'products.admin.management.deleteWarning' | translate }}
           </span>
           <div class="d-flex gap-2">
             <button class="btn btn-sm btn-outline-secondary" (click)="pendingDelete.set(null)">
-              Cancel
+              {{ 'products.admin.management.cancel' | translate }}
             </button>
             <button
               class="btn btn-sm btn-danger"
               [disabled]="isDeleting()"
               (click)="confirmDelete()"
             >
-              @if (isDeleting()) {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              <i class="bi bi-trash me-1"></i>Delete
+              @if (isDeleting()) { <span class="spinner-border spinner-border-sm me-1"></span> }
+              <i class="bi bi-trash me-1"></i>{{ 'products.admin.management.deleteConfirm' | translate }}
             </button>
           </div>
         </div>
@@ -179,16 +169,16 @@ import { Category } from '@domains/categories/dto';
       @if (error()) {
         <div class="alert alert-danger mb-3">
           <i class="bi bi-exclamation-triangle me-2"></i>{{ error() }}
-          <button class="btn btn-sm btn-outline-danger ms-3" (click)="load()">Retry</button>
+          <button class="btn btn-sm btn-outline-danger ms-3" (click)="load()">{{ 'products.admin.management.retry' | translate }}</button>
         </div>
       }
 
-      <!-- Table card -->
+      <!-- Table -->
       <div class="card border-0 shadow-sm">
         @if (isLoading()) {
           <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading…</span>
+              <span class="visually-hidden">{{ 'products.list.loading' | translate }}</span>
             </div>
           </div>
         } @else {
@@ -204,7 +194,7 @@ import { Category } from '@domains/categories/dto';
 
     </div>
 
-    <!-- Form Modal -->
+    <!-- Edit Modal -->
     @if (showForm()) {
       <app-admin-product-form
         [editTarget]="editTarget()"
@@ -216,47 +206,35 @@ import { Category } from '@domains/categories/dto';
 })
 export class AdminProductManagementComponent implements OnInit {
   private readonly adminProductService = inject(AdminProductService);
+  private readonly translate = inject(TranslateService);
 
-  // ── State ──────────────────────────────────────────────────────────────────
-  readonly products = signal<AdminProduct[]>([]);
-  readonly pagination = signal<AdminProductPagination | null>(null);
-  readonly isLoading = signal(false);
-  readonly isDeleting = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly successMsg = signal<string | null>(null);
-  readonly showForm = signal(false);
-  readonly editTarget = signal<AdminProduct | null>(null);
+  readonly products     = signal<AdminProduct[]>([]);
+  readonly pagination   = signal<AdminProductPagination | null>(null);
+  readonly isLoading    = signal(false);
+  readonly isDeleting   = signal(false);
+  readonly error        = signal<string | null>(null);
+  readonly successMsg   = signal<string | null>(null);
+  readonly showForm     = signal(false);
+  readonly editTarget   = signal<AdminProduct | null>(null);
   readonly pendingDelete = signal<AdminProduct | null>(null);
-
-  // ── Category list for filter dropdown ─────────────────────────────────────
   readonly flatCategories = signal<Category[]>([]);
 
-  // ── Filters ────────────────────────────────────────────────────────────────
   filters: AdminProductFilters = { page: 1, limit: 10 };
-  inStockFilter = '';   // 'true' | 'false' | ''
+  inStockFilter = '';
 
-  // ── Computed stats ─────────────────────────────────────────────────────────
-  inStockCount(): number {
-    return this.products().filter(p => (p.stock ?? p.stock_quantity ?? 0) > 0).length;
-  }
-  outOfStockCount(): number {
-    return this.products().filter(p => (p.stock ?? p.stock_quantity ?? 0) === 0).length;
-  }
-  lowStockCount(): number {
+  inStockCount():    number { return this.products().filter(p => (p.stock_quantity ?? p.stock ?? 0) > 0).length; }
+  outOfStockCount(): number { return this.products().filter(p => (p.stock_quantity ?? p.stock ?? 0) === 0).length; }
+  lowStockCount():   number {
     return this.products().filter(p => {
-      const s = p.stock ?? p.stock_quantity ?? 0;
+      const s = p.stock_quantity ?? p.stock ?? 0;
       return s > 0 && s <= 10;
     }).length;
   }
-
-  // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.loadCategories();
     this.load();
   }
-
-  // ── Load categories for the filter dropdown ────────────────────────────────
 
   private loadCategories(): void {
     this.adminProductService.getCategories().subscribe({
@@ -271,15 +249,14 @@ export class AdminProductManagementComponent implements OnInit {
     });
   }
 
-  // ── Load products ──────────────────────────────────────────────────────────
-
   load(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
     const f: AdminProductFilters = { ...this.filters };
-    if (this.inStockFilter === 'true') f.inStock = true;
-    else if (this.inStockFilter === 'false') f.inStock = false;
+    // Fix: use in_stock (backend field name), not inStock
+    if (this.inStockFilter === 'true')  f.in_stock = true;
+    else if (this.inStockFilter === 'false') f.in_stock = false;
 
     this.adminProductService.getProducts(f).subscribe({
       next: (res) => {
@@ -288,18 +265,13 @@ export class AdminProductManagementComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set(err?.error?.message ?? 'Failed to load products.');
+        this.error.set(err?.error?.message ?? this.translate.instant('products.admin.management.errorLoading'));
         this.isLoading.set(false);
       },
     });
   }
 
-  // ── Filters ────────────────────────────────────────────────────────────────
-
-  applyFilters(): void {
-    this.filters.page = 1;
-    this.load();
-  }
+  applyFilters(): void { this.filters.page = 1; this.load(); }
 
   resetFilters(): void {
     this.filters = { page: 1, limit: 10 };
@@ -307,17 +279,7 @@ export class AdminProductManagementComponent implements OnInit {
     this.load();
   }
 
-  onPageChange(page: number): void {
-    this.filters.page = page;
-    this.load();
-  }
-
-  // ── Form modal ─────────────────────────────────────────────────────────────
-
-  openCreate(): void {
-    this.editTarget.set(null);
-    this.showForm.set(true);
-  }
+  onPageChange(page: number): void { this.filters.page = page; this.load(); }
 
   openEdit(product: AdminProduct): void {
     this.editTarget.set(product);
@@ -326,45 +288,34 @@ export class AdminProductManagementComponent implements OnInit {
 
   onSaved(): void {
     this.showForm.set(false);
-    this.showSuccess(
-      this.editTarget() ? 'Product updated successfully.' : 'Product created successfully.',
-    );
+    this.showSuccess(this.translate.instant('products.admin.management.success'));
     this.load();
   }
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
-
-  requestDelete(product: AdminProduct): void {
-    this.pendingDelete.set(product);
-  }
+  requestDelete(product: AdminProduct): void { this.pendingDelete.set(product); }
 
   confirmDelete(): void {
     const p = this.pendingDelete();
     if (!p) return;
-
     this.isDeleting.set(true);
-    const id = (p.id ?? p._id) as string;
+    const id = (p._id ?? p.id) as string;
 
     this.adminProductService.deleteProduct(id).subscribe({
       next: () => {
         this.isDeleting.set(false);
         this.pendingDelete.set(null);
-        this.showSuccess(`"${this.productName(p)}" deleted successfully.`);
+        this.showSuccess(`"${this.productName(p)}" ${this.translate.instant('products.admin.management.deleteSuccess')}`);
         this.load();
       },
       error: (err) => {
         this.isDeleting.set(false);
         this.pendingDelete.set(null);
-        this.error.set(err?.error?.message ?? 'Failed to delete product.');
+        this.error.set(err?.error?.message ?? this.translate.instant('products.admin.management.errorDelete'));
       },
     });
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-
-  productName(p: AdminProduct): string {
-    return (p.name ?? p.title) as string;
-  }
+  productName(p: AdminProduct): string { return (p.title ?? p.name) as string; }
 
   private showSuccess(msg: string): void {
     this.successMsg.set(msg);

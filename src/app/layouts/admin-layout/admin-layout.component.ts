@@ -2,9 +2,11 @@ import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthFacadeService } from '../../domains/auth/services/auth-facade.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: string;
   route: string;
 }
@@ -12,7 +14,7 @@ interface NavItem {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule, LanguageSwitcherComponent],
   template: `
     <div class="admin-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
       <!-- Mobile Overlay -->
@@ -25,7 +27,7 @@ interface NavItem {
         <div class="sidebar-header">
           <div class="d-flex align-items-center justify-content-between">
             @if (!sidebarCollapsed()) {
-              <h4 class="mb-0">Admin Panel</h4>
+              <h4 class="mb-0">{{ 'adminLayout.panel' | translate }}</h4>
             }
             <button class="btn btn-sm btn-outline-light d-lg-none" (click)="closeSidebar()">
               <i class="bi bi-x-lg"></i>
@@ -44,22 +46,26 @@ interface NavItem {
             >
               <i class="bi" [class]="item.icon"></i>
               @if (!sidebarCollapsed()) {
-                <span>{{ item.label }}</span>
+                <span>{{ item.labelKey | translate }}</span>
               }
             </a>
           }
         </nav>
 
+        <div class="sidebar-language px-3 pb-3">
+          <app-language-switcher></app-language-switcher>
+        </div>
+
         <div class="sidebar-footer">
           @if (!sidebarCollapsed()) {
             <div class="user-info mb-3">
-              <small class="text-muted">Logged in as Admin</small>
+              <small class="text-muted">{{ 'adminLayout.loggedInAs' | translate }}</small>
             </div>
           }
           <button (click)="logout()" class="btn btn-outline-light w-100" [class.btn-sm]="sidebarCollapsed()">
             <i class="bi bi-box-arrow-right"></i>
             @if (!sidebarCollapsed()) {
-              <span class="ms-2">Logout</span>
+              <span class="ms-2">{{ 'common.logout' | translate }}</span>
             }
           </button>
         </div>
@@ -79,7 +85,7 @@ interface NavItem {
             >
               <i class="bi" [class]="sidebarCollapsed() ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
             </button>
-            <h5 class="mb-0 d-none d-md-block">Dashboard</h5>
+            <h5 class="mb-0 d-none d-md-block">{{ 'adminLayout.dashboard' | translate }}</h5>
           </div>
           <div class="d-flex align-items-center gap-3">
             <span class="text-muted d-none d-sm-inline">{{ today | date:'fullDate' }}</span>
@@ -233,6 +239,10 @@ interface NavItem {
       flex-shrink: 0;
     }
 
+    .sidebar-language {
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
     .sidebar-collapsed .sidebar-footer {
       padding: 1rem 0.5rem;
     }
@@ -306,12 +316,19 @@ interface NavItem {
 })
 export class AdminLayoutComponent {
   readonly navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'bi-grid-1x2', route: '/admin' },
-    { label: 'Orders', icon: 'bi-cart3', route: '/admin/orders' },
-    { label: 'Products', icon: 'bi-box-seam', route: '/admin/products' },
-    { label: 'Categories', icon: 'bi-tags', route: '/admin/categories' },
-    { label: 'Coupons', icon: 'bi-percent', route: '/admin/coupons' },
-    { label: 'Seller Requests', icon: 'bi-people', route: '/admin/sellerrequest' },
+    { labelKey: 'adminLayout.nav.profile', icon: 'bi bi-person-circle', route: '/admin/profile' },
+    { labelKey: 'adminLayout.nav.dashboard', icon: 'bi-grid-1x2', route: '/admin' },
+    { labelKey: 'adminLayout.nav.users', icon: 'bi bi-person-fill-gear', route: '/admin/users' },
+    { labelKey: 'adminLayout.nav.orders', icon: 'bi-cart3', route: '/admin/orders' },
+    { labelKey: 'adminLayout.nav.products', icon: 'bi-box-seam', route: '/admin/products' },
+    { labelKey: 'adminLayout.nav.categories', icon: 'bi-tags', route: '/admin/categories' },
+    { labelKey: 'adminLayout.nav.coupons', icon: 'bi-percent', route: '/admin/coupons' },
+    { labelKey: 'adminLayout.nav.sellerRequests', icon: 'bi bi-terminal-plus', route: '/admin/sellerrequest' },
+    { labelKey: 'adminLayout.nav.payments', icon: 'bi bi-credit-card-2-front', route: '/admin/payment' },
+    { labelKey: 'adminLayout.nav.marketing', icon: 'bi bi-send-check-fill', route: '/admin/brodcust' },
+    { labelKey: 'adminLayout.nav.sellerPayout', icon: 'bi bi-sign-turn-slight-left', route: '/admin/payout' },
+
+
   ];
 
   readonly sidebarOpen = signal(false);
@@ -319,7 +336,7 @@ export class AdminLayoutComponent {
   readonly today = new Date();
 
   constructor(
-    private readonly authFacade: AuthFacadeService
+    private readonly authFacade: AuthFacadeService,
   ) { }
 
   toggleSidebar(): void {

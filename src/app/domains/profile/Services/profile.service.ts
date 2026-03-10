@@ -48,13 +48,12 @@ requestSellerOnboarding(data: { store_name: string; bio: string; payout_method: 
   return this.api.post<any>('/users/seller/onboarding', data);
 }
   // PAYOUTS
-  requestPayout(data: PayoutRequest): Observable<PayoutResponse> {
-    return this.api
-      .post<{ success: boolean; data: PayoutResponse }>('/users/seller/payouts', data)
-      .pipe(map(res => res.data));
+  requestPayout(data: PayoutRequest): Observable<PayoutResponse[]> {
+  return this.api
+    .post<{ success: boolean; data: PayoutResponse[] }>('/users/seller/payouts', data)
+    .pipe(map(res => res.data));  
+
   }
-
-
   // REFERRALS
 
   getReferralSummary(): Observable<ReferralSummary> {
@@ -63,5 +62,15 @@ requestSellerOnboarding(data: { store_name: string; bio: string; payout_method: 
       .pipe(map(res => res.data));
   }
 
+getSellerPayouts(): Observable<any> {
+  return this.api
+    .get<{ success: boolean; data: any }>('/users/profile')
+    .pipe(
+      map(res => res.data) 
+    );
+}
 
+reviewPayout(payoutId: string, status: 'approved' | 'rejected', note: string = ''): Observable<any> {
+  return this.api.patch<any>(`/users/payouts/${payoutId}/review`, { status, note });
+}
 }

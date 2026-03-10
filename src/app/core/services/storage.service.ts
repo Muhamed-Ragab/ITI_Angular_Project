@@ -5,6 +5,24 @@ import { CookieService } from './cookie.service';
 export class StorageService {
   private readonly cookieService = inject(CookieService);
 
+  getItem<T>(key: string): T | null {
+    const value = localStorage.getItem(key);
+    if (!value) return null;
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return value as T;
+    }
+  }
+
+  setItem<T>(key: string, value: T): void {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  removeItem(key: string): void {
+    localStorage.removeItem(key);
+  }
+
   getToken(): string | null {
     return this.cookieService.getCookie();
   }

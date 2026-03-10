@@ -4,11 +4,13 @@ import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
 import { Category } from '@app/domains/home/dto/category.dto';
 import { HomeService } from '@app/domains/home/services/home-service';
+import { LanguageSwitcherComponent } from '@shared/components/language-switcher/language-switcher.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, LanguageSwitcherComponent, TranslateModule],
   template: `<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
     <div class="container">
       <!-- Logo -->
@@ -31,7 +33,7 @@ import { HomeService } from '@app/domains/home/services/home-service';
           <!-- Categories -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">
-              Categories
+              {{ 'common.categories' | translate }}
             </a>
 
             <ul class="dropdown-menu">
@@ -50,15 +52,8 @@ import { HomeService } from '@app/domains/home/services/home-service';
           </li>
 
           <!-- Language -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">
-              Language
-            </a>
-
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item">English</a></li>
-              <li><a class="dropdown-item">Arabic</a></li>
-            </ul>
+          <li class="nav-item">
+            <app-language-switcher></app-language-switcher>
           </li>
         </ul>
 
@@ -80,57 +75,68 @@ import { HomeService } from '@app/domains/home/services/home-service';
               <ul class="dropdown-menu dropdown-menu-end">
                 <li>
                   <a class="dropdown-item" routerLink="/profile">
-                    <i class="bi bi-person me-2"></i>Profile
+                    <i class="bi bi-person me-2"></i>{{ 'common.profile' | translate }}
                   </a>
                 </li>
                 <li>
                   <a class="dropdown-item" routerLink="/orders">
-                    <i class="bi bi-bag me-2"></i>My Orders
+                    <i class="bi bi-bag me-2"></i>{{ 'common.orders' | translate }}
                   </a>
                 </li>
                 <li>
                   <a class="dropdown-item" routerLink="/wishlist">
-                    <i class="bi bi-heart me-2"></i>Wishlist
+                    <i class="bi bi-heart me-2"></i>{{ 'common.wishlist' | translate }}
                   </a>
                 </li>
 
                 <!-- Admin-only section -->
-                @if (isAdmin()) 
-                  {
+                @if (isAdmin()) {
                   <li><hr class="dropdown-divider" /></li>
                   <li>
                     <span class="dropdown-header text-uppercase small">
-                      <i class="bi bi-shield-lock me-1"></i>Admin
+                      <i class="bi bi-shield-lock me-1"></i>{{ 'roles.admin' | translate }}
                     </span>
                   </li>
                   <li>
                     <a class="dropdown-item" routerLink="/admin/categories">
-                      <i class="bi bi-diagram-3 me-2"></i>Manage Categories
+                      <i class="bi bi-diagram-3 me-2"></i>{{ 'nav.manageCategories' | translate }}
                     </a>
                   </li>
                   <li>
                     <a class="dropdown-item" routerLink="/admin/products">
-                      <i class="bi bi-box-seam me-2"></i>Manage Products
+                      <i class="bi bi-box-seam me-2"></i>{{ 'nav.manageProducts' | translate }}
                     </a>
                   </li>
-                     <li>
+                  <li>
                     <a class="dropdown-item" routerLink="/admin/sellerrequest">
-                    <i class="bi bi-diagram-3 me-2"></i>Manage Seller Request
-                  </a>
-                    </li>
+                      <i class="bi bi-diagram-3 me-2"></i>{{ 'nav.manageSellerRequest' | translate }}
+                    </a>
+                  </li>
+                } @else if (isSeler()) {
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <span class="dropdown-header text-uppercase small">
+                      <i class="bi bi-shield-lock me-1"></i>{{ 'roles.seller' | translate }}
+                    </span>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" routerLink="/seller/payout">
+                      <i class="bi bi-diagram-3 me-2"></i>{{ 'nav.payoutStatus' | translate }}
+                    </a>
+                  </li>
                 }
 
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                   <button class="dropdown-item text-danger" (click)="logout()">
-                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    <i class="bi bi-box-arrow-right me-2"></i>{{ 'common.logout' | translate }}
                   </button>
                 </li>
               </ul>
             </div>
           } @else {
             <!-- Guest: Login Button -->
-            <a class="btn btn-warning" routerLink="/auth/login"> Login </a>
+            <a class="btn btn-warning" routerLink="/auth/login"> {{ 'common.login' | translate }} </a>
           }
 
           <!-- Cart -->
@@ -168,6 +174,7 @@ export class Header {
   readonly cartItemCount = computed(() => this.cartService.getCartItemCount());
 
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
+  readonly isSeler = computed(() => this.authService.currentUser()?.role === 'seller');
 
   constructor() {
     this.loadCategories();

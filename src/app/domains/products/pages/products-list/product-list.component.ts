@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductService } from '../../../../core/services/product.service';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductFiltersComponent } from '../../components/product-filters/product-filters.component';
@@ -10,20 +11,20 @@ import { Product, ProductFilters, ProductPagination } from '../../dto';
   selector: 'app-product-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ProductCardComponent, ProductFiltersComponent, ProductPaginationComponent],
+  imports: [TranslateModule, ProductCardComponent, ProductFiltersComponent, ProductPaginationComponent],
   template: `
     <div class="container py-4">
-      <h4 class="fw-bold mb-4"><i class="bi bi-grid me-2"></i>Products</h4>
+      <h4 class="fw-bold mb-4"><i class="bi bi-grid me-2"></i>{{ 'products.title' | translate }}</h4>
 
       <!-- Active Category Filter Badge -->
       @if (activeCategoryId()) {
         <div class="mb-3">
           <span class="badge bg-primary me-2">
             <i class="bi bi-funnel me-1"></i>
-            Category Filter Active
+            {{ 'products.list.categoryFilterActive' | translate }}
           </span>
           <button class="btn btn-sm btn-outline-secondary" (click)="clearCategoryFilter()">
-            <i class="bi bi-x-lg me-1"></i>Clear Category Filter
+            <i class="bi bi-x-lg me-1"></i>{{ 'products.list.clearCategoryFilter' | translate }}
           </button>
         </div>
       }
@@ -37,7 +38,7 @@ import { Product, ProductFilters, ProductPagination } from '../../dto';
       @if (isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">{{ 'products.list.loading' | translate }}</span>
           </div>
         </div>
       }
@@ -53,7 +54,7 @@ import { Product, ProductFilters, ProductPagination } from '../../dto';
       @if (!isLoading() && !error() && products().length === 0) {
         <div class="text-center py-5 text-muted">
           <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-          <p class="mt-2">No products found. Try adjusting your filters.</p>
+          <p class="mt-2">{{ 'products.list.noProducts' | translate }}</p>
         </div>
       }
 
@@ -75,6 +76,7 @@ import { Product, ProductFilters, ProductPagination } from '../../dto';
 export class ProductListComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
   readonly products = signal<Product[]>([]);
   readonly pagination = signal<ProductPagination | null>(null);
@@ -107,7 +109,7 @@ export class ProductListComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set(err.message || 'Failed to load products');
+        this.error.set(err.message || this.translate.instant('products.list.errorLoading'));
         this.isLoading.set(false);
       },
     });
