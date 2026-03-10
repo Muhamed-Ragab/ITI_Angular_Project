@@ -1,14 +1,32 @@
-import { Component, signal, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AdminCouponService } from '@domains/coupons/admin/services/admin-coupon.service';
+import { AdminOrderService } from '@domains/orders/admin/services/admin-order.service';
+import { AdminProductService } from '@domains/products/admin/services/admin-product.service';
+import { AdminService } from '@domains/usermanagment/admin-service';
 
 interface StatCard {
   title: string;
   value: string;
   icon: string;
   color: string;
-  change?: string;
-  changeType?: 'positive' | 'negative' | 'neutral';
+}
+
+interface RecentActivity {
+  id: string;
+  type: 'order' | 'user' | 'product' | 'coupon';
+  message: string;
+  timestamp: string;
+}
+
+interface RecentOrder {
+  _id: string;
+  user: string | null;
+  guest_info: { name: string } | null;
+  total_amount: number;
+  status: string;
+  createdAt: string;
 }
 
 @Component({
@@ -18,7 +36,7 @@ interface StatCard {
   template: `
     <div class="container-fluid py-4">
       <h2 class="mb-4">Admin Dashboard</h2>
-      
+
       <!-- Stats Cards -->
       <div class="row g-4 mb-4">
         @for (stat of stats(); track stat.title) {
@@ -29,14 +47,12 @@ interface StatCard {
                   <div>
                     <p class="text-muted mb-1">{{ stat.title }}</p>
                     <h3 class="mb-0">{{ stat.value }}</h3>
-                    @if (stat.change) {
-                      <small [class]="stat.changeType === 'positive' ? 'text-success' : stat.changeType === 'negative' ? 'text-danger' : 'text-muted'">
-                        <i [class]="stat.changeType === 'positive' ? 'bi-arrow-up' : stat.changeType === 'negative' ? 'bi-arrow-down' : ''"></i>
-                        {{ stat.change }}
-                      </small>
-                    }
                   </div>
-                  <div class="stat-icon" [style.background]="stat.color + '20'" [style.color]="stat.color">
+                  <div
+                    class="stat-icon"
+                    [style.background]="stat.color + '20'"
+                    [style.color]="stat.color"
+                  >
                     <i class="bi" [class]="stat.icon"></i>
                   </div>
                 </div>
@@ -55,7 +71,7 @@ interface StatCard {
             </div>
             <div class="card-body">
               <div class="row g-3">
-                 <div class="col-6">
+                <div class="col-6">
                   <a routerLink="/admin/users" class="btn btn-outline-primary w-100 py-3">
                     <i class="bi bi-person-fill-gear d-block fs-4 mb-1"></i>
                     Manage Users
@@ -90,17 +106,37 @@ interface StatCard {
           </div>
         </div>
 
-        <!-- Recent Activity placeholder -->
+        <!-- Recent Activity -->
         <div class="col-12 col-lg-6">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-white">
               <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Activity</h5>
             </div>
             <div class="card-body">
-              <div class="text-center text-muted py-4">
-                <i class="bi bi-inbox d-block fs-1 mb-2"></i>
-                <p class="mb-0">No recent activity</p>
-              </div>
+              @if (isLoading()) {
+                <div class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              } @else if (recentActivities().length > 0) {
+                <div class="list-group list-group-flush">
+                  @for (activity of recentActivities(); track activity.id) {
+                    <div class="list-group-item border-0 px-0">
+                      <div class="d-flex w-100 justify-content-between">
+                        <small class="text-muted">{{ activity.type | titlecase }}</small>
+                        <small class="text-muted">{{ activity.timestamp | date: 'short' }}</small>
+                      </div>
+                      <p class="mb-0 small">{{ activity.message }}</p>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="text-center text-muted py-4">
+                  <i class="bi bi-inbox d-block fs-1 mb-2"></i>
+                  <p class="mb-0">No recent activity</p>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -125,12 +161,28 @@ interface StatCard {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5" class="text-center py-4 text-muted">
-                    <i class="bi bi-inbox d-block fs-1 mb-2"></i>
-                    No orders yet
-                  </td>
-                </tr>
+                @if (recentOrders().length > 0) {
+                  @for (order of recentOrders(); track order._id) {
+                    <tr>
+                      <td>#{{ order._id.slice(-6) }}</td>
+                      <td>{{ getCustomerName(order) }}</td>
+                      <td>{{ order.total_amount | currency }}</td>
+                      <td>
+                        <span class="badge" [class]="getStatusBadgeClass(order.status)">
+                          {{ order.status | titlecase }}
+                        </span>
+                      </td>
+                      <td>{{ order.createdAt | date: 'medium' }}</td>
+                    </tr>
+                  }
+                } @else {
+                  <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                      <i class="bi bi-inbox d-block fs-1 mb-2"></i>
+                      No orders yet
+                    </td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
@@ -138,24 +190,125 @@ interface StatCard {
       </div>
     </div>
   `,
-  styles: [`
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-  `],
+  styles: [
+    `
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
+  private readonly adminProductService = inject(AdminProductService);
+  private readonly adminOrderService = inject(AdminOrderService);
+  private readonly adminCouponService = inject(AdminCouponService);
+  private readonly adminService = inject(AdminService);
+
   readonly stats = signal<StatCard[]>([
-    { title: 'Total Orders', value: '0', icon: 'bi-cart3', color: '#3498db', change: '0%', changeType: 'neutral' },
-    { title: 'Total Products', value: '0', icon: 'bi-box-seam', color: '#27ae60', change: '0%', changeType: 'neutral' },
-    { title: 'Total Coupons', value: '0', icon: 'bi-percent', color: '#f39c12', change: '0%', changeType: 'neutral' },
-    { title: 'Total Users', value: '0', icon: 'bi-people', color: '#9b59b6', change: '0%', changeType: 'neutral' },
+    { title: 'Total Orders', value: '0', icon: 'bi-cart3', color: '#3498db' },
+    { title: 'Total Products', value: '0', icon: 'bi-box-seam', color: '#27ae60' },
+    { title: 'Total Coupons', value: '0', icon: 'bi-percent', color: '#f39c12' },
+    { title: 'Total Users', value: '0', icon: 'bi-people', color: '#9b59b6' },
   ]);
+
+  readonly recentActivities = signal<RecentActivity[]>([]);
+  readonly recentOrders = signal<RecentOrder[]>([]);
+  readonly isLoading = signal(true);
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  private loadDashboardData(): void {
+    this.isLoading.set(true);
+
+    // Load all statistics in parallel
+    this.adminOrderService.getOrders({ limit: 1 }).subscribe({
+      next: (response) => {
+        const totalOrders = response.data?.pagination?.total ?? 0;
+        this.updateStat('Total Orders', totalOrders);
+      },
+      error: () => this.updateStat('Total Orders', 0),
+    });
+
+    this.adminProductService.getProducts({ limit: 1 }).subscribe({
+      next: (response) => {
+        const totalProducts = response.data?.pagination?.total ?? 0;
+        this.updateStat('Total Products', totalProducts);
+      },
+      error: () => this.updateStat('Total Products', 0),
+    });
+
+    this.adminCouponService.getCoupons({ limit: 1 }).subscribe({
+      next: (response) => {
+        const totalCoupons = response.data?.pagination?.total ?? 0;
+        this.updateStat('Total Coupons', totalCoupons);
+      },
+      error: () => this.updateStat('Total Coupons', 0),
+    });
+
+    this.adminService.getUsers().subscribe({
+      next: (response) => {
+        const totalUsers = response.data?.length ?? 0;
+        this.updateStat('Total Users', totalUsers);
+      },
+      error: () => this.updateStat('Total Users', 0),
+    });
+
+    // Load recent orders
+    this.adminOrderService.getOrders({ limit: 5, sort: 'createdAt_desc' }).subscribe({
+      next: (response) => {
+        this.recentOrders.set(response.data?.orders ?? []);
+        this.generateRecentActivities(response.data?.orders ?? []);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private updateStat(title: string, value: number): void {
+    this.stats.update((stats) =>
+      stats.map((stat) =>
+        stat.title === title ? { ...stat, value: value.toLocaleString() } : stat,
+      ),
+    );
+  }
+
+  private generateRecentActivities(orders: RecentOrder[]): void {
+    const activities: RecentActivity[] = orders.slice(0, 5).map((order) => ({
+      id: order._id,
+      type: 'order' as const,
+      message: `New order #${order._id.slice(-6)} - ${order.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`,
+      timestamp: order.createdAt,
+    }));
+    this.recentActivities.set(activities);
+  }
+
+  getCustomerName(order: RecentOrder): string {
+    // user can be a string (user ID) or null
+    if (order.guest_info?.name) {
+      return order.guest_info.name;
+    }
+    return 'Guest';
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const statusClasses: Record<string, string> = {
+      pending: 'bg-warning',
+      shipped: 'bg-info',
+      delivered: 'bg-success',
+      cancelled: 'bg-danger',
+      paid: 'bg-success',
+    };
+    return statusClasses[status] || 'bg-secondary';
+  }
 }

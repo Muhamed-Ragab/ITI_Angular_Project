@@ -31,7 +31,8 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: '', redirectTo: 'auth-redirect', pathMatch: 'full' },
+      { path: 'auth-redirect', loadComponent: () => import('./core/components/auth-redirect/auth-redirect.component').then(m => m.AuthRedirectComponent) },
       { path: 'home', component: HomeComponent },
 
       {
