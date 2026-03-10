@@ -67,13 +67,6 @@ import { RouterLink } from '@angular/router';
       </div>
     </footer>
 
-    <button
-      class="btn btn-warning position-fixed bottom-0 end-0 m-4 rounded-circle shadow"
-      onclick="window.scrollTo({top:0, behavior:'smooth'})"
-      style="width:45px;height:45px"
-    >
-      ↑
-    </button>
   `,
 })
 export class Footer {}
