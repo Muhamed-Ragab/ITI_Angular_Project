@@ -131,6 +131,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./domains/usermanagment/admin-users-component/admin-users-component').then((m) => m.AdminUsersComponent),
       },
+      {
+        path: 'payment',
+        loadComponent: () =>
+          import('./domains/adminlistpayment/listpayment/listpayment').then((m) => m.PaymentsComponent),
+      },
 
     ],
   },
