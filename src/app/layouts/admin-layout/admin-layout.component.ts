@@ -338,11 +338,6 @@ export class AdminLayoutComponent {
       route: '/admin/sellerrequest',
     },
     {
-      labelKey: 'adminLayout.nav.payments',
-      icon: 'bi bi-credit-card-2-front',
-      route: '/admin/payment',
-    },
-    {
       labelKey: 'adminLayout.nav.marketing',
       icon: 'bi bi-send-check-fill',
       route: '/admin/brodcust',
@@ -351,6 +346,11 @@ export class AdminLayoutComponent {
       labelKey: 'adminLayout.nav.sellerPayout',
       icon: 'bi bi-sign-turn-slight-left',
       route: '/admin/payout',
+    },
+    {
+      labelKey: 'Payment Paid',
+      icon: 'bi bi-credit-card-fill',
+      route: '/admin/payment',
     },
   ];
 

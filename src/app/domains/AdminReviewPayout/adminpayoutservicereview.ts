@@ -14,7 +14,7 @@ export class Adminpayoutservicereview {
   }
 
   reviewPayout(userId: string, payoutId: string, body: { status: string, note: string }) {
-    console.log('Sending to Backend:', { userId, payoutId, body }); // أضف هذا السطر
+    console.log('Sending to Backend:', { userId, payoutId, body }); 
     return this.api.patch(`/users/admin/seller-payouts/${userId}/${payoutId}`, body);
   }
 }

@@ -141,7 +141,7 @@ interface NavItem {
       /* Sidebar Styles */
       .sidebar {
         width: 260px;
-        background: linear-gradient(180deg, #1a2e1a 0%, #1a3a1e 50%, #0f2d14 100%);
+        background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
         color: white;
         display: flex;
         flex-direction: column;
@@ -242,9 +242,9 @@ interface NavItem {
       }
 
       .nav-item.active {
-        background: rgba(74, 222, 128, 0.2);
-        color: #4ade80;
-        border-left-color: #4ade80;
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+        border-left-color: #3498db;
       }
 
       .nav-item i {
@@ -278,12 +278,12 @@ interface NavItem {
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #4ade80, #22c55e);
+        background: #3498db;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        color: #1a2e1a;
+        color: #fff;
         font-size: 0.85rem;
         flex-shrink: 0;
       }

@@ -90,7 +90,7 @@ import { ProductDetail, Review, ReviewsPagination } from '../../dto';
               <span class="text-muted small">({{ product()!.ratings_count }} reviews)</span>
             </div>
 
-            <p class="fs-3 fw-bold text-primary">{{ product()!.price | currency }}</p>
+            <p class="fs-3 fw-bold text-primary">{{ product()!.price | currency : "EGP"}}</p>
 
             <p class="text-muted">{{ product()!.description }}</p>
 

@@ -1,4 +1,4 @@
-import { CommonModule, SlicePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, SlicePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy, Component, inject, OnInit, signal,
 } from '@angular/core';
@@ -194,7 +194,7 @@ import { SellerService } from '../../services/seller.services';
                         {{ getCategoryName(p) }}
                       </span>
                     </td>
-                    <td class="py-3 fw-semibold">\${{ p.price | number:'1.2-2' }}</td>
+                    <td class="py-3 fw-semibold">{{ p.price | currency:'EGP ' }}</td>
                     <td class="py-3">
                       @if (p.stock_quantity === 0) {
                         <span class="badge rounded-pill bg-danger">{{

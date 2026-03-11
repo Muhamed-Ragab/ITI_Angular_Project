@@ -28,36 +28,35 @@ import { SellerService } from '../../services/seller.services';
     <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.55)">
       <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
           <!-- Header -->
-          <div
-            class="modal-header border-0 py-3 px-4"
-            style="background:linear-gradient(135deg,#1a1a2e,#16213e)"
-          >
+          <div class="modal-header border-0 py-3 px-4"
+            style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
             <h5 class="modal-title text-white fw-bold mb-0">
-              <i
-                class="bi bi-{{ editTarget() ? 'pencil-square' : 'plus-circle' }} me-2"
-                style="color:#4ade80"
-              ></i>
-              {{
-                editTarget()
+              <i class="bi bi-{{ editTarget() ? 'pencil-square' : 'plus-circle' }} me-2"
+                style="color:#4ade80"></i>
+              {{ editTarget()
                   ? ('seller.productForm.editTitle' | translate)
-                  : ('seller.productForm.newTitle' | translate)
-              }}
+                  : ('seller.productForm.newTitle' | translate) }}
             </h5>
-            <button
-              class="btn-close btn-close-white"
+            <button class="btn-close btn-close-white"
               [attr.aria-label]="translate.instant('seller.productForm.cancel')"
-              (click)="cancel.emit()"
-            ></button>
+              (click)="cancel.emit()"></button>
           </div>
 
           <!-- Body -->
           <div class="modal-body p-4" style="background:#fafafa">
+
             @if (error()) {
-              <div
-                class="alert alert-danger border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2"
-              >
+              <div class="alert alert-danger border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2">
                 <i class="bi bi-exclamation-triangle-fill"></i>{{ error() }}
+              </div>
+            }
+
+            @if (submitted() && !isValid()) {
+              <div class="alert alert-warning border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                Please fix the errors below before saving.
               </div>
             }
 
@@ -70,6 +69,7 @@ import { SellerService } from '../../services/seller.services';
               </div>
             } @else {
               <div class="row g-3">
+
                 <!-- Title -->
                 <div class="col-12">
                   <label class="form-label fw-semibold small text-uppercase text-muted">
@@ -78,15 +78,23 @@ import { SellerService } from '../../services/seller.services';
                   </label>
                   <input
                     class="form-control border-0 bg-white shadow-sm rounded-3"
+                    [class.is-invalid]="submitted() && form.title.trim().length < 3"
                     [placeholder]="translate.instant('seller.productForm.titlePlaceholder')"
                     [(ngModel)]="form.title"
                     name="title"
                     maxlength="100"
                   />
                   @if (form.title.length > 0 && form.title.length < 3) {
-                    <small class="text-danger">{{
-                      'seller.productForm.minTitle' | translate
-                    }}</small>
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      {{ 'seller.productForm.minTitle' | translate }}
+                    </small>
+                  }
+                  @if (submitted() && form.title.trim().length === 0) {
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Product title is required.
+                    </small>
                   }
                 </div>
 
@@ -99,49 +107,92 @@ import { SellerService } from '../../services/seller.services';
                   </label>
                   <textarea
                     class="form-control border-0 bg-white shadow-sm rounded-3"
+                    [class.is-invalid]="submitted() && form.description.trim().length < 10"
                     rows="4"
                     [placeholder]="translate.instant('seller.productForm.descriptionPlaceholder')"
                     [(ngModel)]="form.description"
                     name="description"
                   ></textarea>
                   @if (form.description.length > 0 && form.description.length < 10) {
-                    <small class="text-danger">{{
-                      'seller.productForm.minDesc' | translate
-                    }}</small>
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      {{ 'seller.productForm.minDesc' | translate }}
+                    </small>
+                  }
+                  @if (submitted() && form.description.trim().length === 0) {
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Description is required.
+                    </small>
                   }
                 </div>
 
-                <!-- Price + Stock -->
+                <!-- Price -->
                 <div class="col-md-6">
                   <label class="form-label fw-semibold small text-uppercase text-muted">
-                    {{ 'seller.productForm.price' | translate }} <span class="text-danger">*</span>
+                    {{ 'seller.productForm.price' | translate }}
+                    <span class="text-danger">*</span>
                   </label>
                   <div class="input-group shadow-sm">
                     <span class="input-group-text border-0 bg-white">$</span>
                     <input
                       type="number"
                       class="form-control border-0 bg-white rounded-end-3"
+                      [class.is-invalid]="submitted() && (form.price === null || form.price <= 0)"
                       placeholder="0.00"
-                      min="0"
+                      min="0.01"
                       step="0.01"
                       [(ngModel)]="form.price"
                       name="price"
                     />
                   </div>
+                  @if (form.price !== null && form.price < 0) {
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Price cannot be negative.
+                    </small>
+                  }
+                  @if (form.price !== null && form.price === 0) {
+                    <small class="text-warning d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-triangle"></i>
+                      Price must be greater than zero.
+                    </small>
+                  }
+                  @if (submitted() && form.price === null) {
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Price is required.
+                    </small>
+                  }
                 </div>
 
+                <!-- Stock -->
                 <div class="col-md-6">
                   <label class="form-label fw-semibold small text-uppercase text-muted">
-                    {{ 'seller.productForm.stock' | translate }} <span class="text-danger">*</span>
+                    {{ 'seller.productForm.stock' | translate }}
+                    <span class="text-danger">*</span>
                   </label>
                   <input
                     type="number"
                     class="form-control border-0 bg-white shadow-sm rounded-3"
+                    [class.is-invalid]="submitted() && (form.stock_quantity === null || form.stock_quantity <= 0)"
                     placeholder="0"
                     min="0"
                     [(ngModel)]="form.stock_quantity"
                     name="stock_quantity"
                   />
+                  @if (form.stock_quantity !== null && form.stock_quantity <= 0) {
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Stock quantity cannot be negative or queal zero .
+                    </small>
+                  }
+                  @if (submitted() && form.stock_quantity === null) {
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Stock quantity is required.
+                    </small>
+                  }
                 </div>
 
                 <!-- Category -->
@@ -152,6 +203,7 @@ import { SellerService } from '../../services/seller.services';
                   </label>
                   <select
                     class="form-select border-0 bg-white shadow-sm rounded-3"
+                    [class.is-invalid]="submitted() && !form.category_id"
                     [(ngModel)]="form.category_id"
                     name="category_id"
                   >
@@ -162,9 +214,15 @@ import { SellerService } from '../../services/seller.services';
                       </option>
                     }
                   </select>
+                  @if (submitted() && !form.category_id) {
+                    <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                      <i class="bi bi-exclamation-circle"></i>
+                      Please select a category.
+                    </small>
+                  }
                 </div>
 
-                <!-- ── Image Upload ──────────────────────────────────────── -->
+                <!-- Image Upload -->
                 <div class="col-12">
                   <label class="form-label fw-semibold small text-uppercase text-muted">
                     {{ 'seller.productForm.images' | translate }}
@@ -173,7 +231,6 @@ import { SellerService } from '../../services/seller.services';
                     }}</span>
                   </label>
 
-                  <!-- Drop zone -->
                   <label
                     class="d-block border-2 border-dashed rounded-3 p-4 text-center"
                     style="border:2px dashed #cbd5e1;cursor:pointer;background:#f8fafc"
@@ -182,38 +239,24 @@ import { SellerService } from '../../services/seller.services';
                     <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-1"></i>
                     <span class="small text-muted">
                       @if (isUploading()) {
-                        {{
-                          'seller.productForm.uploadingProgress'
-                            | translate: { progress: uploadProgress() }
-                        }}
+                        {{ 'seller.productForm.uploadingProgress'
+                            | translate: { progress: uploadProgress() } }}
                       } @else {
                         {{ 'seller.productForm.uploadCta' | translate }}
                       }
                     </span>
-                    <input
-                      type="file"
-                      class="d-none"
-                      multiple
-                      accept="image/*"
-                      [disabled]="isUploading()"
-                      (change)="onFileSelect($event)"
-                    />
+                    <input type="file" class="d-none" multiple accept="image/*"
+                      [disabled]="isUploading()" (change)="onFileSelect($event)" />
                   </label>
 
-                  <!-- Upload progress bar -->
                   @if (isUploading()) {
                     <div class="progress mt-2 rounded-pill" style="height:6px">
-                      <div
-                        class="progress-bar bg-success"
-                        [style.width.%]="uploadProgress()"
-                        style="transition:width 0.3s"
-                      ></div>
+                      <div class="progress-bar bg-success" [style.width.%]="uploadProgress()"
+                        style="transition:width 0.3s"></div>
                     </div>
                     <p class="small text-muted mt-1 mb-0 text-center">
-                      {{
-                        'seller.productForm.uploadingImage'
-                          | translate: { current: uploadingIndex(), total: uploadTotal() }
-                      }}
+                      {{ 'seller.productForm.uploadingImage'
+                          | translate: { current: uploadingIndex(), total: uploadTotal() } }}
                     </p>
                   }
                 </div>
@@ -224,20 +267,15 @@ import { SellerService } from '../../services/seller.services';
                     <div class="d-flex gap-2 flex-wrap">
                       @for (img of form.images; track $index) {
                         <div class="position-relative">
-                          <img
-                            [src]="img"
-                            class="rounded-3 border shadow-sm"
+                          <img [src]="img" class="rounded-3 border shadow-sm"
                             style="width:80px;height:80px;object-fit:cover"
-                            (error)="onImgError($event)"
-                          />
-                          <button
-                            type="button"
+                            (error)="onImgError($event)" />
+                          <button type="button"
                             class="btn btn-danger btn-sm position-absolute top-0 end-0
                               rounded-circle d-flex align-items-center justify-content-center"
                             style="width:20px;height:20px;padding:0;font-size:0.6rem;
                               transform:translate(40%,-40%)"
-                            (click)="removeImage($index)"
-                          >
+                            (click)="removeImage($index)">
                             <i class="bi bi-x"></i>
                           </button>
                         </div>
@@ -248,41 +286,44 @@ import { SellerService } from '../../services/seller.services';
                     }}</small>
                   </div>
                 }
+
               </div>
             }
           </div>
 
           <!-- Footer -->
           <div class="modal-footer border-0 bg-white px-4 py-3">
-            <button
-              class="btn btn-outline-secondary rounded-pill px-4"
+            <button class="btn btn-outline-secondary rounded-pill px-4"
               (click)="cancel.emit()"
-              [disabled]="isSaving() || isUploading()"
-            >
+              [disabled]="isSaving() || isUploading()">
               {{ 'seller.productForm.cancel' | translate }}
             </button>
+
+            <!-- Save button: green when valid, grey when not -->
             <button
               class="btn rounded-pill px-4 fw-semibold text-white"
-              style="background:linear-gradient(135deg,#4ade80,#22c55e);border:none"
+              [style.background]="isValid()
+                ? 'linear-gradient(135deg,#4ade80,#22c55e)'
+                : '#94a3b8'"
+              style="border:none;transition:background 0.3s"
               (click)="save()"
-              [disabled]="isSaving() || isUploading() || loadingCats() || !isValid()"
+              [disabled]="isSaving() || isUploading() || loadingCats()"
             >
               @if (isSaving()) {
-                <span class="spinner-border spinner-border-sm me-1"></span
-                >{{ 'seller.productForm.saving' | translate }}
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                {{ 'seller.productForm.saving' | translate }}
               } @else if (isUploading()) {
-                <span class="spinner-border spinner-border-sm me-1"></span
-                >{{ 'seller.productForm.uploading' | translate }}
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                {{ 'seller.productForm.uploading' | translate }}
               } @else {
                 <i class="bi bi-check-lg me-1"></i>
-                {{
-                  editTarget()
+                {{ editTarget()
                     ? ('seller.productForm.update' | translate)
-                    : ('seller.productForm.create' | translate)
-                }}
+                    : ('seller.productForm.create' | translate) }}
               }
             </button>
           </div>
+
         </div>
       </div>
     </div>
@@ -290,39 +331,39 @@ import { SellerService } from '../../services/seller.services';
 })
 export class SellerProductFormComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
-  private readonly cdnService = inject(CdnUploadService);
+  private readonly cdnService    = inject(CdnUploadService);
   readonly translate = inject(TranslateService);
 
   readonly editTarget = input<SellerProduct | null>(null);
-  readonly saved = output<void>();
-  readonly cancel = output<void>();
+  readonly saved   = output<void>();
+  readonly cancel  = output<void>();
 
-  readonly flatCategories = signal<Category[]>([]);
-  readonly loadingCats = signal(true);
-  readonly isSaving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly flatCategories  = signal<Category[]>([]);
+  readonly loadingCats     = signal(true);
+  readonly isSaving        = signal(false);
+  readonly error           = signal<string | null>(null);
+  readonly submitted       = signal(false);   // ← tracks if user tried to save
 
-  // Upload state
-  readonly isUploading = signal(false);
-  readonly uploadProgress = signal(0);
-  readonly uploadingIndex = signal(0);
-  readonly uploadTotal = signal(0);
+  readonly isUploading     = signal(false);
+  readonly uploadProgress  = signal(0);
+  readonly uploadingIndex  = signal(0);
+  readonly uploadTotal     = signal(0);
 
   form = {
-    title: '',
-    description: '',
-    price: null as number | null,
+    title:          '',
+    description:    '',
+    price:          null as number | null,
     stock_quantity: null as number | null,
-    category_id: '',
-    images: [] as string[],
+    category_id:    '',
+    images:         [] as string[],
   };
 
   ngOnInit(): void {
     const t = this.editTarget();
     if (t) {
-      this.form.title = t.title ?? '';
-      this.form.description = t.description ?? '';
-      this.form.price = t.price ?? null;
+      this.form.title          = t.title          ?? '';
+      this.form.description    = t.description    ?? '';
+      this.form.price          = t.price          ?? null;
       this.form.stock_quantity = t.stock_quantity ?? null;
       const cat = t.category_id as any;
       this.form.category_id = cat?._id ?? cat?.id ?? (typeof cat === 'string' ? cat : '');
@@ -352,8 +393,7 @@ export class SellerProductFormComponent implements OnInit {
     const files = Array.from(input.files ?? []);
     if (!files.length) return;
 
-    // Validate
-    const invalid = files.find((file) => file.size > 5 * 1024 * 1024);
+    const invalid = files.find((f) => f.size > 5 * 1024 * 1024);
     if (invalid) {
       this.error.set(
         this.translate.instant('seller.productForm.errors.fileTooLarge', { name: invalid.name }),
@@ -371,10 +411,7 @@ export class SellerProductFormComponent implements OnInit {
     this.uploadProgress.set(0);
 
     try {
-      // Step 1 — get signed credentials from backend (one call covers all files)
       const creds = await firstValueFrom(this.cdnService.getUploadCredentials('products'));
-
-      // Step 2 — upload each file sequentially, show progress
       const urls: string[] = [];
       for (let i = 0; i < files.length; i++) {
         this.uploadingIndex.set(i + 1);
@@ -382,15 +419,12 @@ export class SellerProductFormComponent implements OnInit {
         urls.push(url);
         this.uploadProgress.set(Math.round(((i + 1) / files.length) * 100));
       }
-
-      // Step 3 — add returned URLs to the form
       this.form.images = [...this.form.images, ...urls];
     } catch {
       this.error.set(this.translate.instant('seller.productForm.errors.uploadFailed'));
     } finally {
       this.isUploading.set(false);
       this.uploadProgress.set(0);
-      // Reset file input so same file can be re-selected
       input.value = '';
     }
   }
@@ -403,23 +437,26 @@ export class SellerProductFormComponent implements OnInit {
     (e.target as HTMLImageElement).src = 'https://placehold.co/80x80/e2e8f0/94a3b8?text=?';
   }
 
-  // ── Validation & save ─────────────────────────────────────────────────────
+  // ── Validation ────────────────────────────────────────────────────────────
 
   isValid(): boolean {
     const f = this.form;
     return (
       f.title.trim().length >= 3 &&
       f.description.trim().length >= 10 &&
-      f.price !== null &&
-      f.price >= 0 &&
-      f.stock_quantity !== null &&
-      f.stock_quantity >= 0 &&
+      f.price !== null && f.price > 0 &&
+      f.stock_quantity !== null && f.stock_quantity >= 1 &&
       !!f.category_id
+      && f.images!=null
     );
   }
 
+  // ── Save ──────────────────────────────────────────────────────────────────
+
   save(): void {
+    this.submitted.set(true);   // ← show all validation messages
     if (!this.isValid()) return;
+
     this.isSaving.set(true);
     this.error.set(null);
 
@@ -428,44 +465,36 @@ export class SellerProductFormComponent implements OnInit {
 
     if (id) {
       const dto: SellerUpdateProductDto = {
-        title: this.form.title.trim(),
-        description: this.form.description.trim(),
-        price: this.form.price!,
+        title:          this.form.title.trim(),
+        description:    this.form.description.trim(),
+        price:          this.form.price!,
         stock_quantity: this.form.stock_quantity!,
-        category_id: this.form.category_id,
-        images: this.form.images,
+        category_id:    this.form.category_id,
+        images:         this.form.images,
       };
       this.sellerService.updateProduct(id, dto).subscribe({
-        next: () => {
-          this.isSaving.set(false);
-          this.saved.emit();
-        },
+        next:  () => { this.isSaving.set(false); this.saved.emit(); },
         error: (err) => {
           this.isSaving.set(false);
-          this.error.set(
-            err?.error?.message ?? this.translate.instant('seller.productForm.errors.updateFailed'),
-          );
+          this.error.set(err?.error?.message ??
+            this.translate.instant('seller.productForm.errors.updateFailed'));
         },
       });
     } else {
       const dto: SellerCreateProductDto = {
-        title: this.form.title.trim(),
-        description: this.form.description.trim(),
-        price: this.form.price!,
+        title:          this.form.title.trim(),
+        description:    this.form.description.trim(),
+        price:          this.form.price!,
         stock_quantity: this.form.stock_quantity!,
-        category_id: this.form.category_id,
-        images: this.form.images,
+        category_id:    this.form.category_id,
+        images:         this.form.images,
       };
       this.sellerService.createProduct(dto).subscribe({
-        next: () => {
-          this.isSaving.set(false);
-          this.saved.emit();
-        },
+        next:  () => { this.isSaving.set(false); this.saved.emit(); },
         error: (err) => {
           this.isSaving.set(false);
-          this.error.set(
-            err?.error?.message ?? this.translate.instant('seller.productForm.errors.createFailed'),
-          );
+          this.error.set(err?.error?.message ??
+            this.translate.instant('seller.productForm.errors.createFailed'));
         },
       });
     }

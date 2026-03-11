@@ -27,10 +27,7 @@ import { SellerService } from '../../services/seller.services';
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start">
             <div>
-              <p
-                class="small mb-1 opacity-75 fw-semibold text-uppercase"
-                style="letter-spacing:0.08em"
-              >
+              <p class="small mb-1 opacity-75 fw-semibold text-uppercase" style="letter-spacing:0.08em">
                 {{ 'seller.payouts.availableBalance' | translate }}
               </p>
               <h2 class="fw-bold mb-1">\${{ walletBalance() | number: '1.2-2' }}</h2>
@@ -39,10 +36,7 @@ import { SellerService } from '../../services/seller.services';
             <div class="text-end">
               <i class="bi bi-wallet2" style="font-size:2.5rem;opacity:0.2"></i>
               <div class="mt-2">
-                <span
-                  class="badge rounded-pill px-3"
-                  style="background:rgba(74,222,128,0.25);color:#4ade80"
-                >
+                <span class="badge rounded-pill px-3" style="background:rgba(74,222,128,0.25);color:#4ade80">
                   {{ 'seller.payouts.sellerAccount' | translate }}
                 </span>
               </div>
@@ -55,8 +49,8 @@ import { SellerService } from '../../services/seller.services';
       <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4">
           <h5 class="fw-bold mb-3">
-            <i class="bi bi-send me-2" style="color:#4ade80"></i
-            >{{ 'seller.payouts.requestTitle' | translate }}
+            <i class="bi bi-send me-2" style="color:#4ade80"></i>
+            {{ 'seller.payouts.requestTitle' | translate }}
           </h5>
 
           @if (formError()) {
@@ -71,15 +65,17 @@ import { SellerService } from '../../services/seller.services';
           }
 
           <div class="row g-3 align-items-end">
+            <!-- Amount -->
             <div class="col-md-4">
-              <label class="form-label fw-semibold small text-muted text-uppercase">{{
-                'seller.payouts.amountLabel' | translate
-              }}</label>
+              <label class="form-label fw-semibold small text-muted text-uppercase">
+                {{ 'seller.payouts.amountLabel' | translate }}
+              </label>
               <div class="input-group shadow-sm">
                 <span class="input-group-text border-0 bg-light">$</span>
                 <input
                   type="number"
                   class="form-control border-0 bg-light rounded-end-3"
+                  [class.is-invalid]="submitted() && amountInvalid()"
                   placeholder="0.00"
                   min="1"
                   step="0.01"
@@ -88,18 +84,41 @@ import { SellerService } from '../../services/seller.services';
                   name="amount"
                 />
               </div>
+
+              <!-- Live warnings while typing -->
+              @if (payoutAmount < 0) {
+                <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                  <i class="bi bi-exclamation-circle"></i>
+                  Amount cannot be negative.
+                </small>
+              }
+              @if (payoutAmount === 0) {
+                <small class="text-warning d-flex align-items-center gap-1 mt-1">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  Amount must be greater than zero.
+                </small>
+              }
               @if (payoutAmount > walletBalance()) {
-                <small class="text-danger d-block mt-1">
-                  <i class="bi bi-exclamation-triangle me-1"></i
-                  >{{ 'seller.payouts.exceedsBalance' | translate }}
+                <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ 'seller.payouts.exceedsBalance' | translate }}
+                </small>
+              }
+
+              <!-- Submit-triggered validation -->
+              @if (submitted() && payoutAmount === null) {
+                <small class="text-danger d-flex align-items-center gap-1 mt-1">
+                  <i class="bi bi-exclamation-circle"></i>
+                  Amount is required.
                 </small>
               }
             </div>
 
+            <!-- Note -->
             <div class="col-md-5">
-              <label class="form-label fw-semibold small text-muted text-uppercase">{{
-                'seller.payouts.noteLabel' | translate
-              }}</label>
+              <label class="form-label fw-semibold small text-muted text-uppercase">
+                {{ 'seller.payouts.noteLabel' | translate }}
+              </label>
               <input
                 class="form-control border-0 bg-light shadow-sm rounded-3"
                 [placeholder]="'seller.payouts.notePlaceholder' | translate"
@@ -108,21 +127,20 @@ import { SellerService } from '../../services/seller.services';
               />
             </div>
 
+            <!-- Button -->
             <div class="col-md-3">
               <button
                 class="btn w-100 fw-semibold rounded-3 text-white shadow-sm"
-                style="background:linear-gradient(135deg,#4ade80,#22c55e);border:none"
-                [disabled]="
-                  isRequesting() ||
-                  !payoutAmount ||
-                  payoutAmount <= 0 ||
-                  payoutAmount > walletBalance()
-                "
+                [style.background]="isAmountValid()
+                  ? 'linear-gradient(135deg,#4ade80,#22c55e)'
+                  : '#94a3b8'"
+                style="border:none;transition:background 0.3s"
+                [disabled]="isRequesting()"
                 (click)="submitPayout()"
               >
                 @if (isRequesting()) {
-                  <span class="spinner-border spinner-border-sm me-1"></span
-                  >{{ 'seller.payouts.processing' | translate }}
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                  {{ 'seller.payouts.processing' | translate }}
                 } @else {
                   <i class="bi bi-send me-1"></i>{{ 'seller.payouts.requestBtn' | translate }}
                 }
@@ -136,8 +154,8 @@ import { SellerService } from '../../services/seller.services';
       <div class="card border-0 shadow-sm rounded-4">
         <div class="card-header bg-transparent border-0 pt-4 px-4">
           <h5 class="fw-bold mb-0">
-            <i class="bi bi-clock-history me-2 text-muted"></i
-            >{{ 'seller.payouts.history' | translate }}
+            <i class="bi bi-clock-history me-2 text-muted"></i>
+            {{ 'seller.payouts.history' | translate }}
           </h5>
         </div>
         <div class="card-body p-0">
@@ -154,10 +172,7 @@ import { SellerService } from '../../services/seller.services';
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
                 <thead style="background:#f8fafc">
-                  <tr
-                    class="text-muted"
-                    style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em"
-                  >
+                  <tr class="text-muted" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">
                     <th class="ps-4 py-3">{{ 'seller.payouts.amount' | translate }}</th>
                     <th class="py-3">{{ 'seller.payouts.status' | translate }}</th>
                     <th class="py-3">{{ 'seller.payouts.note' | translate }}</th>
@@ -197,23 +212,37 @@ import { SellerService } from '../../services/seller.services';
   `,
 })
 export class SellerPayoutsComponent implements OnInit {
-  private readonly sellerService = inject(SellerService);
-  private readonly profileService = inject(ProfileService);
-  private readonly authService = inject(AuthService);
-  private readonly translate = inject(TranslateService);
+  private readonly sellerService   = inject(SellerService);
+  private readonly profileService  = inject(ProfileService);
+  private readonly authService     = inject(AuthService);
+  private readonly translate       = inject(TranslateService);
 
-  readonly walletBalance = signal(0);
-  readonly payouts = signal<SellerPayoutItem[]>([]);
+  readonly walletBalance    = signal(0);
+  readonly payouts          = signal<SellerPayoutItem[]>([]);
   readonly isLoadingPayouts = signal(false);
-  readonly isRequesting = signal(false);
-  readonly formError = signal<string | null>(null);
-  readonly formSuccess = signal<string | null>(null);
+  readonly isRequesting     = signal(false);
+  readonly formError        = signal<string | null>(null);
+  readonly formSuccess      = signal<string | null>(null);
+  readonly submitted        = signal(false);
 
   payoutAmount = 0;
-  payoutNote = '';
+  payoutNote   = '';
 
   userName(): string {
     return this.authService.currentUser()?.name ?? '';
+  }
+
+  /** true only when amount is a valid positive number within balance */
+  isAmountValid(): boolean {
+    return (
+      this.payoutAmount !== null &&
+      this.payoutAmount > 0 &&
+      this.payoutAmount <= this.walletBalance()
+    );
+  }
+
+  amountInvalid(): boolean {
+    return !this.isAmountValid();
   }
 
   ngOnInit(): void {
@@ -225,8 +254,9 @@ export class SellerPayoutsComponent implements OnInit {
     this.profileService.getUserProfile().subscribe({
       next: (profile) => {
         this.walletBalance.set(profile.wallet_balance ?? 0);
-        const requests: SellerPayoutItem[] = (profile.seller_profile as any)?.payout_requests ?? [];
-        this.payouts.set([...requests].reverse()); // newest first
+        const requests: SellerPayoutItem[] =
+          (profile.seller_profile as any)?.payout_requests ?? [];
+        this.payouts.set([...requests].reverse());
         this.isLoadingPayouts.set(false);
       },
       error: () => this.isLoadingPayouts.set(false),
@@ -235,7 +265,7 @@ export class SellerPayoutsComponent implements OnInit {
 
   payoutStatusKey(status: string): string {
     const map: Record<string, string> = {
-      pending: 'seller.payouts.statusPending',
+      pending:  'seller.payouts.statusPending',
       approved: 'seller.payouts.statusApproved',
       rejected: 'seller.payouts.statusRejected',
     };
@@ -243,7 +273,9 @@ export class SellerPayoutsComponent implements OnInit {
   }
 
   submitPayout(): void {
-    if (!this.payoutAmount || this.payoutAmount <= 0) return;
+    this.submitted.set(true);
+    if (!this.isAmountValid()) return;
+
     this.isRequesting.set(true);
     this.formError.set(null);
     this.formSuccess.set(null);
@@ -251,15 +283,16 @@ export class SellerPayoutsComponent implements OnInit {
     this.sellerService.requestPayout(this.payoutAmount, this.payoutNote || undefined).subscribe({
       next: () => {
         this.isRequesting.set(false);
+        this.submitted.set(false);
         this.formSuccess.set(
           this.translate.instant('seller.payouts.payoutSuccess', {
             amount: this.payoutAmount.toFixed(2),
           }),
         );
         this.payoutAmount = 0;
-        this.payoutNote = '';
+        this.payoutNote   = '';
         setTimeout(() => this.formSuccess.set(null), 5000);
-        this.loadProfile(); // refresh balance + history
+        this.loadProfile();
       },
       error: (err) => {
         this.isRequesting.set(false);
