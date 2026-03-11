@@ -19,12 +19,12 @@ import { HomeService } from '../../services/home-service';
     <div class="row">
       @for (cat of categories(); track $index) {
         <div class="col-md-3 mb-3">
-          <div class="card category-card">
+          <div class="card category-card h-100">
             <img [src]="cat.image" class="card-img-top" [alt]="cat.name" />
 
             <div class="card-body text-center">
               <h6 class="card-title">{{ cat.name }}</h6>
-              <h6 class="card-title">{{ cat.description }}</h6>
+              <p class="card-text">{{ cat.description }}</p>
 
               <a
                 [routerLink]="['/products']"
@@ -39,6 +39,27 @@ import { HomeService } from '../../services/home-service';
       }
     </div>
   `,
+  styles: `
+    .category-card {
+      height: 350px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .category-card img {
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .category-card .card-body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .category-card .btn {
+      margin-top: auto;
+    }
+  `,
 })
 export class CategoryComponent {
   private categoryService = inject(HomeService);
@@ -49,7 +70,6 @@ export class CategoryComponent {
   constructor() {
     this.loadCategories();
   }
-
   loadCategories() {
     this.categoryService.getCategories().subscribe({
       next: (res) => {
