@@ -21,7 +21,7 @@ import { Product } from '../../dto';
           <span class="badge bg-secondary mb-2 w-fit">{{ product().category_id.name }}</span>
           <h6 class="card-title fw-semibold">{{ product().title }}</h6>
           <p class="text-muted small mb-1">{{ 'products.list.by' | translate }} {{ product().seller_id.name }}</p>
-          <p class="fw-bold text-primary fs-5 mb-1">{{ product().price | currency }}</p>
+          <p class="fw-bold text-primary fs-5 mb-1">{{ product().price | currency :"EGP" }}</p>
 
           <div class="d-flex align-items-center gap-1 mb-2">
             <i class="bi bi-star-fill text-warning small"></i>

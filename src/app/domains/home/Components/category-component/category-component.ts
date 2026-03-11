@@ -20,7 +20,7 @@ import { HomeService } from '../../services/home-service';
       @for (cat of categories(); track $index) {
         <div class="col-md-3 mb-3">
           <div class="card category-card">
-            <img src="cat1.jpg" class="card-img-top" [alt]="cat.name" />
+            <img [src]="cat.image" class="card-img-top" [alt]="cat.name" />
 
             <div class="card-body text-center">
               <h6 class="card-title">{{ cat.name }}</h6>

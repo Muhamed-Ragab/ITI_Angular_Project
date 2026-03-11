@@ -82,7 +82,6 @@ export interface AdminPayout extends PayoutResponse {
     </div>
   `,
 })
-// ... imports
 export class AdminPayoutsComponent implements OnInit {
   payouts = signal<AdminPayout[]>([]);
   loading = signal(true);
@@ -101,7 +100,7 @@ export class AdminPayoutsComponent implements OnInit {
           user.seller_profile?.payout_requests?.forEach((p: PayoutResponse) => {
             allPayouts.push({
               ...p,
-              _id: p._id, // تأكد أن هذا هو معرف الطلب وليس المستخدم
+              _id: p._id, 
               userId: user._id,
               userName: user.name,
               wallet_balance: user.wallet_balance,
@@ -124,7 +123,6 @@ export class AdminPayoutsComponent implements OnInit {
     this.adminService
       .reviewPayout(payout.userId, payout._id, { status: 'approved', note: 'Payment processed' })
       .subscribe(() => {
-        // تحديث الـ Signal بطريقة صحيحة ليعمل الـ UI Re-render
         this.payouts.update((currentPayouts) =>
           currentPayouts.map((p) =>
             p._id === payout._id
@@ -132,6 +130,7 @@ export class AdminPayoutsComponent implements OnInit {
               : p,
           ),
         );
+          this.loadPayouts();
       });
   }
 
@@ -142,6 +141,7 @@ export class AdminPayoutsComponent implements OnInit {
         this.payouts.update((currentPayouts) =>
           currentPayouts.map((p) => (p._id === payout._id ? { ...p, status: 'rejected' } : p)),
         );
+          this.loadPayouts();
       });
   }
 }
