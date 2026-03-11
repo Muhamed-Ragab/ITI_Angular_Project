@@ -119,7 +119,8 @@ import { SellerService } from '../../services/seller.services';
                       [class.bg-warning]="order.status === 'pending'"
                       [class.text-dark]="order.status === 'pending'"
                       [class.bg-info]="order.status === 'processing'"
-                      [class.text-white]="order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' || order.status === 'cancelled'"
+                      [class.bg-secondary]="order.status === 'paid'"
+                      [class.text-white]="order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' || order.status === 'cancelled' || order.status === 'paid'"
                       [class.bg-primary]="order.status === 'shipped'"
                       [class.bg-success]="order.status === 'delivered'"
                       [class.bg-danger]="order.status === 'cancelled'"
@@ -275,6 +276,7 @@ export class SellerOrdersComponent implements OnInit {
   statusTranslationKey(status: string): string {
     const map: Record<string, string> = {
       pending: 'seller.orders.statusPending',
+      paid: 'seller.orders.statusPaid',
       processing: 'seller.orders.statusProcessing',
       shipped: 'seller.orders.statusShipped',
       delivered: 'seller.orders.statusDelivered',
@@ -286,6 +288,7 @@ export class SellerOrdersComponent implements OnInit {
   statusIcon(status: string): string {
     const map: Record<string, string> = {
       pending: 'bi-clock',
+      paid: 'bi-credit-card',
       processing: 'bi-gear',
       shipped: 'bi-truck',
       delivered: 'bi-check-circle-fill',

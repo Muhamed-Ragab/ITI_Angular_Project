@@ -615,6 +615,7 @@
       "cancelOrder": "Cancel Order",
       "qty": "Qty:",
       "statusTotal": "Total",
+      "statusPaid": "Paid",
       "statusPending": "Pending",
       "statusShipped": "Shipped",
       "statusDelivered": "Delivered",
