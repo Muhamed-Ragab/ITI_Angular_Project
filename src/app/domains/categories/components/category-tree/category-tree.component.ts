@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 //import { RouterLink } from '@angular/router';
 import { Category } from '../../dto';
 
 @Component({
   selector: 'app-category-tree',
-  standalone: true,
+  imports: [TranslateModule],
   //imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -24,7 +25,9 @@ import { Category } from '../../dto';
                 <small class="text-muted">— {{ cat.description }}</small>
               }
               @if (cat.productCount != null) {
-                <span class="badge bg-secondary">{{ cat.productCount }} products</span>
+                <span class="badge bg-secondary"
+                  >{{ cat.productCount }} {{ 'categories.products' | translate }}</span
+                >
               }
             </div>
 
@@ -33,21 +36,21 @@ import { Category } from '../../dto';
               <div class="d-flex gap-1">
                 <button
                   class="btn btn-outline-primary btn-sm"
-                  title="Add subcategory"
+                  [title]="'categories.addSubcategory' | translate"
                   (click)="addSub.emit(cat)"
                 >
                   <i class="bi bi-plus-lg"></i>
                 </button>
                 <button
                   class="btn btn-outline-secondary btn-sm"
-                  title="Edit"
+                  [title]="'categories.edit' | translate"
                   (click)="edit.emit(cat)"
                 >
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button
                   class="btn btn-outline-danger btn-sm"
-                  title="Delete"
+                  [title]="'categories.delete' | translate"
                   (click)="delete.emit(cat)"
                 >
                   <i class="bi bi-trash"></i>
