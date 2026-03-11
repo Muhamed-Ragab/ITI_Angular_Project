@@ -29,8 +29,8 @@ import { Product } from '../../dto';
             <span class="text-muted small">({{ product().ratings_count }})</span>
           </div>
 
-          <span class="badge mt-auto" [ngClass]="product().stock > 0 ? 'bg-success' : 'bg-danger'">
-            {{ product().stock > 0 ? ('products.card.inStock' | translate) : ('products.card.outOfStock' | translate) }}
+          <span class="badge mt-auto" [ngClass]="(product().stock_quantity || 0) > 0 ? 'bg-success' : 'bg-danger'">
+            {{ (product().stock_quantity || 0) > 0 ? ('products.card.inStock' | translate) : ('products.card.outOfStock' | translate) }}
           </span>
         </div>
       </div>
@@ -38,5 +38,5 @@ import { Product } from '../../dto';
   `,
 })
 export class ProductCardComponent {
-  readonly product = input.required<Product>(); // ← new Angular input() signal style
+  readonly product = input.required<Product>(); // new angular styele 
 }
