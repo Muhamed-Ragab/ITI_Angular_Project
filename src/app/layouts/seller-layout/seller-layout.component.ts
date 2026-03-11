@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthFacadeService } from '../../domains/auth/services/auth-facade.service';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 
 interface NavItem {
   label: string;
@@ -13,7 +14,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-seller-layout',
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, LanguageSwitcherComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="seller-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
@@ -58,6 +59,12 @@ interface NavItem {
             </a>
           }
         </nav>
+
+        @if (!sidebarCollapsed()) {
+          <div class="sidebar-language px-3 py-3">
+            <app-language-switcher></app-language-switcher>
+          </div>
+        }
 
         <div class="sidebar-footer">
           @if (!sidebarCollapsed()) {
@@ -254,6 +261,11 @@ interface NavItem {
 
       .sidebar-footer {
         padding: 1rem 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+
+      .sidebar-language {
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         flex-shrink: 0;
       }
