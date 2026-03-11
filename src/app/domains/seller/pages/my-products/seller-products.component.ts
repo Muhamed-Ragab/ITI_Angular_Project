@@ -2,23 +2,23 @@ import { CommonModule, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@core/services/auth.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { SellerProductFormComponent } from '../../components/seller-product-form/seller-product-form.component';
 import { SellerPagination, SellerProduct, SellerProductFilters } from '../../dto/seller.dto';
 import { SellerService } from '../../services/seller.services';
 
 @Component({
   selector: 'app-seller-products',
-  standalone: true,
-  imports: [FormsModule, CommonModule, SlicePipe, SellerProductFormComponent],
+  imports: [FormsModule, CommonModule, SlicePipe, SellerProductFormComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="p-3 p-md-4">
       <!-- Header -->
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-          <h4 class="fw-bold mb-0">My Products</h4>
+          <h4 class="fw-bold mb-0">{{ 'seller.products.title' | translate }}</h4>
           <p class="text-muted small mb-0">
-            {{ pagination()?.total ?? 0 }} product(s) in your store
+            {{ pagination()?.total ?? 0 }} {{ 'seller.products.inStore' | translate }}
           </p>
         </div>
         <button
@@ -26,7 +26,7 @@ import { SellerService } from '../../services/seller.services';
           style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#fff;border:none"
           (click)="openCreate()"
         >
-          <i class="bi bi-plus-lg me-2"></i>Add Product
+          <i class="bi bi-plus-lg me-2"></i>{{ 'seller.products.addProduct' | translate }}
         </button>
       </div>
 
@@ -37,7 +37,7 @@ import { SellerService } from '../../services/seller.services';
             <div class="col-md-6">
               <input
                 class="form-control border-0 bg-light rounded-3"
-                placeholder="🔍 Search products by name…"
+                [placeholder]="'seller.products.searchPlaceholder' | translate"
                 [(ngModel)]="searchText"
                 name="search"
                 (keyup.enter)="applySearch()"
@@ -45,9 +45,9 @@ import { SellerService } from '../../services/seller.services';
             </div>
             <div class="col-auto">
               <select class="form-select border-0 bg-light rounded-3" [(ngModel)]="filters.limit">
-                <option [value]="10">10 / page</option>
-                <option [value]="25">25 / page</option>
-                <option [value]="50">50 / page</option>
+                <option [value]="10">10 {{ 'seller.products.perPage' | translate }}</option>
+                <option [value]="25">25 {{ 'seller.products.perPage' | translate }}</option>
+                <option [value]="50">50 {{ 'seller.products.perPage' | translate }}</option>
               </select>
             </div>
             <div class="col-auto d-flex gap-2">
@@ -57,7 +57,7 @@ import { SellerService } from '../../services/seller.services';
               <button
                 class="btn btn-outline-secondary rounded-3"
                 (click)="resetFilters()"
-                title="Clear"
+                [attr.title]="'seller.products.clearTitle' | translate"
               >
                 <i class="bi bi-x-lg"></i>
               </button>
@@ -88,14 +88,15 @@ import { SellerService } from '../../services/seller.services';
         >
           <span>
             <i class="bi bi-exclamation-triangle me-2"></i>
-            Delete <strong>"{{ pendingDelete()!.title }}"</strong>? This cannot be undone.
+            {{ 'seller.products.deletePrefix' | translate }} <strong>"{{ pendingDelete()!.title }}"</strong>?
+            {{ 'seller.products.deleteWarning' | translate }}
           </span>
           <div class="d-flex gap-2">
             <button
               class="btn btn-sm btn-outline-secondary rounded-pill"
               (click)="pendingDelete.set(null)"
             >
-              Cancel
+              {{ 'seller.products.cancel' | translate }}
             </button>
             <button
               class="btn btn-sm btn-danger rounded-pill"
@@ -105,7 +106,7 @@ import { SellerService } from '../../services/seller.services';
               @if (isDeleting()) {
                 <span class="spinner-border spinner-border-sm me-1"></span>
               }
-              Yes, Delete
+              {{ 'seller.products.confirmDelete' | translate }}
             </button>
           </div>
         </div>
@@ -116,14 +117,14 @@ import { SellerService } from '../../services/seller.services';
         @if (isLoading()) {
           <div class="text-center py-5">
             <div class="spinner-border" style="color:#4ade80"></div>
-            <p class="text-muted mt-2 small">Loading products…</p>
+            <p class="text-muted mt-2 small">{{ 'seller.products.loading' | translate }}</p>
           </div>
         } @else if (products().length === 0) {
           <div class="text-center py-5">
             <i class="bi bi-box-seam d-block mb-3 text-muted" style="font-size:3rem"></i>
-            <p class="text-muted mb-3">No products yet. Start by adding your first one!</p>
+            <p class="text-muted mb-3">{{ 'seller.products.empty' | translate }}</p>
             <button class="btn btn-primary rounded-pill px-4" (click)="openCreate()">
-              <i class="bi bi-plus-lg me-1"></i>Add Product
+              <i class="bi bi-plus-lg me-1"></i>{{ 'seller.products.addProduct' | translate }}
             </button>
           </div>
         } @else {
@@ -134,12 +135,12 @@ import { SellerService } from '../../services/seller.services';
                   class="text-muted"
                   style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em"
                 >
-                  <th class="ps-4 py-3">Product</th>
-                  <th class="py-3">Category</th>
-                  <th class="py-3">Price</th>
-                  <th class="py-3">Stock</th>
-                  <th class="py-3">Rating</th>
-                  <th class="pe-4 py-3 text-end">Actions</th>
+                  <th class="ps-4 py-3">{{ 'seller.products.product' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.category' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.price' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.stock' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.rating' | translate }}</th>
+                  <th class="pe-4 py-3 text-end">{{ 'seller.products.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,13 +179,15 @@ import { SellerService } from '../../services/seller.services';
                     <td class="py-3 fw-semibold">\${{ p.price | number: '1.2-2' }}</td>
                     <td class="py-3">
                       @if (p.stock_quantity === 0) {
-                        <span class="badge rounded-pill bg-danger">Out of Stock</span>
+                        <span class="badge rounded-pill bg-danger">{{
+                          'seller.products.outOfStock' | translate
+                        }}</span>
                       } @else if (p.stock_quantity <= 10) {
                         <span
                           class="badge rounded-pill fw-normal"
                           style="background:#fef9c3;color:#854d0e"
                         >
-                          ⚠ Low: {{ p.stock_quantity }}
+                          ⚠ {{ 'seller.products.lowStock' | translate }} {{ p.stock_quantity }}
                         </span>
                       } @else {
                         <span
@@ -201,7 +204,9 @@ import { SellerService } from '../../services/seller.services';
                         <span class="fw-semibold">{{ p.average_rating | number: '1.1-1' }}</span>
                         <span class="text-muted small ms-1">({{ p.ratings_count }})</span>
                       } @else {
-                        <span class="text-muted small">No ratings</span>
+                        <span class="text-muted small">{{
+                          'seller.products.noRatings' | translate
+                        }}</span>
                       }
                     </td>
                     <td class="pe-4 py-3 text-end">
@@ -209,14 +214,14 @@ import { SellerService } from '../../services/seller.services';
                         <button
                           class="btn btn-sm btn-outline-primary rounded-3"
                           (click)="openEdit(p)"
-                          title="Edit"
+                          [attr.title]="'seller.products.editTitle' | translate"
                         >
                           <i class="bi bi-pencil"></i>
                         </button>
                         <button
                           class="btn btn-sm btn-outline-danger rounded-3"
                           (click)="requestDelete(p)"
-                          title="Delete"
+                          [attr.title]="'seller.products.deleteTitle' | translate"
                         >
                           <i class="bi bi-trash"></i>
                         </button>
@@ -235,10 +240,11 @@ import { SellerService } from '../../services/seller.services';
               style="border-top:1px solid #f1f5f9"
             >
               <small class="text-muted">
-                Showing {{ ((filters.page ?? 1) - 1) * (filters.limit ?? 10) + 1 }}–{{
+                {{ 'seller.products.showing' | translate }}
+                {{ ((filters.page ?? 1) - 1) * (filters.limit ?? 10) + 1 }}–{{
                   minVal((filters.page ?? 1) * (filters.limit ?? 10), pagination()!.total)
                 }}
-                of {{ pagination()!.total }}
+                {{ 'seller.products.of' | translate }} {{ pagination()!.total }}
               </small>
               <div class="d-flex gap-1">
                 <button

@@ -1,20 +1,20 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.service';
+import { Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
+import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.service';
 
 @Component({
   selector: 'app-admin-coupon-create',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Create New Coupon</h2>
+        <h2 class="mb-0">{{ 'coupons.form.createTitle' | translate }}</h2>
         <a routerLink="/admin/coupons" class="btn btn-outline-primary">
-          <i class="bi bi-arrow-left"></i> Back to List
+          <i class="bi bi-arrow-left"></i> {{ 'coupons.form.backToList' | translate }}
         </a>
       </div>
 
@@ -32,7 +32,7 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
             <div class="row">
               <!-- Code -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Coupon Code *</label>
+                <label class="form-label">{{ 'coupons.form.code' | translate }} *</label>
                 <input
                   type="text"
                   class="form-control"
@@ -45,21 +45,16 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
 
               <!-- Discount Type -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Discount Type *</label>
-                <select
-                  class="form-select"
-                  [(ngModel)]="formData.type"
-                  name="type"
-                  required
-                >
-                  <option value="percentage">Percentage</option>
-                  <option value="fixed">Fixed Amount</option>
+                <label class="form-label">{{ 'coupons.form.discountType' | translate }} *</label>
+                <select class="form-select" [(ngModel)]="formData.type" name="type" required>
+                  <option value="percentage">{{ 'coupons.form.percentage' | translate }}</option>
+                  <option value="fixed">{{ 'coupons.form.fixed' | translate }}</option>
                 </select>
               </div>
 
               <!-- Discount Value -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Discount Value *</label>
+                <label class="form-label">{{ 'coupons.form.discountValue' | translate }} *</label>
                 <input
                   type="number"
                   class="form-control"
@@ -73,7 +68,7 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
 
               <!-- Min Order Amount -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Min Order Amount</label>
+                <label class="form-label">{{ 'coupons.form.minOrder' | translate }}</label>
                 <input
                   type="number"
                   class="form-control"
@@ -87,20 +82,20 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
 
               <!-- Usage Limit -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Usage Limit</label>
+                <label class="form-label">{{ 'coupons.form.usageLimit' | translate }}</label>
                 <input
                   type="number"
                   class="form-control"
                   [(ngModel)]="formData.usage_limit"
                   name="usage_limit"
                   min="1"
-                  placeholder="Leave empty for unlimited"
+                  [placeholder]="'coupons.form.unlimited' | translate"
                 />
               </div>
 
               <!-- Per User Limit -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Per User Limit *</label>
+                <label class="form-label">{{ 'coupons.form.perUserLimit' | translate }} *</label>
                 <input
                   type="number"
                   class="form-control"
@@ -114,20 +109,16 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
 
               <!-- Active Status -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Status</label>
-                <select
-                  class="form-select"
-                  [(ngModel)]="formData.is_active"
-                  name="is_active"
-                >
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <label class="form-label">{{ 'coupons.form.status' | translate }}</label>
+                <select class="form-select" [(ngModel)]="formData.is_active" name="is_active">
+                  <option value="true">{{ 'coupons.active' | translate }}</option>
+                  <option value="false">{{ 'coupons.inactive' | translate }}</option>
                 </select>
               </div>
 
               <!-- Start Date -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Start Date</label>
+                <label class="form-label">{{ 'coupons.form.startDate' | translate }}</label>
                 <input
                   type="datetime-local"
                   class="form-control"
@@ -139,19 +130,19 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
 
               <!-- End Date -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">End Date</label>
+                <label class="form-label">{{ 'coupons.form.endDate' | translate }}</label>
                 <input
                   type="datetime-local"
                   class="form-control"
                   [(ngModel)]="formData.ends_at"
                   name="ends_at"
                 />
-                <small class="text-muted">Leave empty for no expiry</small>
+                <small class="text-muted">{{ 'coupons.noExpiry' | translate }}</small>
               </div>
 
               <!-- Description -->
               <div class="col-12 mb-3">
-                <label class="form-label">Description</label>
+                <label class="form-label">{{ 'coupons.form.description' | translate }}</label>
                 <textarea
                   class="form-control"
                   [(ngModel)]="formData.description"
@@ -165,7 +156,7 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
             <!-- Preview -->
             <div class="card bg-light mb-4">
               <div class="card-body">
-                <h6 class="card-title">Coupon Preview</h6>
+                <h6 class="card-title">{{ 'coupons.form.preview' | translate }}</h6>
                 <div class="d-flex align-items-center gap-3">
                   <span class="badge bg-primary fs-6">{{ formData.code || 'CODE' }}</span>
                   <span>
@@ -185,7 +176,7 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
             <!-- Submit Buttons -->
             <div class="d-flex justify-content-end gap-2 mt-4">
               <a routerLink="/admin/coupons" class="btn btn-outline-secondary">
-                Cancel
+                {{ 'coupons.form.cancel' | translate }}
               </a>
               <button
                 type="submit"
@@ -195,7 +186,7 @@ import { CreateCouponRequest } from '../../dto/create-coupon-request.dto';
                 @if (facade.isLoading()) {
                   <span class="spinner-border spinner-border-sm me-1"></span>
                 }
-                Create Coupon
+                {{ 'coupons.form.create' | translate }}
               </button>
             </div>
           </form>
@@ -223,11 +214,7 @@ export class AdminCouponCreateComponent {
   };
 
   isFormValid(): boolean {
-    return !!(
-      this.formData.code &&
-      this.formData.type &&
-      this.formData.value > 0
-    );
+    return !!(this.formData.code && this.formData.type && this.formData.value > 0);
   }
 
   private convertToISOString(dateTimeLocal: string): string | null {

@@ -1,29 +1,29 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { OrderStatus, UpdateOrderStatusRequest } from '../../dto';
 import { AdminOrderFacadeService } from '../../services/admin-order-facade.service';
-import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
 
 @Component({
   selector: 'app-admin-order-detail',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <a routerLink="/admin/orders" class="btn btn-outline-secondary btn-sm mb-2">
-            <i class="bi bi-arrow-left"></i> Back to Orders
+            <i class="bi bi-arrow-left"></i> {{ 'adminOrders.detail.backToOrders' | translate }}
           </a>
-          <h1 class="h3 mb-0">Order Details</h1>
+          <h1 class="h3 mb-0">{{ 'adminOrders.detail.title' | translate }}</h1>
         </div>
       </div>
 
       @if (facade.isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">{{ 'adminOrders.detail.loading' | translate }}</span>
           </div>
         </div>
       } @else if (facade.error()) {
@@ -36,7 +36,9 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
           <div class="col-lg-8">
             <div class="card shadow-sm mb-4">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 font-monospace">Order #{{ order._id }}</h5>
+                <h5 class="mb-0 font-monospace">
+                  {{ 'adminOrders.orderNumber' | translate }}{{ order._id }}
+                </h5>
                 <div>
                   <span class="badge me-2" [class]="getStatusClass(order.status)">
                     {{ order.status }}
@@ -49,33 +51,50 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
               <div class="card-body">
                 <div class="row mb-4">
                   <div class="col-md-6">
-                    <h6 class="text-muted mb-2">Customer Information</h6>
+                    <h6 class="text-muted mb-2">
+                      {{ 'adminOrders.detail.customerInfo' | translate }}
+                    </h6>
                     @if (order.guest_info) {
-                      <p class="mb-1"><strong>{{ order.guest_info.name }}</strong> <span class="badge bg-secondary ms-1">Guest</span></p>
+                      <p class="mb-1">
+                        <strong>{{ order.guest_info.name }}</strong>
+                        <span class="badge bg-secondary ms-1">{{
+                          'adminOrders.detail.guest' | translate
+                        }}</span>
+                      </p>
                       <p class="mb-1">{{ order.guest_info.email }}</p>
                       <p class="mb-0">{{ order.guest_info.phone }}</p>
                     } @else if (order.user) {
-                      <p class="mb-1"><strong>Registered User</strong></p>
+                      <p class="mb-1">
+                        <strong>{{ 'adminOrders.detail.registeredUser' | translate }}</strong>
+                      </p>
                       <p class="mb-0 font-monospace text-muted small">{{ order.user }}</p>
                     }
                   </div>
                   <div class="col-md-6">
-                    <h6 class="text-muted mb-2">Order Dates</h6>
-                    <p class="mb-1">Created: {{ order.createdAt | date:'medium' }}</p>
-                    <p class="mb-0">Updated: {{ order.updatedAt | date:'medium' }}</p>
+                    <h6 class="text-muted mb-2">
+                      {{ 'adminOrders.detail.orderDates' | translate }}
+                    </h6>
+                    <p class="mb-1">
+                      {{ 'adminOrders.detail.created' | translate }}
+                      {{ order.createdAt | date: 'medium' }}
+                    </p>
+                    <p class="mb-0">
+                      {{ 'adminOrders.detail.updated' | translate }}
+                      {{ order.updatedAt | date: 'medium' }}
+                    </p>
                   </div>
                 </div>
 
                 <!-- Order Items -->
-                <h6 class="text-muted mb-3">Order Items</h6>
+                <h6 class="text-muted mb-3">{{ 'adminOrders.detail.orderItems' | translate }}</h6>
                 <div class="table-responsive">
                   <table class="table table-sm">
                     <thead>
                       <tr>
-                        <th>Product</th>
-                        <th class="text-center">Qty</th>
-                        <th class="text-end">Unit Price</th>
-                        <th class="text-end">Total</th>
+                        <th>{{ 'adminOrders.detail.product' | translate }}</th>
+                        <th class="text-center">{{ 'adminOrders.detail.qty' | translate }}</th>
+                        <th class="text-end">{{ 'adminOrders.detail.unitPrice' | translate }}</th>
+                        <th class="text-end">{{ 'adminOrders.detail.total' | translate }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -83,41 +102,60 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
                         <tr>
                           <td>{{ item.title }}</td>
                           <td class="text-center">{{ item.quantity }}</td>
-                          <td class="text-end">EGP {{ item.price | number:'1.0-0' }}</td>
-                          <td class="text-end">EGP {{ (item.price * item.quantity) | number:'1.0-0' }}</td>
+                          <td class="text-end">EGP {{ item.price | number: '1.0-0' }}</td>
+                          <td class="text-end">
+                            EGP {{ item.price * item.quantity | number: '1.0-0' }}
+                          </td>
                         </tr>
                       }
                     </tbody>
                     <tfoot>
                       <tr>
-                        <td colspan="3" class="text-end">Subtotal</td>
-                        <td class="text-end">EGP {{ order.subtotal_amount | number:'1.0-0' }}</td>
+                        <td colspan="3" class="text-end">
+                          {{ 'adminOrders.detail.subtotal' | translate }}
+                        </td>
+                        <td class="text-end">EGP {{ order.subtotal_amount | number: '1.0-0' }}</td>
                       </tr>
                       @if (order.discount_amount > 0) {
                         <tr>
-                          <td colspan="3" class="text-end">Discount
+                          <td colspan="3" class="text-end">
+                            {{ 'adminOrders.detail.discount' | translate }}
                             @if (order.coupon_info) {
-                              <span class="badge bg-success ms-2">{{ order.coupon_info.code }}</span>
+                              <span class="badge bg-success ms-2">{{
+                                order.coupon_info.code
+                              }}</span>
                             }
                           </td>
-                          <td class="text-end text-success">-EGP {{ order.discount_amount | number:'1.0-0' }}</td>
+                          <td class="text-end text-success">
+                            -EGP {{ order.discount_amount | number: '1.0-0' }}
+                          </td>
                         </tr>
                       }
                       @if (order.shipping_amount > 0) {
                         <tr>
-                          <td colspan="3" class="text-end">Shipping</td>
-                          <td class="text-end">EGP {{ order.shipping_amount | number:'1.0-0' }}</td>
+                          <td colspan="3" class="text-end">
+                            {{ 'adminOrders.detail.shipping' | translate }}
+                          </td>
+                          <td class="text-end">
+                            EGP {{ order.shipping_amount | number: '1.0-0' }}
+                          </td>
                         </tr>
                       }
                       @if (order.tax_amount > 0) {
                         <tr>
-                          <td colspan="3" class="text-end">Tax</td>
-                          <td class="text-end">EGP {{ order.tax_amount | number:'1.0-0' }}</td>
+                          <td colspan="3" class="text-end">
+                            {{ 'adminOrders.detail.tax' | translate }}
+                          </td>
+                          <td class="text-end">EGP {{ order.tax_amount | number: '1.0-0' }}</td>
                         </tr>
                       }
                       <tr>
-                        <td colspan="3" class="text-end"><strong>Total</strong></td>
-                        <td class="text-end"><strong>EGP {{ order.total_amount | number:'1.0-0' }}</strong></td>
+                        <td colspan="3" class="text-end">
+                          <strong>{{ 'adminOrders.detail.total' | translate }}</strong>
+                        </td>
+                        <td class="text-end">
+                          <strong>EGP {{ order.total_amount | number: '1.0-0' }}</strong>
+                        </td>
                       </tr>
                     </tfoot>
                   </table>
@@ -125,7 +163,9 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
 
                 <!-- Shipping Address -->
                 <div class="mt-4">
-                  <h6 class="text-muted mb-2">Shipping Address</h6>
+                  <h6 class="text-muted mb-2">
+                    {{ 'adminOrders.detail.shippingAddress' | translate }}
+                  </h6>
                   <address class="mb-0">
                     {{ order.shipping_address.street }}<br />
                     {{ order.shipping_address.city }}, {{ order.shipping_address.zip }}<br />
@@ -135,11 +175,26 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
 
                 <!-- Payment Info -->
                 <div class="mt-4">
-                  <h6 class="text-muted mb-2">Payment Information</h6>
-                  <p class="mb-1">Method: <strong>{{ order.payment_info.method ?? 'N/A' }}</strong></p>
-                  <p class="mb-1">Status: <span class="badge" [class]="getPaymentClass(order.payment_info.status)">{{ order.payment_info.status }}</span></p>
+                  <h6 class="text-muted mb-2">
+                    {{ 'adminOrders.detail.paymentInfo' | translate }}
+                  </h6>
+                  <p class="mb-1">
+                    {{ 'adminOrders.detail.method' | translate }}
+                    <strong>{{
+                      order.payment_info.method ?? ('adminOrders.detail.na' | translate)
+                    }}</strong>
+                  </p>
+                  <p class="mb-1">
+                    {{ 'adminOrders.detail.paymentStatus' | translate }}
+                    <span class="badge" [class]="getPaymentClass(order.payment_info.status)">{{
+                      order.payment_info.status
+                    }}</span>
+                  </p>
                   @if (order.payment_info.stripe_payment_intent_id) {
-                    <p class="mb-0 font-monospace text-muted small">PI: {{ order.payment_info.stripe_payment_intent_id }}</p>
+                    <p class="mb-0 font-monospace text-muted small">
+                      {{ 'adminOrders.detail.pi' | translate }}
+                      {{ order.payment_info.stripe_payment_intent_id }}
+                    </p>
                   }
                 </div>
               </div>
@@ -151,26 +206,33 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
             <!-- Update Status -->
             <div class="card shadow-sm mb-4">
               <div class="card-header">
-                <h5 class="mb-0">Update Status</h5>
+                <h5 class="mb-0">{{ 'adminOrders.detail.updateStatus' | translate }}</h5>
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label class="form-label">New Status</label>
+                  <label class="form-label">{{ 'adminOrders.detail.newStatus' | translate }}</label>
                   <select class="form-select" [(ngModel)]="newStatus">
-                    <option value="pending">Pending</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
+                    <option value="pending">{{ 'adminOrders.pending' | translate }}</option>
+                    <option value="shipped">{{ 'adminOrders.shipped' | translate }}</option>
+                    <option value="delivered">{{ 'adminOrders.delivered' | translate }}</option>
+                    <option value="cancelled">{{ 'adminOrders.cancelled' | translate }}</option>
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Note</label>
-                  <textarea class="form-control" rows="3" [(ngModel)]="statusNote"
-                            placeholder="Optional note about this status change..."></textarea>
+                  <label class="form-label">{{ 'adminOrders.detail.note' | translate }}</label>
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    [(ngModel)]="statusNote"
+                    [placeholder]="'adminOrders.detail.notePlaceholder' | translate"
+                  ></textarea>
                 </div>
-                <button class="btn btn-primary w-100" (click)="updateStatus()"
-                        [disabled]="facade.isLoading()">
-                  Update Status
+                <button
+                  class="btn btn-primary w-100"
+                  (click)="updateStatus()"
+                  [disabled]="facade.isLoading()"
+                >
+                  {{ 'adminOrders.detail.updateBtn' | translate }}
                 </button>
               </div>
             </div>
@@ -178,7 +240,7 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
             <!-- Status Timeline -->
             <div class="card shadow-sm">
               <div class="card-header">
-                <h5 class="mb-0">Status Timeline</h5>
+                <h5 class="mb-0">{{ 'adminOrders.detail.timeline' | translate }}</h5>
               </div>
               <div class="card-body p-0">
                 <div class="list-group list-group-flush">
@@ -188,12 +250,14 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
                         <span class="badge" [class]="getStatusClass(timeline.status)">
                           {{ timeline.status }}
                         </span>
-                        <small class="text-muted">{{ timeline.changed_at | date:'short' }}</small>
+                        <small class="text-muted">{{ timeline.changed_at | date: 'short' }}</small>
                       </div>
                       @if (timeline.note) {
                         <p class="mb-0 mt-2 small">{{ timeline.note }}</p>
                       }
-                      <small class="text-muted">Source: {{ timeline.source }}</small>
+                      <small class="text-muted"
+                        >{{ 'adminOrders.detail.source' | translate }} {{ timeline.source }}</small
+                      >
                     </div>
                   }
                 </div>
@@ -202,7 +266,7 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
           </div>
         </div>
       } @else {
-        <div class="alert alert-warning">Order not found.</div>
+        <div class="alert alert-warning">{{ 'adminOrders.detail.notFound' | translate }}</div>
       }
     </div>
   `,

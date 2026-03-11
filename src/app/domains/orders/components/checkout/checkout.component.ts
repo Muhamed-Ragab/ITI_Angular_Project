@@ -13,6 +13,7 @@ import { CreateOrderRequest, GuestCheckoutRequest } from '@domains/orders/dto';
 import { OrdersFacadeService } from '@domains/orders/services/orders-facade.service';
 import { PaymentMethod, ValidateCouponResponse } from '@domains/payment/dto';
 import { PaymentFacadeService } from '@domains/payment/services/payment-facade.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 type CheckoutShippingAddressForm = Pick<UserAddress, 'street' | 'city' | 'country' | 'zip'> &
   Partial<Pick<UserAddress, '_id' | 'state' | 'isDefault'>>;
@@ -23,17 +24,19 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
 
 @Component({
   selector: 'app-checkout',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslateModule],
   template: `
     <div class="container py-4">
-      <h2 class="mb-4">{{ isGuestMode() ? 'Guest Checkout' : 'Checkout' }}</h2>
+      <h2 class="mb-4">
+        {{ isGuestMode() ? ('checkout.guestTitle' | translate) : ('checkout.title' | translate) }}
+      </h2>
 
       @if (isGuestMode()) {
         <div class="alert alert-info mb-4">
           <i class="bi bi-info-circle me-2"></i>
-          Checking out as guest. <a routerLink="/auth/login">Login</a> to save your information for
-          faster checkout.
+          {{ 'checkout.guestMessage' | translate }}
+          <a routerLink="/auth/login">{{ 'checkout.guestLogin' | translate }}</a>
+          {{ 'checkout.guestLoginSuffix' | translate }}
         </div>
       }
 
@@ -45,7 +48,8 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
         </div>
       } @else if (!hasCartItems()) {
         <div class="alert alert-warning">
-          Your cart is empty. <a routerLink="/products">Continue shopping</a>
+          {{ 'checkout.emptyCart' | translate }}
+          <a routerLink="/products">{{ 'checkout.continueShopping' | translate }}</a>
         </div>
       } @else if (isLoadingUserData()) {
         <!-- Loading user data for authenticated checkout -->
@@ -53,21 +57,21 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading user data...</span>
           </div>
-          <p class="mt-3 text-muted">Loading your information...</p>
+          <p class="mt-3 text-muted">{{ 'checkout.loadingUserData' | translate }}</p>
         </div>
       } @else if (requiresAddress() && !isGuestMode()) {
         <!-- No address available - require user to add one -->
         <div class="alert alert-warning">
           <i class="bi bi-geo-alt me-2"></i>
-          <strong>Shipping address required</strong>
+          <strong>{{ 'checkout.addressRequired' | translate }}</strong>
           <p class="mb-0 mt-2">
-            You need to add a shipping address before proceeding with checkout.
+            {{ 'checkout.addressRequiredMsg' | translate }}
           </p>
         </div>
 
         <div class="card mb-4">
           <div class="card-body">
-            <h5 class="card-title">Add Shipping Address</h5>
+            <h5 class="card-title">{{ 'checkout.addShippingAddress' | translate }}</h5>
 
             @if (userDataError()) {
               <div class="alert alert-danger">
@@ -77,39 +81,39 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
 
             <div class="row g-3">
               <div class="col-12">
-                <label class="form-label">Street</label>
+                <label class="form-label">{{ 'checkout.street' | translate }}</label>
                 <input
                   type="text"
                   class="form-control"
                   [(ngModel)]="shippingAddress.street"
-                  placeholder="Enter your street address"
+                  [placeholder]="'checkout.streetPlaceholder' | translate"
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label">City</label>
+                <label class="form-label">{{ 'checkout.city' | translate }}</label>
                 <input
                   type="text"
                   class="form-control"
                   [(ngModel)]="shippingAddress.city"
-                  placeholder="Enter city"
+                  [placeholder]="'checkout.cityPlaceholder' | translate"
                 />
               </div>
               <div class="col-md-3">
-                <label class="form-label">Country</label>
+                <label class="form-label">{{ 'checkout.country' | translate }}</label>
                 <input
                   type="text"
                   class="form-control"
                   [(ngModel)]="shippingAddress.country"
-                  placeholder="Enter country"
+                  [placeholder]="'checkout.countryPlaceholder' | translate"
                 />
               </div>
               <div class="col-md-3">
-                <label class="form-label">ZIP Code</label>
+                <label class="form-label">{{ 'checkout.zipCode' | translate }}</label>
                 <input
                   type="text"
                   class="form-control"
                   [(ngModel)]="shippingAddress.zip"
-                  placeholder="Enter ZIP code"
+                  [placeholder]="'checkout.zipPlaceholder' | translate"
                 />
               </div>
             </div>
@@ -122,7 +126,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
               @if (isLoadingUserData()) {
                 <span class="spinner-border spinner-border-sm me-2"></span>
               }
-              Save Address
+              {{ 'checkout.saveAddress' | translate }}
             </button>
           </div>
         </div>
@@ -133,18 +137,18 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
             @if (shouldShowGuestInfo()) {
               <div class="card mb-4">
                 <div class="card-body">
-                  <h5 class="card-title">Contact Information</h5>
+                  <h5 class="card-title">{{ 'checkout.contactInfo' | translate }}</h5>
                   <div class="row g-3">
                     <div class="col-12">
-                      <label class="form-label">Full Name</label>
+                      <label class="form-label">{{ 'checkout.fullName' | translate }}</label>
                       <input type="text" class="form-control" [(ngModel)]="guestInfo.name" />
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Email</label>
+                      <label class="form-label">{{ 'checkout.email' | translate }}</label>
                       <input type="email" class="form-control" [(ngModel)]="guestInfo.email" />
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Phone</label>
+                      <label class="form-label">{{ 'checkout.phone' | translate }}</label>
                       <input type="tel" class="form-control" [(ngModel)]="guestInfo.phone" />
                     </div>
                   </div>
@@ -155,7 +159,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
             <!-- Shipping Address -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Shipping Address</h5>
+                <h5 class="card-title">{{ 'checkout.shippingAddress' | translate }}</h5>
 
                 @if (userDataError() && !requiresAddress()) {
                   <div class="alert alert-danger mb-3">
@@ -171,7 +175,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                       (ngModelChange)="onAddressChange($event)"
                       name="address"
                     >
-                      <option [value]="-1">Enter a new address</option>
+                      <option [value]="-1">{{ 'checkout.newAddress' | translate }}</option>
                       @for (address of savedAddresses(); track $index) {
                         <option [value]="$index">
                           {{ address.street }}, {{ address.city }}, {{ address.country }}
@@ -184,7 +188,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                 @if (!hasSelectedAddress()) {
                   <div class="row g-3">
                     <div class="col-12">
-                      <label class="form-label">Street</label>
+                      <label class="form-label">{{ 'checkout.street' | translate }}</label>
                       <input
                         type="text"
                         class="form-control"
@@ -192,11 +196,11 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                       />
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">City</label>
+                      <label class="form-label">{{ 'checkout.city' | translate }}</label>
                       <input type="text" class="form-control" [(ngModel)]="shippingAddress.city" />
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label">Country</label>
+                      <label class="form-label">{{ 'checkout.country' | translate }}</label>
                       <input
                         type="text"
                         class="form-control"
@@ -204,7 +208,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                       />
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label">ZIP Code</label>
+                      <label class="form-label">{{ 'checkout.zipCode' | translate }}</label>
                       <input type="text" class="form-control" [(ngModel)]="shippingAddress.zip" />
                     </div>
                   </div>
@@ -215,13 +219,13 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
             <!-- Coupon Code -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Coupon Code</h5>
+                <h5 class="card-title">{{ 'checkout.couponCode' | translate }}</h5>
                 <div class="input-group">
                   <input
                     type="text"
                     class="form-control"
                     [(ngModel)]="couponCodeValue"
-                    placeholder="Enter coupon code"
+                    [placeholder]="'checkout.couponPlaceholder' | translate"
                   />
                   <button
                     class="btn btn-outline-secondary"
@@ -232,7 +236,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                     @if (isValidatingCoupon()) {
                       <span class="spinner-border spinner-border-sm"></span>
                     } @else {
-                      Apply
+                      {{ 'checkout.apply' | translate }}
                     }
                   </button>
                 </div>
@@ -248,7 +252,8 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                 }
                 @if (appliedCoupon()) {
                   <div class="text-success small mt-1">
-                    <i class="bi bi-check-circle me-1"></i>Coupon applied! {{ getCouponDiscount() }}
+                    <i class="bi bi-check-circle me-1"></i
+                    >{{ 'checkout.couponApplied' | translate }} {{ getCouponDiscount() }}
                   </div>
                 }
               </div>
@@ -257,7 +262,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
             <!-- Payment Method -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Payment Method</h5>
+                <h5 class="card-title">{{ 'checkout.paymentMethod' | translate }}</h5>
                 <div class="payment-methods">
                   <div class="form-check mb-2">
                     <input
@@ -268,7 +273,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                       [(ngModel)]="paymentMethodValue"
                     />
                     <label class="form-check-label">
-                      <i class="bi bi-credit-card me-2"></i>Credit/Debit Card
+                      <i class="bi bi-credit-card me-2"></i>{{ 'checkout.creditCard' | translate }}
                     </label>
                   </div>
                   <div class="form-check mb-2">
@@ -280,7 +285,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                       [(ngModel)]="paymentMethodValue"
                     />
                     <label class="form-check-label">
-                      <i class="bi bi-paypal me-2"></i>PayPal
+                      <i class="bi bi-paypal me-2"></i>{{ 'checkout.paypal' | translate }}
                     </label>
                   </div>
                   <div class="form-check mb-2">
@@ -292,7 +297,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                       [(ngModel)]="paymentMethodValue"
                     />
                     <label class="form-check-label">
-                      <i class="bi bi-cash me-2"></i>Cash on Delivery
+                      <i class="bi bi-cash me-2"></i>{{ 'checkout.cod' | translate }}
                     </label>
                   </div>
                   @if (!shouldShowGuestInfo()) {
@@ -305,7 +310,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                         [(ngModel)]="paymentMethodValue"
                       />
                       <label class="form-check-label">
-                        <i class="bi bi-wallet2 me-2"></i>Wallet Balance
+                        <i class="bi bi-wallet2 me-2"></i>{{ 'checkout.walletBalance' | translate }}
                       </label>
                     </div>
                   }
@@ -318,7 +323,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
           <div class="col-lg-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Order Summary</h5>
+                <h5 class="card-title">{{ 'checkout.orderSummary' | translate }}</h5>
 
                 @if (isGuestMode()) {
                   @for (item of guestCart()!.items; track $index) {
@@ -389,7 +394,7 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                 <hr />
 
                 <div class="d-flex justify-content-between mb-2">
-                  <span>Subtotal</span>
+                  <span>{{ 'checkout.subtotal' | translate }}</span>
                   <span>{{
                     formatCurrency(
                       isGuestMode() ? guestCart()!.subtotal : cartService.cart()!.subtotal
@@ -397,13 +402,13 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                   }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                  <span>Tax</span>
+                  <span>{{ 'checkout.tax' | translate }}</span>
                   <span>{{
                     formatCurrency(isGuestMode() ? guestCart()!.tax : cartService.cart()!.tax)
                   }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                  <span>Shipping</span>
+                  <span>{{ 'checkout.shipping' | translate }}</span>
                   <span>{{
                     formatCurrency(
                       isGuestMode() ? guestCart()!.shipping : cartService.cart()!.shipping
@@ -412,13 +417,13 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                 </div>
                 @if (appliedCoupon()) {
                   <div class="d-flex justify-content-between mb-2 text-success">
-                    <span>Discount</span>
+                    <span>{{ 'checkout.discount' | translate }}</span>
                     <span>-{{ formatCurrency(getDiscountAmount()) }}</span>
                   </div>
                 }
                 <hr />
                 <div class="d-flex justify-content-between fw-bold fs-5">
-                  <span>Total</span>
+                  <span>{{ 'checkout.total' | translate }}</span>
                   <span>{{ formatCurrency(getFinalTotal()) }}</span>
                 </div>
 
@@ -429,9 +434,9 @@ type AuthenticatedOrderPayload = Omit<CreateOrderRequest, 'items'> & {
                 >
                   @if (paymentFacade.isProcessing()) {
                     <span class="spinner-border spinner-border-sm me-2"></span>
-                    Processing...
+                    {{ 'checkout.processing' | translate }}
                   } @else {
-                    Place Order
+                    {{ 'checkout.placeOrder' | translate }}
                   }
                 </button>
 
@@ -668,7 +673,7 @@ export class CheckoutComponent implements OnInit {
             console.log('First item structure:', JSON.stringify(response.data.items[0], null, 2));
           }
         },
-        error: () => { },
+        error: () => {},
       });
     }
   }
@@ -917,8 +922,7 @@ export class CheckoutComponent implements OnInit {
     const addressIndex = this.selectedAddressIndex();
 
     if (addressIndex < 0) {
-      const errorMessage =
-        'Cannot place order. Please select a saved shipping address.';
+      const errorMessage = 'Cannot place order. Please select a saved shipping address.';
       this.checkoutError.set(errorMessage);
       this.ordersFacade.error.set(errorMessage);
       return;
@@ -1057,14 +1061,14 @@ export class CheckoutComponent implements OnInit {
 
     const paymentObservable = useGuestEndpoint
       ? this.paymentFacade.processGuestPayment({
-        orderId,
-        method: this.paymentMethodValue,
-        guestEmail: guestEmail || this.guestInfo.email,
-      })
+          orderId,
+          method: this.paymentMethodValue,
+          guestEmail: guestEmail || this.guestInfo.email,
+        })
       : this.paymentFacade.processPayment({
-        orderId,
-        method: this.paymentMethodValue,
-      });
+          orderId,
+          method: this.paymentMethodValue,
+        });
 
     // Subscribe to handle redirect and cleanup - the PaymentFacadeService handles redirect in its tap operator
     paymentObservable.subscribe({

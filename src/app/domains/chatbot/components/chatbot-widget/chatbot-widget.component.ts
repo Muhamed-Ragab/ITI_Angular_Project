@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChatbotService } from '../../services/chatbot.service';
-import { ChatMessagesComponent } from '../chat-messages/chat-messages.component';
 import { ChatInputComponent } from '../chat-input/chat-input.component';
+import { ChatMessagesComponent } from '../chat-messages/chat-messages.component';
 
 @Component({
   selector: 'app-chatbot-widget',
-  standalone: true,
-  imports: [ChatMessagesComponent, ChatInputComponent],
+  imports: [TranslateModule, ChatMessagesComponent, ChatInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Floating Action Button -->
@@ -14,7 +14,7 @@ import { ChatInputComponent } from '../chat-input/chat-input.component';
       class="chatbot-fab btn btn-primary btn-lg shadow"
       (click)="toggleChat()"
       [attr.aria-expanded]="isOpen()"
-      aria-label="Toggle chat"
+      [attr.aria-label]="'chatbot.toggle' | translate"
     >
       @if (isOpen()) {
         <i class="bi bi-x-lg"></i>
@@ -31,22 +31,22 @@ import { ChatInputComponent } from '../chat-input/chat-input.component';
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-robot text-primary"></i>
             <div>
-              <h6 class="mb-0">Customer Support</h6>
-              <small class="text-muted">Powered by AI</small>
+              <h6 class="mb-0">{{ 'chatbot.title' | translate }}</h6>
+              <small class="text-muted">{{ 'chatbot.poweredBy' | translate }}</small>
             </div>
           </div>
           <div class="d-flex gap-2">
             <button
               class="btn btn-sm btn-outline-secondary"
               (click)="clearConversation()"
-              title="Clear conversation"
+              [attr.title]="'chatbot.clear' | translate"
             >
               <i class="bi bi-trash"></i>
             </button>
             <button
               class="btn btn-sm btn-outline-danger"
               (click)="toggleChat()"
-              title="Close chat"
+              [attr.title]="'chatbot.close' | translate"
             >
               <i class="bi bi-x-lg"></i>
             </button>
@@ -61,69 +61,71 @@ import { ChatInputComponent } from '../chat-input/chat-input.component';
       </div>
     }
   `,
-  styles: [`
-    .chatbot-fab {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      z-index: 1050;
-      transition: transform 0.3s ease;
-    }
-    
-    .chatbot-fab:hover {
-      transform: scale(1.1);
-    }
-    
-    .chatbot-window {
-      position: fixed;
-      bottom: 6rem;
-      right: 2rem;
-      width: 380px;
-      max-width: calc(100vw - 4rem);
-      height: 500px;
-      max-height: calc(100vh - 14rem);
-      z-index: 1050;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-      animation: slideIn 0.3s ease;
-    }
-    
-    .chatbot-header {
-      background: #fff;
-      border-bottom: 1px solid #dee2e6;
-      padding: 0.75rem 1rem;
-    }
-    
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @media (max-width: 576px) {
-      .chatbot-window {
-        right: 1rem;
-        bottom: 5.5rem;
-        width: calc(100vw - 2rem);
-        height: calc(100vh - 12rem);
-      }
-      
+  styles: [
+    `
       .chatbot-fab {
-        right: 1rem;
-        bottom: 1rem;
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        z-index: 1050;
+        transition: transform 0.3s ease;
       }
-    }
-  `],
+
+      .chatbot-fab:hover {
+        transform: scale(1.1);
+      }
+
+      .chatbot-window {
+        position: fixed;
+        bottom: 6rem;
+        right: 2rem;
+        width: 380px;
+        max-width: calc(100vw - 4rem);
+        height: 500px;
+        max-height: calc(100vh - 14rem);
+        z-index: 1050;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+        animation: slideIn 0.3s ease;
+      }
+
+      .chatbot-header {
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 576px) {
+        .chatbot-window {
+          right: 1rem;
+          bottom: 5.5rem;
+          width: calc(100vw - 2rem);
+          height: calc(100vh - 12rem);
+        }
+
+        .chatbot-fab {
+          right: 1rem;
+          bottom: 1rem;
+        }
+      }
+    `,
+  ],
 })
 export class ChatbotWidgetComponent {
   private readonly chatbotService = inject(ChatbotService);

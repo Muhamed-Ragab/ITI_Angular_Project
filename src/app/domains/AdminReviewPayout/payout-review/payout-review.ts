@@ -1,10 +1,11 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Adminpayoutservicereview } from '../adminpayoutservicereview';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { PayoutResponse } from '@app/domains/profile/dto/user-profile.dto';
+import { TranslateModule } from '@ngx-translate/core';
+import { Adminpayoutservicereview } from '../adminpayoutservicereview';
 
 export interface AdminPayout extends PayoutResponse {
-  _id: string; 
+  _id: string;
   userId: string;
   userName: string;
   wallet_balance: number;
@@ -12,56 +13,76 @@ export interface AdminPayout extends PayoutResponse {
 
 @Component({
   selector: 'app-admin-payouts',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
-<div class="container mt-4">
+    <div class="container mt-4">
+      <h3 class="mb-3">{{ 'adminPayouts.title' | translate }}</h3>
 
-  <h3 class="mb-3">All Sellers Payout Requests</h3>
+      @if (loading()) {
+        <div>
+          <div class="alert alert-warning">{{ 'adminPayouts.loading' | translate }}</div>
+        </div>
+      } @else {
+        @if (payouts().length === 0) {
+          <div class="alert alert-secondary">{{ 'adminPayouts.noPayouts' | translate }}</div>
+        }
 
-  <div *ngIf="loading()">
-    <div class="alert alert-warning">Loading payouts...</div>
-  </div>
-
-  <div *ngIf="!loading()">
-    <div *ngIf="payouts().length === 0" class="alert alert-secondary">
-      No payout requests found
+        @if (payouts().length > 0) {
+          <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+              <tr>
+                <th>{{ 'adminPayouts.seller' | translate }}</th>
+                <th>{{ 'adminPayouts.amount' | translate }}</th>
+                <th>{{ 'adminPayouts.status' | translate }}</th>
+                <th>{{ 'adminPayouts.walletBalance' | translate }}</th>
+                <th>{{ 'adminPayouts.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (payout of payouts(); track payout._id) {
+                <tr>
+                  <td>{{ payout.userName }}</td>
+                  <td>{{ payout.amount }}</td>
+                  <td>
+                    @switch (payout.status) {
+                      @case ('pending') {
+                        <span class="badge bg-warning text-dark">{{
+                          'adminPayouts.pending' | translate
+                        }}</span>
+                      }
+                      @case ('approved') {
+                        <span class="badge bg-success">{{
+                          'adminPayouts.approved' | translate
+                        }}</span>
+                      }
+                      @case ('rejected') {
+                        <span class="badge bg-danger">{{
+                          'adminPayouts.rejected' | translate
+                        }}</span>
+                      }
+                    }
+                  </td>
+                  <td>{{ payout.wallet_balance }}</td>
+                  <td>
+                    @if (payout.status === 'pending') {
+                      <button class="btn btn-success btn-sm me-2" (click)="approve(payout)">
+                        {{ 'adminPayouts.approve' | translate }}
+                      </button>
+                      <button class="btn btn-danger btn-sm" (click)="reject(payout)">
+                        {{ 'adminPayouts.reject' | translate }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      }
     </div>
-
-    <table *ngIf="payouts().length > 0" class="table table-bordered table-striped">
-      <thead class="table-dark">
-        <tr>
-          <th>Seller</th>
-          <th>Amount</th>
-          <th>Status</th>
-          <th>Wallet Balance</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let payout of payouts()">
-          <td>{{payout.userName}}</td>
-          <td>{{payout.amount}}</td>
-          <td>
-            <span *ngIf="payout.status === 'pending'" class="badge bg-warning text-dark">Pending</span>
-            <span *ngIf="payout.status === 'approved'" class="badge bg-success">Approved</span>
-            <span *ngIf="payout.status === 'rejected'" class="badge bg-danger">Rejected</span>
-          </td>
-          <td>{{payout.wallet_balance}}</td>
-          <td>
-            <button *ngIf="payout.status === 'pending'" class="btn btn-success btn-sm me-2" (click)="approve(payout)">Approve</button>
-            <button *ngIf="payout.status === 'pending'" class="btn btn-danger btn-sm" (click)="reject(payout)">Reject</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-</div>
-  `
+  `,
 })
 // ... imports
-
 export class AdminPayoutsComponent implements OnInit {
   payouts = signal<AdminPayout[]>([]);
   loading = signal(true);
@@ -76,21 +97,21 @@ export class AdminPayoutsComponent implements OnInit {
     this.adminService.getAllSellers().subscribe({
       next: (users) => {
         const allPayouts: AdminPayout[] = [];
-        users.forEach(user => {
+        users.forEach((user) => {
           user.seller_profile?.payout_requests?.forEach((p: PayoutResponse) => {
             allPayouts.push({
               ...p,
               _id: p._id, // تأكد أن هذا هو معرف الطلب وليس المستخدم
               userId: user._id,
               userName: user.name,
-              wallet_balance: user.wallet_balance
+              wallet_balance: user.wallet_balance,
             });
           });
         });
         this.payouts.set(allPayouts);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => this.loading.set(false),
     });
   }
 
@@ -100,26 +121,26 @@ export class AdminPayoutsComponent implements OnInit {
       return;
     }
 
-    this.adminService.reviewPayout(payout.userId, payout._id, { status: 'approved', note: 'Payment processed' })
+    this.adminService
+      .reviewPayout(payout.userId, payout._id, { status: 'approved', note: 'Payment processed' })
       .subscribe(() => {
         // تحديث الـ Signal بطريقة صحيحة ليعمل الـ UI Re-render
-        this.payouts.update(currentPayouts => 
-          currentPayouts.map(p => 
-            p._id === payout._id 
-              ? { ...p, status: 'approved', wallet_balance: p.wallet_balance - p.amount } 
-              : p
-          )
+        this.payouts.update((currentPayouts) =>
+          currentPayouts.map((p) =>
+            p._id === payout._id
+              ? { ...p, status: 'approved', wallet_balance: p.wallet_balance - p.amount }
+              : p,
+          ),
         );
       });
   }
 
   reject(payout: AdminPayout) {
-    this.adminService.reviewPayout(payout.userId, payout._id, { status: 'rejected', note: 'Rejected by admin' })
+    this.adminService
+      .reviewPayout(payout.userId, payout._id, { status: 'rejected', note: 'Rejected by admin' })
       .subscribe(() => {
-        this.payouts.update(currentPayouts => 
-          currentPayouts.map(p => 
-            p._id === payout._id ? { ...p, status: 'rejected' } : p
-          )
+        this.payouts.update((currentPayouts) =>
+          currentPayouts.map((p) => (p._id === payout._id ? { ...p, status: 'rejected' } : p)),
         );
       });
   }

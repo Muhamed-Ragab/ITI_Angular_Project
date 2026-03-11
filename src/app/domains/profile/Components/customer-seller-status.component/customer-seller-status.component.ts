@@ -1,41 +1,50 @@
-import { Component, Input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, Input, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { SellerProfile } from '../../../SellerReview/dto/seller-request';
 
 @Component({
   selector: 'app-customer-seller-status',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
     @if (profile()) {
       <div class="card mt-3 shadow-sm">
         <div class="card-header bg-primary text-white">
-          Seller Request Status
+          {{ 'profile.sellerStatusTitle' | translate }}
         </div>
         <div class="card-body">
-          <p><strong>Store Name:</strong> {{ profile()?.store_name }}</p>
-          <p><strong>Bio:</strong> {{ profile()?.bio }}</p>
-          <p><strong>Payout Method:</strong> {{ profile()?.payout_method }}</p>
-          
           <p>
-            <strong>Status:</strong>
-            <span class="badge" [ngClass]="statusClass()">
+            <strong>{{ 'profile.storeNameLabel' | translate }}</strong> {{ profile()?.store_name }}
+          </p>
+          <p>
+            <strong>{{ 'profile.bioLabel' | translate }}</strong> {{ profile()?.bio }}
+          </p>
+          <p>
+            <strong>{{ 'profile.payoutMethodLabel' | translate }}</strong>
+            {{ profile()?.payout_method }}
+          </p>
+
+          <p>
+            <strong>{{ 'profile.statusLabel' | translate }}</strong>
+            <span class="badge" [class]="statusClass()">
               {{ profile()?.approval_status | titlecase }}
             </span>
           </p>
 
           @if (profile()?.approval_note) {
-            <p><strong>Admin Note:</strong> {{ profile()?.approval_note }}</p>
+            <p>
+              <strong>{{ 'profile.adminNoteLabel' | translate }}</strong>
+              {{ profile()?.approval_note }}
+            </p>
           }
         </div>
       </div>
-    } 
-    @else {
+    } @else {
       <div class="alert alert-light mt-3 text-center">
-        You have not requested to become a seller yet.
+        {{ 'profile.noSellerRequest' | translate }}
       </div>
     }
-  `
+  `,
 })
 export class CustomerSellerStatusComponent {
   private _sellerProfile = signal<SellerProfile | null>(null);
@@ -49,9 +58,10 @@ export class CustomerSellerStatusComponent {
   statusClass = computed(() => {
     const status = this.profile()?.approval_status;
     return {
-      'bg-warning text-dark': status === 'pending',
+      'bg-warning': status === 'pending',
+      'text-dark': status === 'pending',
       'bg-success': status === 'approved',
-      'bg-danger': status === 'rejected'
+      'bg-danger': status === 'rejected',
     };
   });
 }

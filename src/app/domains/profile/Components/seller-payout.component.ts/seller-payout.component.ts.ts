@@ -1,16 +1,16 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error';
 
 @Component({
   selector: 'app-seller-payout',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormErrorComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormErrorComponent, TranslateModule],
   template: `
-    <div class="card border-0 shadow-sm mt-4 bg-light border-start border-4 border-success">
+    <div class="card border-0 shadow-sm mt-4 bg-light border-start border-success">
       <div class="card-body p-4" [formGroup]="form">
-        <h5 class="fw-bold text-success mb-3">Withdraw Earnings</h5>
+        <h5 class="fw-bold text-success mb-3">{{ 'profile.withdrawTitle' | translate }}</h5>
 
         <div class="input-group">
           <span class="input-group-text">$</span>
@@ -25,17 +25,21 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
             (click)="withdraw.emit()"
             [disabled]="loading || form.invalid"
           >
-            Withdraw
+            {{ 'profile.withdrawBtn' | translate }}
           </button>
         </div>
 
         <!-- Error Messages -->
-        <app-form-error *ngIf="controlInvalid('amount')" [control]="form.get('amount')"></app-form-error>
+        @if (controlInvalid('amount')) {
+          <app-form-error [control]="form.get('amount')"></app-form-error>
+        }
 
         <!-- Success/Status Message -->
-        <div *ngIf="status && !controlInvalid('amount')" class="mt-2 small text-success fw-bold">
-          {{ status }}
-        </div>
+        @if (status && !controlInvalid('amount')) {
+          <div class="mt-2 small text-success fw-bold">
+            {{ status }}
+          </div>
+        }
       </div>
     </div>
   `,

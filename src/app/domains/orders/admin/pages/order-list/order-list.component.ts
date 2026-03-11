@@ -2,17 +2,17 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { OrderFilters, OrderStatus, PaymentStatus } from '../../dto';
+import { TranslateModule } from '@ngx-translate/core';
+import { OrderFilters, OrderStatus } from '../../dto';
 import { AdminOrderFacadeService } from '../../services/admin-order-facade.service';
 
 @Component({
   selector: 'app-admin-order-list',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Orders Management</h1>
+        <h1 class="h3 mb-0">{{ 'adminOrders.title' | translate }}</h1>
       </div>
 
       <!-- Filters -->
@@ -20,18 +20,20 @@ import { AdminOrderFacadeService } from '../../services/admin-order-facade.servi
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-3">
-              <label class="form-label">Status</label>
+              <label class="form-label">{{ 'adminOrders.status' | translate }}</label>
               <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
-                <option value="">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="paid">Paid</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="">{{ 'adminOrders.allStatus' | translate }}</option>
+                <option value="pending">{{ 'adminOrders.pending' | translate }}</option>
+                <option value="paid">{{ 'adminOrders.paid' | translate }}</option>
+                <option value="shipped">{{ 'adminOrders.shipped' | translate }}</option>
+                <option value="delivered">{{ 'adminOrders.delivered' | translate }}</option>
+                <option value="cancelled">{{ 'adminOrders.cancelled' | translate }}</option>
               </select>
             </div>
             <div class="col-md-2 d-flex align-items-end">
-              <button class="btn btn-outline-secondary" (click)="clearFilters()">Clear</button>
+              <button class="btn btn-outline-secondary" (click)="clearFilters()">
+                {{ 'adminOrders.clear' | translate }}
+              </button>
             </div>
           </div>
         </div>
@@ -43,7 +45,7 @@ import { AdminOrderFacadeService } from '../../services/admin-order-facade.servi
           <i class="bi bi-exclamation-triangle me-2"></i>
           {{ error }}
           <button class="btn btn-sm btn-outline-danger ms-3" (click)="retry()">
-            <i class="bi bi-arrow-clockwise"></i> Retry
+            <i class="bi bi-arrow-clockwise"></i> {{ 'adminOrders.retry' | translate }}
           </button>
         </div>
       }
@@ -54,87 +56,92 @@ import { AdminOrderFacadeService } from '../../services/admin-order-facade.servi
           @if (facade.isLoading()) {
             <div class="text-center py-5">
               <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ 'adminOrders.loading' | translate }}</span>
               </div>
-              <p class="mt-2 text-muted">Loading orders...</p>
+              <p class="mt-2 text-muted">{{ 'adminOrders.loading' | translate }}</p>
             </div>
           } @else {
             <div class="table-responsive">
               <table class="table table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>Order #</th>
-                    <th>Customer</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th>Date</th>
-                    <th>Actions</th>
+                    <th>{{ 'adminOrders.orderNumber' | translate }}</th>
+                    <th>{{ 'adminOrders.customer' | translate }}</th>
+                    <th>{{ 'adminOrders.items' | translate }}</th>
+                    <th>{{ 'adminOrders.total' | translate }}</th>
+                    <th>{{ 'adminOrders.status' | translate }}</th>
+                    <th>{{ 'adminOrders.payment' | translate }}</th>
+                    <th>{{ 'adminOrders.date' | translate }}</th>
+                    <th>{{ 'adminOrders.actions' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                   @for (order of facade.orders(); track order._id) {
-                     <tr>
-                       <td>
-                         <a [routerLink]="['/admin/orders', order._id]" class="font-monospace">
-                           {{ order._id | slice:0:8 }}...
-                         </a>
-                       </td>
-                       <td>
-                         @if (order.user) {
-                           <div class="small text-muted">User ID: {{ order.user | slice:0:8 }}...</div>
-                         } @else if (order.guest_info) {
-                           <div>{{ order.guest_info.name }}</div>
-                           <small class="text-muted">{{ order.guest_info.email }}</small>
-                         } @else {
-                           <span class="text-muted">N/A</span>
-                         }
-                       </td>
-                       <td>{{ order.items.length }} items</td>
-                       <td>EGP {{ order.total_amount | number:'1.0-0' }}</td>
-                       <td>
-                         <span class="badge" [class]="getStatusClass(order.status)">
-                           {{ order.status }}
-                         </span>
-                       </td>
-                       <td>
-                         <span class="badge" [class]="getPaymentClass(order.payment_info.status)">
-                           {{ order.payment_info.status }}
-                         </span>
-                       </td>
-                       <td>{{ order.createdAt | date: 'short' }}</td>
-                       <td>
-                         <div class="dropdown">
-                           <button
-                             class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                             data-bs-toggle="dropdown"
-                           >
-                             Actions
-                           </button>
-                           <ul class="dropdown-menu">
-                             <li>
-                               <a class="dropdown-item" [routerLink]="['/admin/orders', order._id]">
-                                 <i class="bi bi-eye me-2"></i>View Details
-                               </a>
-                             </li>
-                             <li>
-                               <a
-                                 class="dropdown-item"
-                                 [routerLink]="['/admin/orders', order._id, 'edit']"
-                               >
-                                 <i class="bi bi-pencil me-2"></i>Edit Order
-                               </a>
-                             </li>
-                           </ul>
-                         </div>
-                       </td>
-                     </tr>
-                   } @empty {
+                  @for (order of facade.orders(); track order._id) {
+                    <tr>
+                      <td>
+                        <a [routerLink]="['/admin/orders', order._id]" class="font-monospace">
+                          {{ order._id | slice: 0 : 8 }}...
+                        </a>
+                      </td>
+                      <td>
+                        @if (order.user) {
+                          <div class="small text-muted">
+                            {{ 'adminOrders.userId' | translate }}
+                            {{ order.user | slice: 0 : 8 }}...
+                          </div>
+                        } @else if (order.guest_info) {
+                          <div>{{ order.guest_info.name }}</div>
+                          <small class="text-muted">{{ order.guest_info.email }}</small>
+                        } @else {
+                          <span class="text-muted">{{ 'adminOrders.na' | translate }}</span>
+                        }
+                      </td>
+                      <td>{{ order.items.length }} items</td>
+                      <td>EGP {{ order.total_amount | number: '1.0-0' }}</td>
+                      <td>
+                        <span class="badge" [class]="getStatusClass(order.status)">
+                          {{ order.status }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge" [class]="getPaymentClass(order.payment_info.status)">
+                          {{ order.payment_info.status }}
+                        </span>
+                      </td>
+                      <td>{{ order.createdAt | date: 'short' }}</td>
+                      <td>
+                        <div class="dropdown">
+                          <button
+                            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                          >
+                            {{ 'adminOrders.actions' | translate }}
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li>
+                              <a class="dropdown-item" [routerLink]="['/admin/orders', order._id]">
+                                <i class="bi bi-eye me-2"></i
+                                >{{ 'adminOrders.viewDetails' | translate }}
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                class="dropdown-item"
+                                [routerLink]="['/admin/orders', order._id, 'edit']"
+                              >
+                                <i class="bi bi-pencil me-2"></i
+                                >{{ 'adminOrders.editOrder' | translate }}
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
                     <tr>
                       <td colspan="8" class="text-center py-4 text-muted">
                         <i class="bi bi-inbox d-block fs-1 mb-2"></i>
-                        No orders found
+                        {{ 'adminOrders.noOrders' | translate }}
                       </td>
                     </tr>
                   }
@@ -151,7 +158,7 @@ import { AdminOrderFacadeService } from '../../services/admin-order-facade.servi
           <ul class="pagination justify-content-center">
             <li class="page-item" [class.disabled]="facade.pagination().page === 1">
               <button class="page-link" (click)="goToPage(facade.pagination().page - 1)">
-                Previous
+                {{ 'adminOrders.previous' | translate }}
               </button>
             </li>
             @for (page of facade.getPageNumbers(); track page) {
@@ -164,7 +171,7 @@ import { AdminOrderFacadeService } from '../../services/admin-order-facade.servi
               [class.disabled]="facade.pagination().page === facade.pagination().pages"
             >
               <button class="page-link" (click)="goToPage(facade.pagination().page + 1)">
-                Next
+                {{ 'adminOrders.next' | translate }}
               </button>
             </li>
           </ul>

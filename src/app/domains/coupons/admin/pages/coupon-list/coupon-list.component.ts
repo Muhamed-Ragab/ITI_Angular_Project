@@ -1,18 +1,18 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.service';
 
 @Component({
   selector: 'app-admin-coupon-list',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Coupons Management</h2>
+        <h2 class="mb-0">{{ 'coupons.title' | translate }}</h2>
         <a routerLink="/admin/coupons/create" class="btn btn-primary">
-          <i class="bi bi-plus-lg"></i> Create Coupon
+          <i class="bi bi-plus-lg"></i> {{ 'coupons.createCoupon' | translate }}
         </a>
       </div>
 
@@ -29,9 +29,9 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
       @if (facade.isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">{{ 'coupons.loading' | translate }}</span>
           </div>
-          <p class="mt-2 text-muted">Loading coupons...</p>
+          <p class="mt-2 text-muted">{{ 'coupons.loading' | translate }}</p>
         </div>
       }
 
@@ -42,13 +42,13 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
             <table class="table table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th>Code</th>
-                  <th>Discount</th>
-                  <th>Min Order</th>
-                  <th>Usage</th>
-                  <th>Status</th>
-                  <th>Valid Period</th>
-                  <th>Actions</th>
+                  <th>{{ 'coupons.code' | translate }}</th>
+                  <th>{{ 'coupons.discount' | translate }}</th>
+                  <th>{{ 'coupons.minOrder' | translate }}</th>
+                  <th>{{ 'coupons.usage' | translate }}</th>
+                  <th>{{ 'coupons.status' | translate }}</th>
+                  <th>{{ 'coupons.validPeriod' | translate }}</th>
+                  <th>{{ 'coupons.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -68,7 +68,7 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
                       @if (coupon.min_order_amount > 0) {
                         <small>EGP {{ coupon.min_order_amount }}</small>
                       } @else {
-                        <small class="text-muted">No minimum</small>
+                        <small class="text-muted">{{ 'coupons.noMinimum' | translate }}</small>
                       }
                     </td>
                     <td>
@@ -78,28 +78,30 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
                       } @else {
                         <span class="text-muted"> / ∞</span>
                       }
-                      <br>
-                      <small class="text-muted">Per user: {{ coupon.per_user_limit }}</small>
+                      <br />
+                      <small class="text-muted"
+                        >{{ 'coupons.perUser' | translate }} {{ coupon.per_user_limit }}</small
+                      >
                     </td>
                     <td>
                       @if (coupon.is_active) {
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success">{{ 'coupons.active' | translate }}</span>
                       } @else {
-                        <span class="badge bg-secondary">Inactive</span>
+                        <span class="badge bg-secondary">{{ 'coupons.inactive' | translate }}</span>
                       }
                     </td>
                     <td>
                       <small>
                         @if (coupon.starts_at) {
-                          {{ coupon.starts_at | date:'shortDate' }}
+                          {{ coupon.starts_at | date: 'shortDate' }}
                         } @else {
-                          <span class="text-muted">Anytime</span>
+                          <span class="text-muted">{{ 'coupons.anytime' | translate }}</span>
                         }
                         -
                         @if (coupon.ends_at) {
-                          {{ coupon.ends_at | date:'shortDate' }}
+                          {{ coupon.ends_at | date: 'shortDate' }}
                         } @else {
-                          <span class="text-muted">No expiry</span>
+                          <span class="text-muted">{{ 'coupons.noExpiry' | translate }}</span>
                         }
                       </small>
                     </td>
@@ -108,21 +110,21 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
                         <a
                           [routerLink]="['/admin/coupons', coupon._id]"
                           class="btn btn-sm btn-outline-primary"
-                          title="View Details"
+                          [title]="'coupons.viewDetails' | translate"
                         >
                           <i class="bi bi-eye"></i>
                         </a>
                         <a
                           [routerLink]="['/admin/coupons', coupon._id, 'edit']"
                           class="btn btn-sm btn-outline-secondary"
-                          title="Edit"
+                          [title]="'coupons.edit' | translate"
                         >
                           <i class="bi bi-pencil"></i>
                         </a>
                         @if (coupon.is_active) {
                           <button
                             class="btn btn-sm btn-outline-warning"
-                            title="Deactivate"
+                            [title]="'coupons.deactivate' | translate"
                             (click)="toggleCouponStatus(coupon._id, false)"
                             [disabled]="facade.isLoading()"
                           >
@@ -131,7 +133,7 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
                         } @else {
                           <button
                             class="btn btn-sm btn-outline-success"
-                            title="Activate"
+                            [title]="'coupons.activate' | translate"
                             (click)="toggleCouponStatus(coupon._id, true)"
                             [disabled]="facade.isLoading()"
                           >
@@ -140,7 +142,7 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
                         }
                         <button
                           class="btn btn-sm btn-outline-danger"
-                          title="Delete"
+                          [title]="'coupons.delete' | translate"
                           (click)="deleteCoupon(coupon._id)"
                           [disabled]="facade.isLoading()"
                         >
@@ -153,7 +155,7 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
                   <tr>
                     <td colspan="7" class="text-center py-4 text-muted">
                       <i class="bi bi-inbox d-block fs-1 mb-2"></i>
-                      No coupons found
+                      {{ 'coupons.noCoupons' | translate }}
                     </td>
                   </tr>
                 }
@@ -168,7 +170,7 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
             <ul class="pagination justify-content-center">
               <li class="page-item" [class.disabled]="facade.pagination().page === 1">
                 <button class="page-link" (click)="goToPage(facade.pagination().page - 1)">
-                  Previous
+                  {{ 'coupons.previous' | translate }}
                 </button>
               </li>
               @for (page of getPageNumbers(); track page) {
@@ -178,9 +180,12 @@ import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.ser
                   </button>
                 </li>
               }
-              <li class="page-item" [class.disabled]="facade.pagination().page === facade.pagination().pages">
+              <li
+                class="page-item"
+                [class.disabled]="facade.pagination().page === facade.pagination().pages"
+              >
                 <button class="page-link" (click)="goToPage(facade.pagination().page + 1)">
-                  Next
+                  {{ 'coupons.next' | translate }}
                 </button>
               </li>
             </ul>
@@ -226,7 +231,7 @@ export class AdminCouponListComponent implements OnInit {
         },
         error: (err) => {
           console.error(`Failed to ${action} coupon:`, err);
-        }
+        },
       });
     }
   }
@@ -239,7 +244,7 @@ export class AdminCouponListComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to delete coupon:', err);
-        }
+        },
       });
     }
   }

@@ -58,13 +58,13 @@ interface NavItem {
             >
               <i class="bi" [class]="item.icon"></i>
               @if (!sidebarCollapsed()) {
-                <span>{{ item.label }}</span>
+                <span>{{ item.label | translate }}</span>
               }
             </a>
           }
         </nav>
 
-        <div class="sidebar-language px-3 pb-3">
+        <div class="sidebar-language px-3 py-3">
           <app-language-switcher></app-language-switcher>
         </div>
 

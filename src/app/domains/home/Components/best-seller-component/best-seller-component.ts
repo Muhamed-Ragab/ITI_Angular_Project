@@ -2,17 +2,18 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Product } from '@app/domains/products/dto';
+import { TranslateModule } from '@ngx-translate/core';
 import { HomeService } from '../../services/home-service';
 
 @Component({
   selector: 'app-best-seller-component',
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, TranslateModule],
   template: `
     <div class="container mt-4 my-5">
-      <h3 class="text-center my-4">Explore Best Seller Product</h3>
+      <h3 class="text-center my-4">{{ 'home.bestSeller.title' | translate }}</h3>
       <div class="row g-4">
         @if (loading()) {
-          <p class="text-center py-5">Loading...</p>
+          <p class="text-center py-5">{{ 'home.bestSeller.loading' | translate }}</p>
         }
         @for (item of product(); track $index) {
           <div class="col-12 col-sm-6 col-md-4 col-lg-3">
@@ -50,7 +51,7 @@ import { HomeService } from '../../services/home-service';
                     {{ item.price | currency: 'EGP' : 'symbol' }}
                   </span>
                   <button class="btn btn-sm btn-outline-primary" (click)="navigateTo(item._id)">
-                    View
+                    {{ 'home.bestSeller.view' | translate }}
                   </button>
                 </div>
               </div>

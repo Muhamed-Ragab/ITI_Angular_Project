@@ -1,8 +1,8 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AuthFacadeService } from '../../domains/auth/services/auth-facade.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthFacadeService } from '../../domains/auth/services/auth-facade.service';
 import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 
 interface NavItem {
@@ -52,7 +52,7 @@ interface NavItem {
           }
         </nav>
 
-        <div class="sidebar-language px-3 pb-3">
+        <div class="sidebar-language px-3 py-3">
           <app-language-switcher></app-language-switcher>
         </div>
 
@@ -62,7 +62,11 @@ interface NavItem {
               <small class="text-muted">{{ 'adminLayout.loggedInAs' | translate }}</small>
             </div>
           }
-          <button (click)="logout()" class="btn btn-outline-light w-100" [class.btn-sm]="sidebarCollapsed()">
+          <button
+            (click)="logout()"
+            class="btn btn-outline-light w-100"
+            [class.btn-sm]="sidebarCollapsed()"
+          >
             <i class="bi bi-box-arrow-right"></i>
             @if (!sidebarCollapsed()) {
               <span class="ms-2">{{ 'common.logout' | translate }}</span>
@@ -83,12 +87,15 @@ interface NavItem {
               class="btn btn-link text-dark me-3 d-none d-lg-inline-block"
               (click)="toggleSidebarCollapse()"
             >
-              <i class="bi" [class]="sidebarCollapsed() ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+              <i
+                class="bi"
+                [class]="sidebarCollapsed() ? 'bi-chevron-right' : 'bi-chevron-left'"
+              ></i>
             </button>
             <h5 class="mb-0 d-none d-md-block">{{ 'adminLayout.dashboard' | translate }}</h5>
           </div>
           <div class="d-flex align-items-center gap-3">
-            <span class="text-muted d-none d-sm-inline">{{ today | date:'fullDate' }}</span>
+            <span class="text-muted d-none d-sm-inline">{{ today | date: 'fullDate' }}</span>
           </div>
         </header>
 
@@ -99,219 +106,221 @@ interface NavItem {
       </main>
     </div>
   `,
-  styles: [`
-    .admin-layout {
-      display: flex;
-      min-height: 100vh;
-      background: #f8f9fa;
-      position: relative;
-    }
+  styles: [
+    `
+      .admin-layout {
+        display: flex;
+        min-height: 100vh;
+        background: #f8f9fa;
+        position: relative;
+      }
 
-    /* Sidebar Styles */
-    .sidebar {
-      width: 260px;
-      background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      height: 100vh;
-      height: 100dvh; /* Use dynamic viewport height for better mobile support */
-      z-index: 1000;
-      transition: all 0.3s ease;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-
-    .sidebar-collapsed .sidebar {
-      width: 70px;
-    }
-
-    .sidebar-overlay {
-      display: none;
-    }
-
-    @media (max-width: 991.98px) {
+      /* Sidebar Styles */
       .sidebar {
-        transform: translateX(-100%);
-        width: 260px !important;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .sidebar-overlay {
-        display: block;
+        width: 260px;
+        background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
         position: fixed;
         top: 0;
         left: 0;
-        right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
+        height: 100vh;
+        height: 100dvh; /* Use dynamic viewport height for better mobile support */
+        z-index: 1000;
+        transition: all 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
       }
-    }
 
-    .sidebar-header {
-      padding: 1.25rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-    }
+      .sidebar-collapsed .sidebar {
+        width: 70px;
+      }
 
-    .sidebar-header h4 {
-      margin: 0;
-      font-weight: 600;
-      font-size: 1.1rem;
-      white-space: nowrap;
-    }
+      .sidebar-overlay {
+        display: none;
+      }
 
-    .sidebar-nav {
-      flex: 1;
-      padding: 1rem 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    }
+      @media (max-width: 991.98px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 260px !important;
+        }
 
-    /* Custom scrollbar for sidebar */
-    .sidebar-nav::-webkit-scrollbar {
-      width: 6px;
-    }
+        .sidebar.open {
+          transform: translateX(0);
+        }
 
-    .sidebar-nav::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.05);
-    }
+        .sidebar-overlay {
+          display: block;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+      }
 
-    .sidebar-nav::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.2);
-      border-radius: 3px;
-    }
+      .sidebar-header {
+        padding: 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+      }
 
-    .sidebar-nav::-webkit-scrollbar-thumb:hover {
-      background: rgba(255,255,255,0.3);
-    }
+      .sidebar-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+        white-space: nowrap;
+      }
 
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.875rem 1.25rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      transition: all 0.2s ease;
-      border-left: 3px solid transparent;
-      margin: 2px 0;
-    }
+      .sidebar-nav {
+        flex: 1;
+        padding: 1rem 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      }
 
-    .nav-item:hover {
-      background: rgba(255,255,255,0.1);
-      color: white;
-    }
+      /* Custom scrollbar for sidebar */
+      .sidebar-nav::-webkit-scrollbar {
+        width: 6px;
+      }
 
-    .nav-item.active {
-      background: rgba(52, 152, 219, 0.2);
-      color: white;
-      border-left-color: #3498db;
-    }
+      .sidebar-nav::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
 
-    .nav-item i {
-      font-size: 1.25rem;
-      width: 24px;
-      text-align: center;
-      flex-shrink: 0;
-    }
+      .sidebar-nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
 
-    .sidebar-collapsed .nav-item {
-      justify-content: center;
-      padding: 0.875rem;
-    }
+      .sidebar-nav::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
 
-    .sidebar-footer {
-      padding: 1rem 1.25rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      flex-shrink: 0;
-    }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1.25rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        margin: 2px 0;
+      }
 
-    .sidebar-language {
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
 
-    .sidebar-collapsed .sidebar-footer {
-      padding: 1rem 0.5rem;
-    }
+      .nav-item.active {
+        background: rgba(52, 152, 219, 0.2);
+        color: white;
+        border-left-color: #3498db;
+      }
 
-    .user-info {
-      padding: 0.5rem 0;
-      text-align: center;
-    }
+      .nav-item i {
+        font-size: 1.25rem;
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0;
+      }
 
-    /* Main Content */
-    .admin-content {
-      flex: 1;
-      margin-left: 260px;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      transition: margin-left 0.3s ease;
-      width: calc(100% - 260px);
-    }
+      .sidebar-collapsed .nav-item {
+        justify-content: center;
+        padding: 0.875rem;
+      }
 
-    .sidebar-collapsed .admin-content {
-      margin-left: 70px;
-      width: calc(100% - 70px);
-    }
+      .sidebar-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
 
-    @media (max-width: 991.98px) {
+      .sidebar-language {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .sidebar-collapsed .sidebar-footer {
+        padding: 1rem 0.5rem;
+      }
+
+      .user-info {
+        padding: 0.5rem 0;
+        text-align: center;
+      }
+
+      /* Main Content */
       .admin-content {
-        margin-left: 0 !important;
-        width: 100% !important;
+        flex: 1;
+        margin-left: 260px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+        width: calc(100% - 260px);
       }
-    }
 
-    .admin-header {
-      background: white;
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      flex-shrink: 0;
-    }
+      .sidebar-collapsed .admin-content {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+      }
 
-    .admin-page-content {
-      flex: 1;
-      padding: 0;
-      overflow-x: hidden;
-    }
+      @media (max-width: 991.98px) {
+        .admin-content {
+          margin-left: 0 !important;
+          width: 100% !important;
+        }
+      }
 
-    /* Responsive adjustments */
-    @media (max-width: 767.98px) {
       .admin-header {
-        padding: 0.75rem 1rem;
+        background: white;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        flex-shrink: 0;
       }
 
       .admin-page-content {
+        flex: 1;
         padding: 0;
+        overflow-x: hidden;
       }
-    }
 
-    /* Prevent body scroll when sidebar is open on mobile */
-    @media (max-width: 991.98px) {
-      body:has(.sidebar.open) {
-        overflow: hidden;
+      /* Responsive adjustments */
+      @media (max-width: 767.98px) {
+        .admin-header {
+          padding: 0.75rem 1rem;
+        }
+
+        .admin-page-content {
+          padding: 0;
+        }
       }
-    }
-  `],
+
+      /* Prevent body scroll when sidebar is open on mobile */
+      @media (max-width: 991.98px) {
+        body:has(.sidebar.open) {
+          overflow: hidden;
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminLayoutComponent {
@@ -323,24 +332,36 @@ export class AdminLayoutComponent {
     { labelKey: 'adminLayout.nav.products', icon: 'bi-box-seam', route: '/admin/products' },
     { labelKey: 'adminLayout.nav.categories', icon: 'bi-tags', route: '/admin/categories' },
     { labelKey: 'adminLayout.nav.coupons', icon: 'bi-percent', route: '/admin/coupons' },
-    { labelKey: 'adminLayout.nav.sellerRequests', icon: 'bi bi-terminal-plus', route: '/admin/sellerrequest' },
-    { labelKey: 'adminLayout.nav.payments', icon: 'bi bi-credit-card-2-front', route: '/admin/payment' },
-    { labelKey: 'adminLayout.nav.marketing', icon: 'bi bi-send-check-fill', route: '/admin/brodcust' },
-    { labelKey: 'adminLayout.nav.sellerPayout', icon: 'bi bi-sign-turn-slight-left', route: '/admin/payout' },
-
-
+    {
+      labelKey: 'adminLayout.nav.sellerRequests',
+      icon: 'bi bi-terminal-plus',
+      route: '/admin/sellerrequest',
+    },
+    {
+      labelKey: 'adminLayout.nav.payments',
+      icon: 'bi bi-credit-card-2-front',
+      route: '/admin/payment',
+    },
+    {
+      labelKey: 'adminLayout.nav.marketing',
+      icon: 'bi bi-send-check-fill',
+      route: '/admin/brodcust',
+    },
+    {
+      labelKey: 'adminLayout.nav.sellerPayout',
+      icon: 'bi bi-sign-turn-slight-left',
+      route: '/admin/payout',
+    },
   ];
 
   readonly sidebarOpen = signal(false);
   readonly sidebarCollapsed = signal(false);
   readonly today = new Date();
 
-  constructor(
-    private readonly authFacade: AuthFacadeService,
-  ) { }
+  constructor(private readonly authFacade: AuthFacadeService) {}
 
   toggleSidebar(): void {
-    this.sidebarOpen.update(v => !v);
+    this.sidebarOpen.update((v) => !v);
   }
 
   closeSidebar(): void {
@@ -348,7 +369,7 @@ export class AdminLayoutComponent {
   }
 
   toggleSidebarCollapse(): void {
-    this.sidebarCollapsed.update(v => !v);
+    this.sidebarCollapsed.update((v) => !v);
   }
 
   onNavClick(): void {

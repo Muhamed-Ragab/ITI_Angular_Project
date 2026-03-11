@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-payment-failure',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   template: `
     <div class="container py-5">
       <div class="row justify-content-center">
@@ -15,21 +15,27 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
               <div class="mb-4">
                 <i class="bi bi-x-circle text-danger" style="font-size: 5rem;"></i>
               </div>
-              <h2 class="card-title text-danger mb-3">Payment Failed</h2>
+              <h2 class="card-title text-danger mb-3">{{ 'payment.failure.title' | translate }}</h2>
               <p class="card-text text-muted mb-4">
-                {{ errorMessage() || 'We were unable to process your payment. Please try again.' }}
+                {{ errorMessage() }}
               </p>
 
               @if (orderId()) {
                 <p class="mb-4">
-                  <strong>Order ID:</strong> {{ orderId() }}
+                  <strong>{{ 'payment.failure.orderId' | translate }}</strong> {{ orderId() }}
                 </p>
               }
 
               <div class="d-grid gap-2">
-                <button class="btn btn-primary" (click)="retryPayment()">Try Again</button>
-                <a routerLink="/checkout" class="btn btn-outline-secondary">Back to Checkout</a>
-                <a routerLink="/products" class="btn btn-outline-secondary">Continue Shopping</a>
+                <button class="btn btn-primary" (click)="retryPayment()">
+                  {{ 'payment.failure.tryAgain' | translate }}
+                </button>
+                <a routerLink="/checkout" class="btn btn-outline-secondary">{{
+                  'payment.failure.backToCheckout' | translate
+                }}</a>
+                <a routerLink="/products" class="btn btn-outline-secondary">{{
+                  'payment.failure.continueShopping' | translate
+                }}</a>
               </div>
             </div>
           </div>

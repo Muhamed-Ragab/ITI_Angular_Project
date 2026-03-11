@@ -5,6 +5,7 @@ import { AdminCouponService } from '@domains/coupons/admin/services/admin-coupon
 import { AdminOrderService } from '@domains/orders/admin/services/admin-order.service';
 import { AdminProductService } from '@domains/products/admin/services/admin-product.service';
 import { AdminService } from '@domains/usermanagment/admin-service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface StatCard {
   title: string;
@@ -31,11 +32,10 @@ interface RecentOrder {
 
 @Component({
   selector: 'app-admin-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
-      <h2 class="mb-4">Admin Dashboard</h2>
+      <h2 class="mb-4">{{ 'adminDashboard.title' | translate }}</h2>
 
       <!-- Stats Cards -->
       <div class="row g-4 mb-4">
@@ -45,7 +45,7 @@ interface RecentOrder {
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
-                    <p class="text-muted mb-1">{{ stat.title }}</p>
+                    <p class="text-muted mb-1">{{ stat.title | translate }}</p>
                     <h3 class="mb-0">{{ stat.value }}</h3>
                   </div>
                   <div
@@ -67,38 +67,41 @@ interface RecentOrder {
         <div class="col-12 col-lg-6">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-white">
-              <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+              <h5 class="mb-0">
+                <i class="bi bi-lightning-charge me-2"></i
+                >{{ 'adminDashboard.quickActions' | translate }}
+              </h5>
             </div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-6">
                   <a routerLink="/admin/users" class="btn btn-outline-primary w-100 py-3">
                     <i class="bi bi-person-fill-gear d-block fs-4 mb-1"></i>
-                    Manage Users
+                    {{ 'adminDashboard.manageUsers' | translate }}
                   </a>
                 </div>
                 <div class="col-6">
                   <a routerLink="/admin/orders" class="btn btn-outline-primary w-100 py-3">
                     <i class="bi bi-cart3 d-block fs-4 mb-1"></i>
-                    Manage Orders
+                    {{ 'adminDashboard.manageOrders' | translate }}
                   </a>
                 </div>
                 <div class="col-6">
                   <a routerLink="/admin/products" class="btn btn-outline-success w-100 py-3">
                     <i class="bi bi-box-seam d-block fs-4 mb-1"></i>
-                    Manage Products
+                    {{ 'adminDashboard.manageProducts' | translate }}
                   </a>
                 </div>
                 <div class="col-6">
                   <a routerLink="/admin/coupons" class="btn btn-outline-warning w-100 py-3">
                     <i class="bi bi-percent d-block fs-4 mb-1"></i>
-                    Manage Coupons
+                    {{ 'adminDashboard.manageCoupons' | translate }}
                   </a>
                 </div>
                 <div class="col-6">
                   <a routerLink="/admin/categories" class="btn btn-outline-info w-100 py-3">
                     <i class="bi bi-tags d-block fs-4 mb-1"></i>
-                    Manage Categories
+                    {{ 'adminDashboard.manageCategories' | translate }}
                   </a>
                 </div>
               </div>
@@ -110,13 +113,16 @@ interface RecentOrder {
         <div class="col-12 col-lg-6">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-white">
-              <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Activity</h5>
+              <h5 class="mb-0">
+                <i class="bi bi-clock-history me-2"></i
+                >{{ 'adminDashboard.recentActivity' | translate }}
+              </h5>
             </div>
             <div class="card-body">
               @if (isLoading()) {
                 <div class="text-center py-4">
                   <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">{{ 'adminDashboard.loading' | translate }}</span>
                   </div>
                 </div>
               } @else if (recentActivities().length > 0) {
@@ -134,7 +140,7 @@ interface RecentOrder {
               } @else {
                 <div class="text-center text-muted py-4">
                   <i class="bi bi-inbox d-block fs-1 mb-2"></i>
-                  <p class="mb-0">No recent activity</p>
+                  <p class="mb-0">{{ 'adminDashboard.noActivity' | translate }}</p>
                 </div>
               }
             </div>
@@ -145,19 +151,23 @@ interface RecentOrder {
       <!-- Recent Orders Preview -->
       <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><i class="bi bi-cart3 me-2"></i>Recent Orders</h5>
-          <a routerLink="/admin/orders" class="btn btn-sm btn-primary">View All</a>
+          <h5 class="mb-0">
+            <i class="bi bi-cart3 me-2"></i>{{ 'adminDashboard.recentOrders' | translate }}
+          </h5>
+          <a routerLink="/admin/orders" class="btn btn-sm btn-primary">{{
+            'adminDashboard.viewAll' | translate
+          }}</a>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th>Order #</th>
-                  <th>Customer</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Date</th>
+                  <th>{{ 'adminDashboard.orderNumber' | translate }}</th>
+                  <th>{{ 'adminDashboard.customer' | translate }}</th>
+                  <th>{{ 'adminDashboard.total' | translate }}</th>
+                  <th>{{ 'adminDashboard.status' | translate }}</th>
+                  <th>{{ 'adminDashboard.date' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -169,7 +179,7 @@ interface RecentOrder {
                       <td>{{ order.total_amount | currency }}</td>
                       <td>
                         <span class="badge" [class]="getStatusBadgeClass(order.status)">
-                          {{ order.status | titlecase }}
+                          {{ adminOrderStatusKey(order.status) | translate }}
                         </span>
                       </td>
                       <td>{{ order.createdAt | date: 'medium' }}</td>
@@ -179,7 +189,7 @@ interface RecentOrder {
                   <tr>
                     <td colspan="5" class="text-center py-4 text-muted">
                       <i class="bi bi-inbox d-block fs-1 mb-2"></i>
-                      No orders yet
+                      {{ 'adminDashboard.noOrders' | translate }}
                     </td>
                   </tr>
                 }
@@ -210,12 +220,13 @@ export class AdminDashboardComponent implements OnInit {
   private readonly adminOrderService = inject(AdminOrderService);
   private readonly adminCouponService = inject(AdminCouponService);
   private readonly adminService = inject(AdminService);
+  private readonly translate = inject(TranslateService);
 
   readonly stats = signal<StatCard[]>([
-    { title: 'Total Orders', value: '0', icon: 'bi-cart3', color: '#3498db' },
-    { title: 'Total Products', value: '0', icon: 'bi-box-seam', color: '#27ae60' },
-    { title: 'Total Coupons', value: '0', icon: 'bi-percent', color: '#f39c12' },
-    { title: 'Total Users', value: '0', icon: 'bi-people', color: '#9b59b6' },
+    { title: 'adminDashboard.totalOrders', value: '0', icon: 'bi-cart3', color: '#3498db' },
+    { title: 'adminDashboard.totalProducts', value: '0', icon: 'bi-box-seam', color: '#27ae60' },
+    { title: 'adminDashboard.totalCoupons', value: '0', icon: 'bi-percent', color: '#f39c12' },
+    { title: 'adminDashboard.totalUsers', value: '0', icon: 'bi-people', color: '#9b59b6' },
   ]);
 
   readonly recentActivities = signal<RecentActivity[]>([]);
@@ -233,33 +244,33 @@ export class AdminDashboardComponent implements OnInit {
     this.adminOrderService.getOrders({ limit: 1 }).subscribe({
       next: (response) => {
         const totalOrders = response.data?.pagination?.total ?? 0;
-        this.updateStat('Total Orders', totalOrders);
+        this.updateStat('adminDashboard.totalOrders', totalOrders);
       },
-      error: () => this.updateStat('Total Orders', 0),
+      error: () => this.updateStat('adminDashboard.totalOrders', 0),
     });
 
     this.adminProductService.getProducts({ limit: 1 }).subscribe({
       next: (response) => {
         const totalProducts = response.data?.pagination?.total ?? 0;
-        this.updateStat('Total Products', totalProducts);
+        this.updateStat('adminDashboard.totalProducts', totalProducts);
       },
-      error: () => this.updateStat('Total Products', 0),
+      error: () => this.updateStat('adminDashboard.totalProducts', 0),
     });
 
     this.adminCouponService.getCoupons({ limit: 1 }).subscribe({
       next: (response) => {
         const totalCoupons = response.data?.pagination?.total ?? 0;
-        this.updateStat('Total Coupons', totalCoupons);
+        this.updateStat('adminDashboard.totalCoupons', totalCoupons);
       },
-      error: () => this.updateStat('Total Coupons', 0),
+      error: () => this.updateStat('adminDashboard.totalCoupons', 0),
     });
 
     this.adminService.getUsers().subscribe({
       next: (response) => {
         const totalUsers = response.data?.length ?? 0;
-        this.updateStat('Total Users', totalUsers);
+        this.updateStat('adminDashboard.totalUsers', totalUsers);
       },
-      error: () => this.updateStat('Total Users', 0),
+      error: () => this.updateStat('adminDashboard.totalUsers', 0),
     });
 
     // Load recent orders
@@ -294,11 +305,21 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   getCustomerName(order: RecentOrder): string {
-    // user can be a string (user ID) or null
     if (order.guest_info?.name) {
       return order.guest_info.name;
     }
-    return 'Guest';
+    return this.translate.instant('adminDashboard.guest');
+  }
+
+  adminOrderStatusKey(status: string): string {
+    const map: Record<string, string> = {
+      pending: 'adminOrders.pending',
+      paid: 'adminOrders.paid',
+      shipped: 'adminOrders.shipped',
+      delivered: 'adminOrders.delivered',
+      cancelled: 'adminOrders.cancelled',
+    };
+    return map[status] ?? status;
   }
 
   getStatusBadgeClass(status: string): string {
