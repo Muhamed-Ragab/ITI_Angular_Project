@@ -347,6 +347,11 @@ export class AdminLayoutComponent {
       icon: 'bi bi-sign-turn-slight-left',
       route: '/admin/payout',
     },
+    {
+      labelKey: 'Payment Paid',
+      icon: 'bi bi-credit-card-fill',
+      route: '/admin/payment',
+    },
   ];
 
   readonly sidebarOpen = signal(false);
