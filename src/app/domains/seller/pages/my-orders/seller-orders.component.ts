@@ -95,7 +95,7 @@ import { SellerService } from '../../services/seller.services';
                       >
                         {{ 'seller.orders.total' | translate }}
                       </div>
-                      <div class="fw-bold text-success">\${{ order.total_price }}</div>
+                      <div class="fw-bold text-success">\${{ order.total_amount }}</div>
                     </div>
                     @if (order.shipping_address?.city) {
                       <div class="d-none d-md-block">
