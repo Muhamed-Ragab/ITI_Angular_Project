@@ -12,6 +12,7 @@ import { AuthService } from '@core/services/auth.service';
 import { GuestWishlistService } from '@core/services/guest-wishlist.service';
 import { ProductService } from '@core/services/product.service';
 import { WishlistService } from '@core/services/wishlist.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { WishlistCardComponent } from '../../components/wishlist-card/wishlist-card.component';
 import { WishlistApiItem, WishlistItem } from '../../dto';
 
@@ -19,13 +20,13 @@ import { WishlistApiItem, WishlistItem } from '../../dto';
   selector: 'app-wishlist-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WishlistCardComponent, RouterLink],
+  imports: [WishlistCardComponent, RouterLink, TranslateModule],
   template: `
     <div class="container py-4">
       <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="fw-bold mb-0">
           <i class="bi bi-heart-fill text-danger me-2"></i>
-          My Wishlist
+          {{ 'wishlist.title' | translate }}
           @if (!isLoading() && wishlist().length > 0) {
             <span class="badge bg-secondary ms-2">{{ wishlist().length }}</span>
           }
@@ -37,7 +38,7 @@ import { WishlistApiItem, WishlistItem } from '../../dto';
             (click)="clearAll()"
             [disabled]="isLoading()"
           >
-            <i class="bi bi-trash me-1"></i>Clear All
+            <i class="bi bi-trash me-1"></i>{{ 'wishlist.clearAll' | translate }}
           </button>
         }
       </div>
@@ -66,10 +67,10 @@ import { WishlistApiItem, WishlistItem } from '../../dto';
       @if (viewState() === 'empty') {
         <div class="text-center py-5">
           <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
-          <h5 class="mt-3 text-muted">Your wishlist is empty</h5>
-          <p class="text-muted">Start saving products you love!</p>
+          <h5 class="mt-3 text-muted">{{ 'wishlist.empty.title' | translate }}</h5>
+          <p class="text-muted">{{ 'wishlist.empty.message' | translate }}</p>
           <a routerLink="/products" class="btn btn-primary mt-2">
-            <i class="bi bi-grid me-2"></i>Browse Products
+            <i class="bi bi-grid me-2"></i>{{ 'wishlist.empty.browseProducts' | translate }}
           </a>
         </div>
       }

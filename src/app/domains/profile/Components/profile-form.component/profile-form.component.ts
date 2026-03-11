@@ -1,16 +1,18 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UserProfile } from '../../dto/user-profile.dto';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error';
+import { UserProfile } from '../../dto/user-profile.dto';
 
 @Component({
   selector: 'app-profile-form',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormErrorComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormErrorComponent, TranslateModule],
   template: `
     @if (statusMessage) {
-      <div class="alert alert-success alert-dismissible fade show shadow mb-4 border-0 border-start border-4 border-success">
+      <div
+        class="alert alert-success alert-dismissible fade show shadow mb-4 border-start border-4 border-success"
+      >
         <i class="bi bi-check-circle-fill me-2"></i> {{ statusMessage }}
         <button type="button" class="btn-close" (click)="clearMessage.emit()"></button>
       </div>
@@ -19,66 +21,100 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
     <form [formGroup]="form" (ngSubmit)="save.emit()">
       <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-4">
-          <h5 class="fw-bold mb-4 border-bottom pb-2">Account Details</h5>
+          <h5 class="fw-bold mb-4 border-bottom pb-2">
+            {{ 'profile.accountDetails' | translate }}
+          </h5>
 
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-bold text-secondary">Full Name</label>
+              <label class="form-label small fw-bold text-secondary">{{
+                'profile.fullName' | translate
+              }}</label>
               <input
                 class="form-control"
                 [class.is-invalid]="controlInvalid('name')"
                 formControlName="name"
               />
-              <app-form-error *ngIf="controlInvalid('name')" [control]="form.get('name')"></app-form-error>
+              @if (controlInvalid('name')) {
+                <app-form-error [control]="form.get('name')"></app-form-error>
+              }
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold text-secondary">Email</label>
+              <label class="form-label small fw-bold text-secondary">{{
+                'profile.email' | translate
+              }}</label>
               <input class="form-control bg-light" [value]="user.email" disabled />
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold text-secondary">Phone</label>
+              <label class="form-label small fw-bold text-secondary">{{
+                'profile.phone' | translate
+              }}</label>
               <input
                 class="form-control"
                 [class.is-invalid]="controlInvalid('phone')"
                 formControlName="phone"
               />
-              <app-form-error *ngIf="controlInvalid('phone')" [control]="form.get('phone')"></app-form-error>
+              @if (controlInvalid('phone')) {
+                <app-form-error [control]="form.get('phone')"></app-form-error>
+              }
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold text-secondary">Language</label>
-              <select
-                class="form-select"
-                formControlName="preferred_language"
-              >
-                <option value="en">English</option>
-                <option value="ar">Arabic</option>
+              <label class="form-label small fw-bold text-secondary">{{
+                'profile.language' | translate
+              }}</label>
+              <select class="form-select" formControlName="preferred_language">
+                <option value="en">{{ 'profile.english' | translate }}</option>
+                <option value="ar">{{ 'profile.arabic' | translate }}</option>
               </select>
             </div>
 
             <div class="col-12 mt-4 pt-3 border-top" formGroupName="marketing_preferences">
-              <h6 class="fw-bold mb-3"><i class="bi bi-bell me-2 text-primary"></i>Notification Settings</h6>
-              
+              <h6 class="fw-bold mb-3">
+                <i class="bi bi-bell me-2 text-primary"></i
+                >{{ 'profile.notifications' | translate }}
+              </h6>
+
               <div class="d-flex flex-wrap gap-4">
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" formControlName="push_notifications" id="pushNotify">
-                  <label class="form-check-label small fw-bold" for="pushNotify">Push Alerts</label>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="push_notifications"
+                    id="pushNotify"
+                  />
+                  <label class="form-check-label small fw-bold" for="pushNotify">{{
+                    'profile.pushAlerts' | translate
+                  }}</label>
                 </div>
 
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" formControlName="email_newsletter" id="emailNotify">
-                  <label class="form-check-label small fw-bold" for="emailNotify">Newsletter</label>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="email_newsletter"
+                    id="emailNotify"
+                  />
+                  <label class="form-check-label small fw-bold" for="emailNotify">{{
+                    'profile.newsletter' | translate
+                  }}</label>
                 </div>
 
                 <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" formControlName="promotional_notifications" id="promoNotify">
-                  <label class="form-check-label small fw-bold" for="promoNotify">Promotions</label>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    formControlName="promotional_notifications"
+                    id="promoNotify"
+                  />
+                  <label class="form-check-label small fw-bold" for="promoNotify">{{
+                    'profile.promotions' | translate
+                  }}</label>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -88,10 +124,14 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
         class="btn btn-primary btn-lg w-100 fw-bold shadow-sm"
         [disabled]="isSaving || form.invalid"
       >
-        {{ isSaving ? 'Saving Changes...' : 'Save Settings' }}
+        @if (isSaving) {
+          {{ 'profile.savingChanges' | translate }}
+        } @else {
+          {{ 'profile.saveSettings' | translate }}
+        }
       </button>
     </form>
-  `
+  `,
 })
 export class ProfileFormComponent {
   @Input() form!: FormGroup;

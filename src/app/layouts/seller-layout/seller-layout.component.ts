@@ -53,7 +53,7 @@ interface NavItem {
             >
               <i class="bi" [class]="item.icon"></i>
               @if (!sidebarCollapsed()) {
-                <span>{{ item.label }}</span>
+                <span>{{ item.label | translate }}</span>
               }
             </a>
           }

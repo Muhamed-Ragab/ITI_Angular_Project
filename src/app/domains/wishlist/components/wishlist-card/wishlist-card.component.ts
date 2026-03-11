@@ -1,13 +1,14 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { WishlistItem } from '../../dto';
 
 @Component({
   selector: 'app-wishlist-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, DatePipe, RouterLink],
+  imports: [CurrencyPipe, DatePipe, RouterLink, TranslateModule],
   template: `
     <div class="card h-100 shadow-sm border-0">
       <!-- Image — routerLink on div works fine -->
@@ -34,7 +35,7 @@ import { WishlistItem } from '../../dto';
 
         <small class="text-muted mb-3">
           <i class="bi bi-clock me-1"></i>
-          Added {{ item().addedAt | date: 'mediumDate' }}
+          {{ 'wishlist.card.added' | translate }} {{ item().addedAt | date: 'mediumDate' }}
         </small>
 
         <!-- Actions -->
@@ -43,7 +44,7 @@ import { WishlistItem } from '../../dto';
             class="btn btn-primary btn-sm grow"
             [routerLink]="['/products', item().product_id]"
           >
-            <i class="bi bi-eye me-1"></i>View Product
+            <i class="bi bi-eye me-1"></i>{{ 'wishlist.card.viewProduct' | translate }}
           </button>
           <button
             class="btn btn-outline-danger btn-sm"

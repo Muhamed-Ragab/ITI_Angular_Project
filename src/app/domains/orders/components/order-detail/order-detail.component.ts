@@ -3,16 +3,16 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/cor
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { formatCurrency, formatRelativeTime } from '@core/utils';
 import { GuestOrderItem, OrderItem } from '@domains/orders/dto';
+import { TranslateModule } from '@ngx-translate/core';
 import { OrdersFacadeService } from '../../services/orders-facade.service';
 
 @Component({
   selector: 'app-order-detail',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   template: `
     <div class="container py-4">
       <a routerLink="/orders" class="btn btn-link mb-3">
-        <i class="bi bi-arrow-left"></i> Back to Orders
+        <i class="bi bi-arrow-left"></i> {{ 'orderDetail.backToOrders' | translate }}
       </a>
 
       @if (ordersFacade.isLoading()) {
@@ -24,7 +24,9 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
       } @else if (ordersFacade.error()) {
         <div class="alert alert-danger">
           {{ ordersFacade.error() }}
-          <a routerLink="/orders" class="btn btn-link">Back to Orders</a>
+          <a routerLink="/orders" class="btn btn-link">{{
+            'orderDetail.backToOrders' | translate
+          }}</a>
         </div>
       } @else if (ordersFacade.currentOrder()) {
         <div class="row">
@@ -34,14 +36,18 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                   <div>
-                    <h4 class="mb-1">Order #{{ ordersFacade.currentOrder()!.orderNumber || getOrderId() }}</h4>
+                    <h4 class="mb-1">
+                      Order #{{ ordersFacade.currentOrder()!.orderNumber || getOrderId() }}
+                    </h4>
                     <small class="text-muted"
-                      >Placed on {{ formatDate(ordersFacade.currentOrder()!.createdAt) }}</small
+                      >{{ 'orderDetail.placedOn' | translate }}
+                      {{ formatDate(ordersFacade.currentOrder()!.createdAt) }}</small
                     >
                     @if (ordersFacade.currentOrder()!.updatedAt) {
                       <br />
                       <small class="text-muted"
-                        >Last updated: {{ formatDate(ordersFacade.currentOrder()!.updatedAt!) }}</small
+                        >{{ 'orderDetail.lastUpdated' | translate }}
+                        {{ formatDate(ordersFacade.currentOrder()!.updatedAt!) }}</small
                       >
                     }
                   </div>
@@ -54,20 +60,29 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
                 @if (ordersFacade.currentOrder()!.guest_info) {
                   <div class="alert alert-info mb-0">
                     <h6 class="alert-heading">
-                      <i class="bi bi-person me-2"></i>Guest Order
+                      <i class="bi bi-person me-2"></i>{{ 'orderDetail.guestOrder' | translate }}
                     </h6>
                     <div class="row">
                       <div class="col-md-4">
-                        <small class="text-muted d-block">Name</small>
+                        <small class="text-muted d-block">{{
+                          'orderDetail.name' | translate
+                        }}</small>
                         <strong>{{ ordersFacade.currentOrder()!.guest_info!.name }}</strong>
                       </div>
                       <div class="col-md-4">
-                        <small class="text-muted d-block">Email</small>
+                        <small class="text-muted d-block">{{
+                          'orderDetail.email' | translate
+                        }}</small>
                         <strong>{{ ordersFacade.currentOrder()!.guest_info!.email }}</strong>
                       </div>
                       <div class="col-md-4">
-                        <small class="text-muted d-block">Phone</small>
-                        <strong>{{ ordersFacade.currentOrder()!.guest_info!.phone || 'N/A' }}</strong>
+                        <small class="text-muted d-block">{{
+                          'orderDetail.phone' | translate
+                        }}</small>
+                        <strong>{{
+                          ordersFacade.currentOrder()!.guest_info!.phone ||
+                            ('orderDetail.na' | translate)
+                        }}</strong>
                       </div>
                     </div>
                   </div>
@@ -78,40 +93,40 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
             <!-- Order Timeline -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Order Status</h5>
+                <h5 class="card-title">{{ 'orderDetail.orderStatus' | translate }}</h5>
                 <div class="order-timeline">
                   <div class="timeline-item" [class.active]="isStatusActive('pending')">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                      <div class="fw-medium">Order Placed</div>
+                      <div class="fw-medium">{{ 'orderDetail.orderPlaced' | translate }}</div>
                       <small class="text-muted">{{ getStatusDateFormatted('pending') }}</small>
                     </div>
                   </div>
                   <div class="timeline-item" [class.active]="isStatusActive('paid')">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                      <div class="fw-medium">Payment Confirmed</div>
+                      <div class="fw-medium">{{ 'orderDetail.paymentConfirmed' | translate }}</div>
                       <small class="text-muted">{{ getStatusDateFormatted('paid') }}</small>
                     </div>
                   </div>
                   <div class="timeline-item" [class.active]="isStatusActive('processing')">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                      <div class="fw-medium">Processing</div>
+                      <div class="fw-medium">{{ 'orderDetail.processing' | translate }}</div>
                       <small class="text-muted">{{ getStatusDateFormatted('processing') }}</small>
                     </div>
                   </div>
                   <div class="timeline-item" [class.active]="isStatusActive('shipped')">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                      <div class="fw-medium">Shipped</div>
+                      <div class="fw-medium">{{ 'orderDetail.shipped' | translate }}</div>
                       <small class="text-muted">{{ getStatusDateFormatted('shipped') }}</small>
                     </div>
                   </div>
                   <div class="timeline-item" [class.active]="isStatusActive('delivered')">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                      <div class="fw-medium">Delivered</div>
+                      <div class="fw-medium">{{ 'orderDetail.delivered' | translate }}</div>
                       <small class="text-muted">{{ getStatusDateFormatted('delivered') }}</small>
                     </div>
                   </div>
@@ -122,7 +137,7 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
             <!-- Order Items -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Order Items</h5>
+                <h5 class="card-title">{{ 'orderDetail.orderItems' | translate }}</h5>
                 @for (item of ordersFacade.currentOrder()!.items; track $index) {
                   <div class="d-flex align-items-center mb-3">
                     <div class="shrink-0">
@@ -159,10 +174,14 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
             <!-- Shipping Address -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Shipping Address</h5>
+                <h5 class="card-title">{{ 'orderDetail.shippingAddress' | translate }}</h5>
                 <address class="mb-0">
                   {{ getShippingAddress().street }}<br />
-                  {{ getShippingAddress().city }}@if (getShippingAddress().state) {, {{ getShippingAddress().state }}}<br />
+                  {{ getShippingAddress().city }}
+                  @if (getShippingAddress().state) {
+                    , {{ getShippingAddress().state }}
+                  }
+                  <br />
                   {{ getShippingAddress().country }}
                   {{ getShippingAddress().zip }}
                 </address>
@@ -170,21 +189,27 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
             </div>
 
             <!-- Complete Status Timeline -->
-            @if (ordersFacade.currentOrder()!.status_timeline && ordersFacade.currentOrder()!.status_timeline.length > 0) {
+            @if (
+              ordersFacade.currentOrder()!.status_timeline &&
+              ordersFacade.currentOrder()!.status_timeline.length > 0
+            ) {
               <div class="card mb-4">
                 <div class="card-body">
-                  <h5 class="card-title">Complete Order History</h5>
+                  <h5 class="card-title">{{ 'orderDetail.orderHistory' | translate }}</h5>
                   <div class="table-responsive">
                     <table class="table table-sm">
                       <thead>
                         <tr>
-                          <th>Status</th>
-                          <th>Date & Time</th>
-                          <th>Note</th>
+                          <th>{{ 'orderDetail.historyStatus' | translate }}</th>
+                          <th>{{ 'orderDetail.historyDate' | translate }}</th>
+                          <th>{{ 'orderDetail.historyNote' | translate }}</th>
                         </tr>
                       </thead>
                       <tbody>
-                        @for (timeline of ordersFacade.currentOrder()!.status_timeline; track $index) {
+                        @for (
+                          timeline of ordersFacade.currentOrder()!.status_timeline;
+                          track $index
+                        ) {
                           <tr>
                             <td>
                               <span [class]="getStatusClass(timeline.status)">
@@ -207,70 +232,64 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
           <div class="col-lg-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Order Summary</h5>
+                <h5 class="card-title">{{ 'orderDetail.orderSummary' | translate }}</h5>
 
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Subtotal</span>
+                  <span class="text-muted">{{ 'orderDetail.subtotal' | translate }}</span>
                   <span>{{ formatCurrency(getOrderSubtotal()) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Tax</span>
+                  <span class="text-muted">{{ 'orderDetail.tax' | translate }}</span>
                   <span>{{ formatCurrency(getOrderTax()) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Shipping</span>
+                  <span class="text-muted">{{ 'orderDetail.shipping' | translate }}</span>
                   <span>{{ formatCurrency(getOrderShipping()) }}</span>
                 </div>
                 @if (hasDiscount()) {
                   <div class="d-flex justify-content-between mb-2 text-success">
-                    <span>Discount</span>
+                    <span>{{ 'orderDetail.discount' | translate }}</span>
                     <span>-{{ getDiscountValue() }}</span>
                   </div>
                 }
                 <hr />
                 <div class="d-flex justify-content-between fw-bold fs-5">
-                  <span>Total</span>
+                  <span>{{ 'orderDetail.total' | translate }}</span>
                   <span>{{ formatCurrency(getOrderTotal()) }}</span>
                 </div>
 
-                @if (ordersFacade.currentOrder()!.payment || ordersFacade.currentOrder()!.payment_info) {
+                @if (
+                  ordersFacade.currentOrder()!.payment || ordersFacade.currentOrder()!.payment_info
+                ) {
                   <hr />
-                  <h6>Payment Information</h6>
+                  <h6>{{ 'orderDetail.paymentInfo' | translate }}</h6>
                   <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Method</span>
-                    <span class="text-capitalize">{{
-                      getPaymentMethod()
-                    }}</span>
+                    <span class="text-muted">{{ 'orderDetail.method' | translate }}</span>
+                    <span class="text-capitalize">{{ getPaymentMethod() }}</span>
                   </div>
                   <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Status</span>
-                    <span
-                      [class]="getPaymentStatusClass(getPaymentStatus())"
-                    >
+                    <span class="text-muted">{{ 'orderDetail.status' | translate }}</span>
+                    <span [class]="getPaymentStatusClass(getPaymentStatus())">
                       {{ getPaymentStatus() | titlecase }}
                     </span>
                   </div>
                   @if (getPaymentTransactionId()) {
                     <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Transaction ID</span>
-                      <small class="text-break">{{
-                        getPaymentTransactionId()
-                      }}</small>
+                      <span class="text-muted">{{ 'orderDetail.transactionId' | translate }}</span>
+                      <small class="text-break">{{ getPaymentTransactionId() }}</small>
                     </div>
                   }
                   @if (getStripePaymentIntentId()) {
                     <div class="d-flex justify-content-between">
-                      <span class="text-muted">Stripe Payment Intent</span>
-                      <small class="text-break">{{
-                        getStripePaymentIntentId()
-                      }}</small>
+                      <span class="text-muted">{{ 'orderDetail.stripePayment' | translate }}</span>
+                      <small class="text-break">{{ getStripePaymentIntentId() }}</small>
                     </div>
                   }
                 }
 
                 @if (hasCoupon()) {
                   <hr />
-                  <h6>Coupon Applied</h6>
+                  <h6>{{ 'orderDetail.couponApplied' | translate }}</h6>
                   <div class="alert alert-success py-2 mb-0">
                     <div class="d-flex justify-content-between align-items-center">
                       <div>
@@ -281,7 +300,7 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
                     </div>
                     @if (getCouponValue()) {
                       <small class="text-muted d-block mt-1">
-                        Value: {{ getCouponValue() }}
+                        {{ 'orderDetail.couponValue' | translate }} {{ getCouponValue() }}
                       </small>
                     }
                   </div>
@@ -289,13 +308,13 @@ import { OrdersFacadeService } from '../../services/orders-facade.service';
 
                 @if (ordersFacade.currentOrder()!.tracking?.number) {
                   <hr />
-                  <h6>Tracking Information</h6>
+                  <h6>{{ 'orderDetail.trackingInfo' | translate }}</h6>
                   <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Carrier</span>
+                    <span class="text-muted">{{ 'orderDetail.carrier' | translate }}</span>
                     <span>{{ ordersFacade.currentOrder()!.tracking!.carrier }}</span>
                   </div>
                   <div class="d-flex justify-content-between">
-                    <span class="text-muted">Tracking Number</span>
+                    <span class="text-muted">{{ 'orderDetail.trackingNumber' | translate }}</span>
                     <span class="text-break">{{
                       ordersFacade.currentOrder()!.tracking!.number
                     }}</span>
@@ -562,11 +581,14 @@ export class OrderDetailComponent implements OnInit {
 
   getShippingAddress(): any {
     const order = this.ordersFacade.currentOrder();
-    return order?.shippingAddress ?? order?.shipping_address ?? {
-      street: 'N/A',
-      city: 'N/A',
-      country: 'N/A',
-      zip: 'N/A'
-    };
+    return (
+      order?.shippingAddress ??
+      order?.shipping_address ?? {
+        street: 'N/A',
+        city: 'N/A',
+        country: 'N/A',
+        zip: 'N/A',
+      }
+    );
   }
 }

@@ -8,13 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { Category, CreateCategoryDto, UpdateCategoryDto } from '../../dto';
 import { CategoryService } from '../../services/category.service';
 
 @Component({
   selector: 'app-category-form',
-  standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Modal backdrop -->
@@ -25,7 +25,13 @@ import { CategoryService } from '../../services/category.service';
           <div class="modal-header">
             <h5 class="modal-title">
               <i class="bi bi-folder-plus me-2 text-primary"></i>
-              {{ editTarget() ? 'Edit Category' : parentCategory() ? 'Add Subcategory to "' + parentCategory()!.name + '"' : 'Add Root Category' }}
+              @if (editTarget()) {
+                {{ 'categories.form.editTitle' | translate }}
+              } @else if (parentCategory()) {
+                {{ 'categories.addSubcategory' | translate }} "{{ parentCategory()!.name }}"
+              } @else {
+                {{ 'categories.form.addRootTitle' | translate }}
+              }
             </h5>
             <button type="button" class="btn-close" (click)="cancel.emit()"></button>
           </div>
@@ -39,10 +45,12 @@ import { CategoryService } from '../../services/category.service';
             }
 
             <div class="mb-3">
-              <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+              <label class="form-label fw-semibold"
+                >{{ 'categories.form.name' | translate }} <span class="text-danger">*</span></label
+              >
               <input
                 class="form-control"
-                placeholder="e.g. Electronics"
+                [placeholder]="'categories.form.namePlaceholder' | translate"
                 [(ngModel)]="name"
                 name="name"
                 [disabled]="isSaving()"
@@ -50,11 +58,13 @@ import { CategoryService } from '../../services/category.service';
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-semibold">Description</label>
+              <label class="form-label fw-semibold">{{
+                'categories.form.description' | translate
+              }}</label>
               <textarea
                 class="form-control"
                 rows="3"
-                placeholder="Optional description…"
+                [placeholder]="'categories.form.descPlaceholder' | translate"
                 [(ngModel)]="description"
                 name="description"
                 [disabled]="isSaving()"
@@ -64,14 +74,23 @@ import { CategoryService } from '../../services/category.service';
 
           <!-- Footer -->
           <div class="modal-footer">
-            <button class="btn btn-outline-secondary" (click)="cancel.emit()" [disabled]="isSaving()">
-              Cancel
+            <button
+              class="btn btn-outline-secondary"
+              (click)="cancel.emit()"
+              [disabled]="isSaving()"
+            >
+              {{ 'categories.form.cancel' | translate }}
             </button>
-            <button class="btn btn-primary" (click)="save()" [disabled]="isSaving() || !name.trim()">
+            <button
+              class="btn btn-primary"
+              (click)="save()"
+              [disabled]="isSaving() || !name.trim()"
+            >
               @if (isSaving()) {
-                <span class="spinner-border spinner-border-sm me-1"></span>Saving…
+                <span class="spinner-border spinner-border-sm me-1"></span
+                >{{ 'categories.form.saving' | translate }}
               } @else {
-                <i class="bi bi-check-lg me-1"></i>Save
+                <i class="bi bi-check-lg me-1"></i>{{ 'categories.form.save' | translate }}
               }
             </button>
           </div>
@@ -120,7 +139,10 @@ export class CategoryFormComponent implements OnInit {
       if (this.description.trim()) dto.description = this.description.trim();
 
       this.categoryService.updateCategory(target._id, dto).subscribe({
-        next: () => { this.isSaving.set(false); this.saved.emit(); },
+        next: () => {
+          this.isSaving.set(false);
+          this.saved.emit();
+        },
         error: (err) => {
           this.error.set(err?.error?.message ?? 'Failed to update category.');
           this.isSaving.set(false);
@@ -134,7 +156,10 @@ export class CategoryFormComponent implements OnInit {
       if (parent) dto.parentId = parent._id;
 
       this.categoryService.createCategory(dto).subscribe({
-        next: () => { this.isSaving.set(false); this.saved.emit(); },
+        next: () => {
+          this.isSaving.set(false);
+          this.saved.emit();
+        },
         error: (err) => {
           this.error.set(err?.error?.message ?? 'Failed to create category.');
           this.isSaving.set(false);

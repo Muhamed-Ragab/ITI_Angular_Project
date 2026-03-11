@@ -1,22 +1,22 @@
-import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AdminOrderFacadeService } from '../../services/admin-order-facade.service';
+import { Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CreateOrderRequest, ShippingAddress } from '../../dto';
+import { AdminOrderFacadeService } from '../../services/admin-order-facade.service';
 
 @Component({
   selector: 'app-admin-order-create',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <a routerLink="/orders" class="btn btn-outline-secondary btn-sm mb-2">
-            <i class="bi bi-arrow-left"></i> Back to Orders
+            <i class="bi bi-arrow-left"></i> {{ 'adminOrders.create.backToOrders' | translate }}
           </a>
-          <h1 class="h3 mb-0">Create Order</h1>
+          <h1 class="h3 mb-0">{{ 'adminOrders.create.title' | translate }}</h1>
         </div>
       </div>
 
@@ -26,14 +26,19 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
             <!-- Customer Info -->
             <div class="card shadow-sm mb-4">
               <div class="card-header">
-                <h5 class="mb-0">Customer Information</h5>
+                <h5 class="mb-0">{{ 'adminOrders.create.customerInfo' | translate }}</h5>
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label class="form-label">User ID</label>
-                  <input type="text" class="form-control" 
-                         [(ngModel)]="userId" name="userId" required
-                         placeholder="Enter customer user ID" />
+                  <label class="form-label">{{ 'adminOrders.create.userId' | translate }}</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="userId"
+                    name="userId"
+                    required
+                    [placeholder]="'adminOrders.create.userIdPlaceholder' | translate"
+                  />
                 </div>
               </div>
             </div>
@@ -41,15 +46,15 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
             <!-- Order Items -->
             <div class="card shadow-sm mb-4">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Order Items</h5>
+                <h5 class="mb-0">{{ 'adminOrders.create.orderItems' | translate }}</h5>
               </div>
               <div class="card-body">
                 <div class="table-responsive">
                   <table class="table table-sm">
                     <thead>
                       <tr>
-                        <th>Product ID</th>
-                        <th class="text-center">Quantity</th>
+                        <th>{{ 'adminOrders.create.productId' | translate }}</th>
+                        <th class="text-center">{{ 'adminOrders.create.quantity' | translate }}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -57,18 +62,32 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
                       @for (item of items(); track $index; let i = $index) {
                         <tr>
                           <td>
-                            <input type="text" class="form-control form-control-sm" 
-                                   [(ngModel)]="item.productId" name="productId{{i}}" 
-                                   placeholder="Product ID" required />
+                            <input
+                              type="text"
+                              class="form-control form-control-sm"
+                              [(ngModel)]="item.productId"
+                              name="productId{{ i }}"
+                              [placeholder]="'adminOrders.create.productIdPlaceholder' | translate"
+                              required
+                            />
                           </td>
                           <td>
-                            <input type="number" class="form-control form-control-sm text-center" 
-                                   [(ngModel)]="item.quantity" name="quantity{{i}}" 
-                                   min="1" value="1" required />
+                            <input
+                              type="number"
+                              class="form-control form-control-sm text-center"
+                              [(ngModel)]="item.quantity"
+                              name="quantity{{ i }}"
+                              min="1"
+                              value="1"
+                              required
+                            />
                           </td>
                           <td>
-                            <button type="button" class="btn btn-outline-danger btn-sm" 
-                                    (click)="removeItem(i)">
+                            <button
+                              type="button"
+                              class="btn btn-outline-danger btn-sm"
+                              (click)="removeItem(i)"
+                            >
                               <i class="bi bi-trash"></i>
                             </button>
                           </td>
@@ -78,7 +97,7 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
                   </table>
                 </div>
                 <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()">
-                  <i class="bi bi-plus-lg"></i> Add Item
+                  <i class="bi bi-plus-lg"></i> {{ 'adminOrders.create.addItem' | translate }}
                 </button>
               </div>
             </div>
@@ -86,29 +105,49 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
             <!-- Shipping Address -->
             <div class="card shadow-sm mb-4">
               <div class="card-header">
-                <h5 class="mb-0">Shipping Address</h5>
+                <h5 class="mb-0">{{ 'adminOrders.create.shippingAddress' | translate }}</h5>
               </div>
               <div class="card-body">
                 <div class="row">
                   <div class="col-12 mb-3">
-                    <label class="form-label">Street</label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="shippingAddress.street" name="shippingStreet" required />
+                    <label class="form-label">{{ 'adminOrders.create.street' | translate }}</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="shippingAddress.street"
+                      name="shippingStreet"
+                      required
+                    />
                   </div>
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">City</label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="shippingAddress.city" name="shippingCity" required />
+                    <label class="form-label">{{ 'adminOrders.create.city' | translate }}</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="shippingAddress.city"
+                      name="shippingCity"
+                      required
+                    />
                   </div>
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">ZIP / Postal Code</label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="shippingAddress.zip" name="shippingZip" required />
+                    <label class="form-label">{{ 'adminOrders.create.zip' | translate }}</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="shippingAddress.zip"
+                      name="shippingZip"
+                      required
+                    />
                   </div>
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">Country</label>
-                    <input type="text" class="form-control"
-                           [(ngModel)]="shippingAddress.country" name="shippingCountry" required />
+                    <label class="form-label">{{ 'adminOrders.create.country' | translate }}</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="shippingAddress.country"
+                      name="shippingCountry"
+                      required
+                    />
                   </div>
                 </div>
               </div>
@@ -117,36 +156,66 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
             <!-- Billing Address -->
             <div class="card shadow-sm mb-4">
               <div class="card-header">
-                <h5 class="mb-0">Billing Address</h5>
+                <h5 class="mb-0">{{ 'adminOrders.create.billingAddress' | translate }}</h5>
               </div>
               <div class="card-body">
                 <div class="form-check mb-3">
-                  <input class="form-check-input" type="checkbox"
-                         [(ngModel)]="sameAsShipping" name="sameAsShipping"
-                         (change)="copyShippingToBilling()" />
-                  <label class="form-check-label">Same as shipping address</label>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [(ngModel)]="sameAsShipping"
+                    name="sameAsShipping"
+                    (change)="copyShippingToBilling()"
+                  />
+                  <label class="form-check-label">{{
+                    'adminOrders.create.sameAsShipping' | translate
+                  }}</label>
                 </div>
                 @if (!sameAsShipping()) {
                   <div class="row">
                     <div class="col-12 mb-3">
-                      <label class="form-label">Street</label>
-                      <input type="text" class="form-control"
-                             [(ngModel)]="billingAddress.street" name="billingStreet" required />
+                      <label class="form-label">{{
+                        'adminOrders.create.street' | translate
+                      }}</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="billingAddress.street"
+                        name="billingStreet"
+                        required
+                      />
                     </div>
                     <div class="col-md-4 mb-3">
-                      <label class="form-label">City</label>
-                      <input type="text" class="form-control"
-                             [(ngModel)]="billingAddress.city" name="billingCity" required />
+                      <label class="form-label">{{ 'adminOrders.create.city' | translate }}</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="billingAddress.city"
+                        name="billingCity"
+                        required
+                      />
                     </div>
                     <div class="col-md-4 mb-3">
-                      <label class="form-label">ZIP / Postal Code</label>
-                      <input type="text" class="form-control"
-                             [(ngModel)]="billingAddress.zip" name="billingZip" required />
+                      <label class="form-label">{{ 'adminOrders.create.zip' | translate }}</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="billingAddress.zip"
+                        name="billingZip"
+                        required
+                      />
                     </div>
                     <div class="col-md-4 mb-3">
-                      <label class="form-label">Country</label>
-                      <input type="text" class="form-control"
-                             [(ngModel)]="billingAddress.country" name="billingCountry" required />
+                      <label class="form-label">{{
+                        'adminOrders.create.country' | translate
+                      }}</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="billingAddress.country"
+                        name="billingCountry"
+                        required
+                      />
                     </div>
                   </div>
                 }
@@ -156,24 +225,37 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
             <!-- Payment & Notes -->
             <div class="card shadow-sm mb-4">
               <div class="card-header">
-                <h5 class="mb-0">Payment & Notes</h5>
+                <h5 class="mb-0">{{ 'adminOrders.create.paymentNotes' | translate }}</h5>
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label class="form-label">Payment Method</label>
-                  <select class="form-select" [(ngModel)]="paymentMethod" name="paymentMethod" required>
-                    <option value="">Select Payment Method</option>
-                    <option value="card">Credit/Debit Card</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="cash">Cash on Delivery</option>
-                    <option value="bank">Bank Transfer</option>
+                  <label class="form-label">{{
+                    'adminOrders.create.paymentMethod' | translate
+                  }}</label>
+                  <select
+                    class="form-select"
+                    [(ngModel)]="paymentMethod"
+                    name="paymentMethod"
+                    required
+                  >
+                    <option value="">{{ 'adminOrders.create.selectPayment' | translate }}</option>
+                    <option value="card">{{ 'adminOrders.create.creditCard' | translate }}</option>
+                    <option value="paypal">{{ 'adminOrders.create.paypal' | translate }}</option>
+                    <option value="cash">{{ 'adminOrders.create.cod' | translate }}</option>
+                    <option value="bank">
+                      {{ 'adminOrders.create.bankTransfer' | translate }}
+                    </option>
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Notes</label>
-                  <textarea class="form-control" rows="3" 
-                            [(ngModel)]="notes" name="notes"
-                            placeholder="Optional notes about this order..."></textarea>
+                  <label class="form-label">{{ 'adminOrders.create.notes' | translate }}</label>
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    [(ngModel)]="notes"
+                    name="notes"
+                    [placeholder]="'adminOrders.create.notesPlaceholder' | translate"
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -183,7 +265,7 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
           <div class="col-lg-4">
             <div class="card shadow-sm">
               <div class="card-header">
-                <h5 class="mb-0">Create Order</h5>
+                <h5 class="mb-0">{{ 'adminOrders.create.title' | translate }}</h5>
               </div>
               <div class="card-body">
                 <p class="text-muted">
@@ -196,12 +278,11 @@ import { CreateOrderRequest, ShippingAddress } from '../../dto';
                 }
               </div>
               <div class="card-footer">
-                <button type="submit" class="btn btn-primary w-100" 
-                        [disabled]="facade.isLoading()">
+                <button type="submit" class="btn btn-primary w-100" [disabled]="facade.isLoading()">
                   @if (facade.isLoading()) {
                     <span class="spinner-border spinner-border-sm me-2"></span>
                   }
-                  Create Order
+                  {{ 'adminOrders.create.createBtn' | translate }}
                 </button>
               </div>
             </div>
@@ -217,9 +298,7 @@ export class AdminOrderCreateComponent {
   private readonly router = inject(Router);
 
   userId = '';
-  items = signal<Array<{ productId: string; quantity: number }>>([
-    { productId: '', quantity: 1 },
-  ]);
+  items = signal<Array<{ productId: string; quantity: number }>>([{ productId: '', quantity: 1 }]);
   shippingAddress: ShippingAddress = this.getEmptyAddress();
   billingAddress: ShippingAddress = this.getEmptyAddress();
   sameAsShipping = signal(true);
@@ -253,9 +332,7 @@ export class AdminOrderCreateComponent {
   createOrder(): void {
     this.error.set(null);
 
-    const validItems = this.items().filter(
-      (item) => item.productId && item.quantity > 0
-    );
+    const validItems = this.items().filter((item) => item.productId && item.quantity > 0);
 
     if (!this.userId) {
       this.error.set('User ID is required');
@@ -271,9 +348,7 @@ export class AdminOrderCreateComponent {
       userId: this.userId,
       items: validItems,
       shippingAddress: this.shippingAddress,
-      billingAddress: this.sameAsShipping()
-        ? this.shippingAddress
-        : this.billingAddress,
+      billingAddress: this.sameAsShipping() ? this.shippingAddress : this.billingAddress,
       paymentMethod: this.paymentMethod,
       notes: this.notes,
     };

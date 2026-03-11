@@ -1,29 +1,32 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { OrderStatus, UpdateOrderStatusRequest } from '../../dto';
 import { AdminOrderFacadeService } from '../../services/admin-order-facade.service';
-import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
 
 @Component({
   selector: 'app-admin-order-edit',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <a [routerLink]="['/admin/orders', orderId]" class="btn btn-outline-secondary btn-sm mb-2">
-            <i class="bi bi-arrow-left"></i> Back to Order
+          <a
+            [routerLink]="['/admin/orders', orderId]"
+            class="btn btn-outline-secondary btn-sm mb-2"
+          >
+            <i class="bi bi-arrow-left"></i> {{ 'adminOrders.edit.backToOrder' | translate }}
           </a>
-          <h1 class="h3 mb-0">Edit Order Status</h1>
+          <h1 class="h3 mb-0">{{ 'adminOrders.edit.title' | translate }}</h1>
         </div>
       </div>
 
       @if (facade.isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">{{ 'adminOrders.edit.loading' | translate }}</span>
           </div>
         </div>
       } @else if (facade.error()) {
@@ -40,13 +43,17 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label class="form-label">Current Status</label>
+                  <label class="form-label">{{
+                    'adminOrders.edit.currentStatus' | translate
+                  }}</label>
                   <div>
-                    <span class="badge" [class]="getStatusClass(order.status)">{{ order.status }}</span>
+                    <span class="badge" [class]="getStatusClass(order.status)">{{
+                      order.status
+                    }}</span>
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">New Status</label>
+                  <label class="form-label">{{ 'adminOrders.edit.newStatus' | translate }}</label>
                   <select class="form-select" [(ngModel)]="newStatus">
                     <option value="pending">Pending</option>
                     <option value="paid">Paid</option>
@@ -56,17 +63,24 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Note</label>
-                  <textarea class="form-control" rows="3" [(ngModel)]="statusNote"
-                            placeholder="Optional note about this status change..."></textarea>
+                  <label class="form-label">{{ 'adminOrders.edit.note' | translate }}</label>
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    [(ngModel)]="statusNote"
+                    [placeholder]="'adminOrders.edit.notePlaceholder' | translate"
+                  ></textarea>
                 </div>
                 <div class="d-flex gap-2">
-                  <button class="btn btn-primary" (click)="updateStatus()"
-                          [disabled]="facade.isLoading()">
-                    <i class="bi bi-save me-1"></i> Save Changes
+                  <button
+                    class="btn btn-primary"
+                    (click)="updateStatus()"
+                    [disabled]="facade.isLoading()"
+                  >
+                    <i class="bi bi-save me-1"></i> {{ 'adminOrders.edit.save' | translate }}
                   </button>
                   <a [routerLink]="['/admin/orders', orderId]" class="btn btn-outline-secondary">
-                    Cancel
+                    {{ 'adminOrders.edit.cancel' | translate }}
                   </a>
                 </div>
               </div>
@@ -74,7 +88,7 @@ import { UpdateOrderStatusRequest, OrderStatus } from '../../dto';
           </div>
         </div>
       } @else {
-        <div class="alert alert-warning">Order not found.</div>
+        <div class="alert alert-warning">{{ 'adminOrders.edit.notFound' | translate }}</div>
       }
     </div>
   `,

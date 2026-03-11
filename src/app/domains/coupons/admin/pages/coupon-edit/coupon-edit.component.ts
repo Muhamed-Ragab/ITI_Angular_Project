@@ -1,23 +1,20 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { UpdateCouponRequest } from '../../dto';
 import { AdminCouponFacadeService } from '../../services/admin-coupon-facade.service';
-import { UpdateCouponRequest, DiscountType } from '../../dto';
 
 @Component({
   selector: 'app-admin-coupon-edit',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
   template: `
     <div class="container-fluid py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Edit Coupon</h2>
-        <a
-          [routerLink]="['/admin/coupons', couponId]"
-          class="btn btn-outline-primary"
-        >
-          <i class="bi bi-arrow-left"></i> Back to Details
+        <h2 class="mb-0">{{ 'coupons.form.editTitle' | translate }}</h2>
+        <a [routerLink]="['/admin/coupons', couponId]" class="btn btn-outline-primary">
+          <i class="bi bi-arrow-left"></i> {{ 'coupons.form.backToDetails' | translate }}
         </a>
       </div>
 
@@ -25,7 +22,7 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
       @if (facade.isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">{{ 'coupons.form.loading' | translate }}</span>
           </div>
         </div>
       }
@@ -45,7 +42,7 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
               <div class="row">
                 <!-- Code -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Coupon Code *</label>
+                  <label class="form-label">{{ 'coupons.form.code' | translate }} *</label>
                   <input
                     type="text"
                     class="form-control"
@@ -58,21 +55,16 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
 
                 <!-- Discount Type -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Discount Type *</label>
-                  <select
-                    class="form-select"
-                    [(ngModel)]="formData.type"
-                    name="type"
-                    required
-                  >
-                    <option value="percentage">Percentage</option>
-                    <option value="fixed">Fixed Amount</option>
+                  <label class="form-label">{{ 'coupons.form.discountType' | translate }} *</label>
+                  <select class="form-select" [(ngModel)]="formData.type" name="type" required>
+                    <option value="percentage">{{ 'coupons.form.percentage' | translate }}</option>
+                    <option value="fixed">{{ 'coupons.form.fixed' | translate }}</option>
                   </select>
                 </div>
 
                 <!-- Discount Value -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Discount Value *</label>
+                  <label class="form-label">{{ 'coupons.form.discountValue' | translate }} *</label>
                   <input
                     type="number"
                     class="form-control"
@@ -86,7 +78,7 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
 
                 <!-- Min Order Amount -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Min Order Amount</label>
+                  <label class="form-label">{{ 'coupons.form.minOrder' | translate }}</label>
                   <input
                     type="number"
                     class="form-control"
@@ -99,7 +91,7 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
 
                 <!-- Min Purchase Amount -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Min Purchase Amount</label>
+                  <label class="form-label">{{ 'coupons.form.minOrder' | translate }}</label>
                   <input
                     type="number"
                     class="form-control"
@@ -112,7 +104,7 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
 
                 <!-- Usage Limit -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Usage Limit</label>
+                  <label class="form-label">{{ 'coupons.form.usageLimit' | translate }}</label>
                   <input
                     type="number"
                     class="form-control"
@@ -120,12 +112,12 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
                     name="usage_limit"
                     min="1"
                   />
-                  <small class="text-muted">Leave empty for unlimited</small>
+                  <small class="text-muted">{{ 'coupons.form.unlimited' | translate }}</small>
                 </div>
 
                 <!-- Start Date -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Start Date *</label>
+                  <label class="form-label">{{ 'coupons.form.startDate' | translate }} *</label>
                   <input
                     type="datetime-local"
                     class="form-control"
@@ -137,7 +129,7 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
 
                 <!-- End Date -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">End Date *</label>
+                  <label class="form-label">{{ 'coupons.form.endDate' | translate }} *</label>
                   <input
                     type="datetime-local"
                     class="form-control"
@@ -149,7 +141,7 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
 
                 <!-- Description -->
                 <div class="col-12 mb-3">
-                  <label class="form-label">Description</label>
+                  <label class="form-label">{{ 'coupons.form.description' | translate }}</label>
                   <textarea
                     class="form-control"
                     [(ngModel)]="formData.description"
@@ -161,21 +153,14 @@ import { UpdateCouponRequest, DiscountType } from '../../dto';
 
               <!-- Submit Buttons -->
               <div class="d-flex justify-content-end gap-2 mt-4">
-                <a
-                  [routerLink]="['/admin/coupons', couponId]"
-                  class="btn btn-outline-secondary"
-                >
-                  Cancel
+                <a [routerLink]="['/admin/coupons', couponId]" class="btn btn-outline-secondary">
+                  {{ 'coupons.form.cancel' | translate }}
                 </a>
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  [disabled]="facade.isLoading()"
-                >
+                <button type="submit" class="btn btn-primary" [disabled]="facade.isLoading()">
                   @if (facade.isLoading()) {
                     <span class="spinner-border spinner-border-sm me-1"></span>
                   }
-                  Save Changes
+                  {{ 'coupons.form.save' | translate }}
                 </button>
               </div>
             </form>

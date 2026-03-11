@@ -1,34 +1,36 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { loadStripe, Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js'
 import { environment } from '@env/environment';
+import { TranslateModule } from '@ngx-translate/core';
+import { loadStripe, Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
 
 @Component({
   selector: 'app-stripe-payment',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
     <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-md-6">
           <div class="card shadow">
             <div class="card-body">
-              <h3 class="card-title mb-4">Complete Payment</h3>
+              <h3 class="card-title mb-4">{{ 'payment.stripe.title' | translate }}</h3>
 
               @if (isLoading()) {
                 <div class="text-center py-5">
                   <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading payment form...</span>
                   </div>
-                  <p class="mt-3 text-muted">Initializing secure payment...</p>
+                  <p class="mt-3 text-muted">{{ 'payment.stripe.loading' | translate }}</p>
                 </div>
               } @else if (error()) {
                 <div class="alert alert-danger">
                   <i class="bi bi-exclamation-triangle me-2"></i>
                   {{ error() }}
                 </div>
-                <button class="btn btn-secondary" (click)="goBack()">Go Back</button>
+                <button class="btn btn-secondary" (click)="goBack()">
+                  {{ 'payment.stripe.goBack' | translate }}
+                </button>
               } @else {
                 <!-- Stripe Payment Element will be mounted here -->
                 <div id="payment-element" class="mb-4"></div>
@@ -46,16 +48,16 @@ import { environment } from '@env/environment';
                 >
                   @if (isProcessing()) {
                     <span class="spinner-border spinner-border-sm me-2"></span>
-                    Processing...
+                    {{ 'payment.stripe.processing' | translate }}
                   } @else {
-                    Pay Now
+                    {{ 'payment.stripe.payNow' | translate }}
                   }
                 </button>
 
                 <div class="text-center mt-3">
                   <small class="text-muted">
                     <i class="bi bi-lock me-1"></i>
-                    Secured by Stripe
+                    {{ 'payment.stripe.secured' | translate }}
                   </small>
                 </div>
               }
@@ -109,7 +111,9 @@ export class StripePaymentComponent implements OnInit {
       const stripeKey = environment.stripePublishableKey;
 
       if (!stripeKey || stripeKey.trim() === '') {
-        throw new Error('Stripe publishable key is not configured. Please set NG_APP_STRIPE_PUBLISHABLE_KEY in your .env file.');
+        throw new Error(
+          'Stripe publishable key is not configured. Please set NG_APP_STRIPE_PUBLISHABLE_KEY in your .env file.',
+        );
       }
 
       // Load Stripe
@@ -145,10 +149,9 @@ export class StripePaymentComponent implements OnInit {
           throw new Error('Payment element container not found');
         }
       }, 0);
-
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Stripe initialization error:', err);
-      this.error.set(err.message || 'Failed to initialize payment form');
+      this.error.set(err instanceof Error ? err.message : 'Failed to initialize payment form');
       this.isLoading.set(false);
     }
   }
@@ -185,9 +188,11 @@ export class StripePaymentComponent implements OnInit {
         // Redirect to success page
         this.router.navigate(['/payment/success', this.orderId]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Payment error:', err);
-      this.paymentError.set(err.message || 'Payment failed. Please try again.');
+      this.paymentError.set(
+        err instanceof Error ? err.message : 'Payment failed. Please try again.',
+      );
       this.isProcessing.set(false);
     }
   }

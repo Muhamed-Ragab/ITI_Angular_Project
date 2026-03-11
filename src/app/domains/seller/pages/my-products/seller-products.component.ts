@@ -11,8 +11,7 @@ import { Category } from '@domains/categories/dto';
 
 @Component({
   selector: 'app-seller-products',
-  standalone: true,
-  imports: [FormsModule, CommonModule, SlicePipe, SellerProductFormComponent],
+  imports: [FormsModule, CommonModule, SlicePipe, SellerProductFormComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="p-3 p-md-4">
@@ -20,9 +19,9 @@ import { Category } from '@domains/categories/dto';
       <!-- Header -->
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-          <h4 class="fw-bold mb-0">My Products</h4>
+          <h4 class="fw-bold mb-0">{{ 'seller.products.title' | translate }}</h4>
           <p class="text-muted small mb-0">
-            {{ pagination()?.total ?? 0 }} product(s) in your store
+            {{ pagination()?.total ?? 0 }} {{ 'seller.products.inStore' | translate }}
           </p>
         </div>
         <button class="btn fw-semibold rounded-pill px-4 shadow-sm"
@@ -116,7 +115,8 @@ import { Category } from '@domains/categories/dto';
           justify-content-between flex-wrap gap-2 mb-3">
           <span>
             <i class="bi bi-exclamation-triangle me-2"></i>
-            Delete <strong>"{{ pendingDelete()!.title }}"</strong>? This cannot be undone.
+            {{ 'seller.products.deletePrefix' | translate }} <strong>"{{ pendingDelete()!.title }}"</strong>?
+            {{ 'seller.products.deleteWarning' | translate }}
           </span>
           <div class="d-flex gap-2">
             <button class="btn btn-sm btn-outline-secondary rounded-pill"
@@ -135,7 +135,7 @@ import { Category } from '@domains/categories/dto';
         @if (isLoading()) {
           <div class="text-center py-5">
             <div class="spinner-border" style="color:#4ade80"></div>
-            <p class="text-muted mt-2 small">Loading products…</p>
+            <p class="text-muted mt-2 small">{{ 'seller.products.loading' | translate }}</p>
           </div>
         } @else if (products().length === 0) {
           <div class="text-center py-5">
@@ -195,7 +195,9 @@ import { Category } from '@domains/categories/dto';
                     <td class="py-3 fw-semibold">\${{ p.price | number:'1.2-2' }}</td>
                     <td class="py-3">
                       @if (p.stock_quantity === 0) {
-                        <span class="badge rounded-pill bg-danger">Out of Stock</span>
+                        <span class="badge rounded-pill bg-danger">{{
+                          'seller.products.outOfStock' | translate
+                        }}</span>
                       } @else if (p.stock_quantity <= 10) {
                         <span class="badge rounded-pill fw-normal"
                           style="background:#fef9c3;color:#854d0e">
@@ -214,7 +216,9 @@ import { Category } from '@domains/categories/dto';
                         <span class="fw-semibold">{{ p.average_rating | number:'1.1-1' }}</span>
                         <span class="text-muted small ms-1">({{ p.ratings_count }})</span>
                       } @else {
-                        <span class="text-muted small">No ratings</span>
+                        <span class="text-muted small">{{
+                          'seller.products.noRatings' | translate
+                        }}</span>
                       }
                     </td>
                     <td class="pe-4 py-3 text-end">

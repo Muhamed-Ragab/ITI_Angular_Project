@@ -1,23 +1,23 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SellerOrder, SellerUpdateStatus } from '../../dto/seller.dto';
 import { SellerService } from '../../services/seller.services';
 
 @Component({
   selector: 'app-seller-orders',
-  standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="p-3 p-md-4">
       <!-- Header -->
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-          <h4 class="fw-bold mb-0">My Orders</h4>
-          <p class="text-muted small mb-0">Orders that contain your products</p>
+          <h4 class="fw-bold mb-0">{{ 'seller.orders.title' | translate }}</h4>
+          <p class="text-muted small mb-0">{{ 'seller.orders.subtitle' | translate }}</p>
         </div>
         <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" (click)="load()">
-          <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+          <i class="bi bi-arrow-clockwise me-1"></i>{{ 'seller.orders.refresh' | translate }}
         </button>
       </div>
 
@@ -37,14 +37,14 @@ import { SellerService } from '../../services/seller.services';
       @if (isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border" style="color:#4ade80"></div>
-          <p class="text-muted mt-2 small">Loading orders…</p>
+          <p class="text-muted mt-2 small">{{ 'seller.orders.loading' | translate }}</p>
         </div>
 
         <!-- Empty -->
       } @else if (orders().length === 0) {
         <div class="card border-0 shadow-sm rounded-4 text-center py-5">
           <i class="bi bi-bag d-block mb-3 text-muted" style="font-size:3rem"></i>
-          <p class="text-muted mb-0">No orders yet for your products.</p>
+          <p class="text-muted mb-0">{{ 'seller.orders.noOrders' | translate }}</p>
         </div>
 
         <!-- Orders List -->
@@ -56,7 +56,7 @@ import { SellerService } from '../../services/seller.services';
               class="badge rounded-pill px-3 py-2 fw-normal fs-6"
               style="background:#f1f5f9;color:#475569"
             >
-              {{ s.label }}: <strong>{{ s.count }}</strong>
+              {{ s.label | translate }}: <strong>{{ s.count }}</strong>
             </span>
           }
         </div>
@@ -73,7 +73,7 @@ import { SellerService } from '../../services/seller.services';
                         class="text-muted"
                         style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em"
                       >
-                        Order
+                        {{ 'seller.orders.order' | translate }}
                       </div>
                       <div class="fw-bold font-monospace">
                         #{{ order._id.slice(-8).toUpperCase() }}
@@ -84,7 +84,7 @@ import { SellerService } from '../../services/seller.services';
                         class="text-muted"
                         style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em"
                       >
-                        Date
+                        {{ 'seller.orders.date' | translate }}
                       </div>
                       <div class="small fw-semibold">{{ order.createdAt | date: 'MMM d, y' }}</div>
                     </div>
@@ -93,7 +93,7 @@ import { SellerService } from '../../services/seller.services';
                         class="text-muted"
                         style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em"
                       >
-                        Total
+                        {{ 'seller.orders.total' | translate }}
                       </div>
                       <div class="fw-bold text-success">\${{ order.total_price }}</div>
                     </div>
@@ -103,7 +103,7 @@ import { SellerService } from '../../services/seller.services';
                           class="text-muted"
                           style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em"
                         >
-                          Ship to
+                          {{ 'seller.orders.shipTo' | translate }}
                         </div>
                         <div class="small">
                           {{ order.shipping_address?.city }}, {{ order.shipping_address?.country }}
@@ -116,10 +116,16 @@ import { SellerService } from '../../services/seller.services';
                     <!-- Status badge -->
                     <span
                       class="badge rounded-pill px-3 py-2"
-                      [ngClass]="statusClass(order.status)"
+                      [class.bg-warning]="order.status === 'pending'"
+                      [class.text-dark]="order.status === 'pending'"
+                      [class.bg-info]="order.status === 'processing'"
+                      [class.text-white]="order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' || order.status === 'cancelled'"
+                      [class.bg-primary]="order.status === 'shipped'"
+                      [class.bg-success]="order.status === 'delivered'"
+                      [class.bg-danger]="order.status === 'cancelled'"
                     >
-                      <i class="bi me-1" [ngClass]="statusIcon(order.status)"></i>
-                      {{ order.status }}
+                      <i [class]="'bi me-1 ' + statusIcon(order.status)"></i>
+                      {{ statusTranslationKey(order.status) | translate }}
                     </span>
 
                     <!-- Update dropdown — only for pending/processing -->
@@ -133,7 +139,7 @@ import { SellerService } from '../../services/seller.services';
                           @if (processingId() === order._id) {
                             <span class="spinner-border spinner-border-sm me-1"></span>
                           }
-                          Update
+                          {{ 'seller.orders.update' | translate }}
                         </button>
                         <ul class="dropdown-menu shadow border-0 rounded-3 py-1">
                           <li>
@@ -141,7 +147,8 @@ import { SellerService } from '../../services/seller.services';
                               class="dropdown-item py-2"
                               (click)="updateStatus(order._id, 'shipped')"
                             >
-                              <i class="bi bi-truck me-2 text-primary"></i>Mark as Shipped
+                              <i class="bi bi-truck me-2 text-primary"></i
+                              >{{ 'seller.orders.markShipped' | translate }}
                             </button>
                           </li>
                           <li>
@@ -149,7 +156,8 @@ import { SellerService } from '../../services/seller.services';
                               class="dropdown-item py-2"
                               (click)="updateStatus(order._id, 'delivered')"
                             >
-                              <i class="bi bi-check-circle me-2 text-success"></i>Mark as Delivered
+                              <i class="bi bi-check-circle me-2 text-success"></i
+                              >{{ 'seller.orders.markDelivered' | translate }}
                             </button>
                           </li>
                           <li><hr class="dropdown-divider my-1" /></li>
@@ -158,7 +166,8 @@ import { SellerService } from '../../services/seller.services';
                               class="dropdown-item py-2 text-danger"
                               (click)="updateStatus(order._id, 'cancelled')"
                             >
-                              <i class="bi bi-x-circle me-2"></i>Cancel Order
+                              <i class="bi bi-x-circle me-2"></i
+                              >{{ 'seller.orders.cancelOrder' | translate }}
                             </button>
                           </li>
                         </ul>
@@ -187,10 +196,12 @@ import { SellerService } from '../../services/seller.services';
                     />
                     <div class="grow min-width-0">
                       <div class="fw-semibold text-truncate">
-                        {{ item.title || item.product_id?.title || 'Product' }}
+                        {{ item.title || item.product_id?.title || ('seller.orders.product' | translate) }}
                       </div>
                       <div class="text-muted small">
-                        Qty: {{ item.quantity }} × \${{ item.price }}
+                        {{ 'seller.orders.qty' | translate }} {{ item.quantity }} × \${{
+                          item.price
+                        }}
                       </div>
                     </div>
                     <div class="fw-bold shrink-0">\${{ item.price * item.quantity }}</div>
@@ -206,6 +217,7 @@ import { SellerService } from '../../services/seller.services';
 })
 export class SellerOrdersComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
+  private readonly translate = inject(TranslateService);
 
   readonly orders = signal<SellerOrder[]>([]);
   readonly isLoading = signal(false);
@@ -236,12 +248,12 @@ export class SellerOrdersComponent implements OnInit {
     const all = this.orders();
     const count = (s: string) => all.filter((o) => o.status === s).length;
     return [
-      { label: 'Total', count: all.length },
-      { label: 'Pending', count: count('pending') },
-      { label: 'Shipped', count: count('shipped') },
-      { label: 'Delivered', count: count('delivered') },
-      { label: 'Cancelled', count: count('cancelled') },
-    ].filter((s) => s.label === 'Total' || s.count > 0);
+      { label: 'seller.orders.statusTotal', count: all.length },
+      { label: 'seller.orders.statusPending', count: count('pending') },
+      { label: 'seller.orders.statusShipped', count: count('shipped') },
+      { label: 'seller.orders.statusDelivered', count: count('delivered') },
+      { label: 'seller.orders.statusCancelled', count: count('cancelled') },
+    ].filter((s) => s.label === 'seller.orders.statusTotal' || s.count > 0);
   }
 
   updateStatus(orderId: string, status: SellerUpdateStatus): void {
@@ -250,7 +262,7 @@ export class SellerOrdersComponent implements OnInit {
     this.sellerService.updateOrderStatus(orderId, status).subscribe({
       next: () => {
         this.processingId.set(null);
-        this.flash(`Order marked as ${status}.`);
+        this.flash(this.translate.instant('seller.orders.orderMarkedAs', { status }));
         this.load();
       },
       error: (err) => {
@@ -260,14 +272,15 @@ export class SellerOrdersComponent implements OnInit {
     });
   }
 
-  statusClass(status: string): Record<string, boolean> {
-    return {
-      'bg-warning text-dark': status === 'pending',
-      'bg-info text-white': status === 'processing',
-      'bg-primary': status === 'shipped',
-      'bg-success': status === 'delivered',
-      'bg-danger': status === 'cancelled',
+  statusTranslationKey(status: string): string {
+    const map: Record<string, string> = {
+      pending: 'seller.orders.statusPending',
+      processing: 'seller.orders.statusProcessing',
+      shipped: 'seller.orders.statusShipped',
+      delivered: 'seller.orders.statusDelivered',
+      cancelled: 'seller.orders.statusCancelled',
     };
+    return map[status] ?? status;
   }
 
   statusIcon(status: string): string {
