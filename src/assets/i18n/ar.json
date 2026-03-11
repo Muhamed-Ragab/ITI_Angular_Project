@@ -568,9 +568,12 @@
       "title": "منتجاتي",
       "inStore": "منتج(ات) في متجرك",
       "addProduct": "إضافة منتج",
+      "allCategories": "كل الفئات",
+      "filteringBy": "التصفية حسب:",
       "searchPlaceholder": "ابحث عن المنتجات بالاسم...",
       "loading": "جاري تحميل المنتجات...",
       "empty": "لا توجد منتجات بعد. ابدأ بإضافة أول منتج!",
+      "emptyFiltered": "لا توجد منتجات في هذه الفئة.",
       "product": "المنتج",
       "category": "الفئة",
       "price": "السعر",
@@ -589,7 +592,12 @@
       "clearTitle": "مسح",
       "editTitle": "تعديل",
       "deleteTitle": "حذف",
-      "deletePrefix": "حذف"
+      "deletePrefix": "حذف",
+      "loadError": "فشل تحميل المنتجات.",
+      "deleteError": "فشل حذف المنتج.",
+      "createSuccess": "تم إنشاء المنتج بنجاح.",
+      "updateSuccess": "تم تحديث المنتج بنجاح.",
+      "deleteSuccess": "تم حذف \"{{title}}\"."
     },
     "orders": {
       "title": "طلباتي",
@@ -644,11 +652,20 @@
       "newTitle": "منتج جديد",
       "loadingCategories": "جاري تحميل الفئات...",
       "productTitle": "عنوان المنتج",
+      "titlePlaceholder": "مثال: سماعات بلوتوث لاسلكية",
       "description": "الوصف",
+      "descriptionPlaceholder": "صف منتجك بالتفصيل...",
       "descHint": "(الحد الأدنى 10 أحرف)",
       "price": "السعر ($)",
       "stock": "الكمية في المخزون",
       "category": "الفئة",
+      "images": "صور المنتج",
+      "imagesHint": "(حتى 5 صور، بحد أقصى 5 ميجابايت لكل صورة)",
+      "uploadCta": "اضغط لاختيار الصور أو اسحبها وأفلتها",
+      "uploading": "جاري الرفع...",
+      "uploadingProgress": "جاري الرفع {{progress}}%...",
+      "uploadingImage": "جاري رفع الصورة {{current}} من {{total}}...",
+      "imagesReady": "{{count}} صورة جاهزة",
       "imageUrls": "روابط الصور",
       "imageHint": "(رابط لكل سطر، اختياري)",
       "minTitle": "الحد الأدنى 3 أحرف مطلوبة",
@@ -657,7 +674,14 @@
       "cancel": "إلغاء",
       "saving": "جاري الحفظ...",
       "update": "تحديث المنتج",
-      "create": "إنشاء منتج"
+      "create": "إنشاء منتج",
+      "errors": {
+        "fileTooLarge": "\"{{name}}\" يتجاوز حد 5 ميجابايت.",
+        "tooManyImages": "الحد الأقصى 5 صور لكل منتج.",
+        "uploadFailed": "فشل رفع الصور. حاول مرة أخرى.",
+        "updateFailed": "فشل تحديث المنتج.",
+        "createFailed": "فشل إنشاء المنتج."
+      }
     }
   },
   "chatbot": {

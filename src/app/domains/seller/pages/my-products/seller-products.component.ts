@@ -1,13 +1,14 @@
+import { CommonModule, SlicePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy, Component, inject, OnInit, signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule, SlicePipe } from '@angular/common';
 import { AuthService } from '@core/services/auth.service';
-import { SellerService } from '../../services/seller.services';
-import { SellerProductFormComponent } from '../../components/seller-product-form/seller-product-form.component';
-import { SellerProduct, SellerProductFilters, SellerPagination } from '../../dto/seller.dto';
 import { Category } from '@domains/categories/dto';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SellerProductFormComponent } from '../../components/seller-product-form/seller-product-form.component';
+import { SellerPagination, SellerProduct, SellerProductFilters } from '../../dto/seller.dto';
+import { SellerService } from '../../services/seller.services';
 
 @Component({
   selector: 'app-seller-products',
@@ -27,7 +28,7 @@ import { Category } from '@domains/categories/dto';
         <button class="btn fw-semibold rounded-pill px-4 shadow-sm"
           style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#fff;border:none"
           (click)="openCreate()">
-          <i class="bi bi-plus-lg me-2"></i>Add Product
+          <i class="bi bi-plus-lg me-2"></i>{{ 'seller.products.addProduct' | translate }}
         </button>
       </div>
 
@@ -39,7 +40,7 @@ import { Category } from '@domains/categories/dto';
             <!-- Search -->
             <div class="col-12 col-md-4">
               <input class="form-control border-0 bg-light rounded-3"
-                placeholder="🔍 Search products by name…"
+                [placeholder]="translate.instant('seller.products.searchPlaceholder')"
                 [(ngModel)]="searchText" name="search"
                 (keyup.enter)="applyFilters()" />
             </div>
@@ -49,7 +50,7 @@ import { Category } from '@domains/categories/dto';
               <select class="form-select border-0 bg-light rounded-3"
                 [(ngModel)]="selectedCategoryId"
                 (ngModelChange)="applyFilters()">
-                <option value="">All Categories</option>
+                <option value="">{{ 'seller.products.allCategories' | translate }}</option>
                 @for (cat of allCategories(); track cat._id) {
                   <option [value]="cat._id">
                     {{ cat.parentId ? '↳ ' : '' }}{{ cat.name }}
@@ -63,9 +64,9 @@ import { Category } from '@domains/categories/dto';
               <select class="form-select border-0 bg-light rounded-3"
                 [(ngModel)]="filters.limit"
                 (ngModelChange)="applyFilters()">
-                <option [value]="10">10 / page</option>
-                <option [value]="25">25 / page</option>
-                <option [value]="50">50 / page</option>
+                <option [value]="10">10 {{ 'seller.products.perPage' | translate }}</option>
+                <option [value]="25">25 {{ 'seller.products.perPage' | translate }}</option>
+                <option [value]="50">50 {{ 'seller.products.perPage' | translate }}</option>
               </select>
             </div>
 
@@ -74,7 +75,8 @@ import { Category } from '@domains/categories/dto';
               <button class="btn btn-primary rounded-3 px-3" (click)="applyFilters()">
                 <i class="bi bi-search"></i>
               </button>
-              <button class="btn btn-outline-secondary rounded-3" (click)="resetFilters()" title="Clear">
+              <button class="btn btn-outline-secondary rounded-3" (click)="resetFilters()"
+                [title]="translate.instant('seller.products.clearTitle')">
                 <i class="bi bi-x-lg"></i>
               </button>
             </div>
@@ -84,7 +86,7 @@ import { Category } from '@domains/categories/dto';
           <!-- Active filter badge -->
           @if (selectedCategoryId) {
             <div class="mt-2 d-flex align-items-center gap-2">
-              <span class="text-muted small">Filtering by:</span>
+              <span class="text-muted small">{{ 'seller.products.filteringBy' | translate }}</span>
               <span class="badge rounded-pill d-flex align-items-center gap-1"
                 style="background:#e0f2fe;color:#0369a1;font-weight:500">
                 <i class="bi bi-tag-fill" style="font-size:0.65rem"></i>
@@ -120,11 +122,11 @@ import { Category } from '@domains/categories/dto';
           </span>
           <div class="d-flex gap-2">
             <button class="btn btn-sm btn-outline-secondary rounded-pill"
-              (click)="pendingDelete.set(null)">Cancel</button>
+              (click)="pendingDelete.set(null)">{{ 'seller.products.cancel' | translate }}</button>
             <button class="btn btn-sm btn-danger rounded-pill"
               [disabled]="isDeleting()" (click)="confirmDelete()">
               @if (isDeleting()) { <span class="spinner-border spinner-border-sm me-1"></span> }
-              Yes, Delete
+              {{ 'seller.products.confirmDelete' | translate }}
             </button>
           </div>
         </div>
@@ -142,14 +144,14 @@ import { Category } from '@domains/categories/dto';
             <i class="bi bi-box-seam d-block mb-3 text-muted" style="font-size:3rem"></i>
             <p class="text-muted mb-3">
               @if (selectedCategoryId) {
-                No products found in this category.
+                {{ 'seller.products.emptyFiltered' | translate }}
               } @else {
-                No products yet. Start by adding your first one!
+                {{ 'seller.products.empty' | translate }}
               }
             </p>
             @if (!selectedCategoryId) {
               <button class="btn btn-primary rounded-pill px-4" (click)="openCreate()">
-                <i class="bi bi-plus-lg me-1"></i>Add Product
+                <i class="bi bi-plus-lg me-1"></i>{{ 'seller.products.addProduct' | translate }}
               </button>
             }
           </div>
@@ -158,12 +160,12 @@ import { Category } from '@domains/categories/dto';
             <table class="table table-hover align-middle mb-0">
               <thead style="background:#f8fafc">
                 <tr class="text-muted" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em">
-                  <th class="ps-4 py-3">Product</th>
-                  <th class="py-3">Category</th>
-                  <th class="py-3">Price</th>
-                  <th class="py-3">Stock</th>
-                  <th class="py-3">Rating</th>
-                  <th class="pe-4 py-3 text-end">Actions</th>
+                  <th class="ps-4 py-3">{{ 'seller.products.product' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.category' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.price' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.stock' | translate }}</th>
+                  <th class="py-3">{{ 'seller.products.rating' | translate }}</th>
+                  <th class="pe-4 py-3 text-end">{{ 'seller.products.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,8 +175,8 @@ import { Category } from '@domains/categories/dto';
                       <div class="d-flex align-items-center gap-3">
                         <img
                           [src]="p.images[0] || 'https://placehold.co/48x48/e2e8f0/94a3b8?text=?'"
-                          class="rounded-3 border flex-shrink-0"
-                          style="width:48px;height:48px;object-fit:cover"
+                          class="rounded-3 border"
+                          style="width:48px;height:48px;object-fit:cover;flex-shrink:0"
                           (error)="onImgError($event)" />
                         <div>
                           <div class="fw-semibold" style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
@@ -201,7 +203,7 @@ import { Category } from '@domains/categories/dto';
                       } @else if (p.stock_quantity <= 10) {
                         <span class="badge rounded-pill fw-normal"
                           style="background:#fef9c3;color:#854d0e">
-                          ⚠ Low: {{ p.stock_quantity }}
+                          {{ 'seller.products.lowStock' | translate }} {{ p.stock_quantity }}
                         </span>
                       } @else {
                         <span class="badge rounded-pill fw-normal"
@@ -224,11 +226,13 @@ import { Category } from '@domains/categories/dto';
                     <td class="pe-4 py-3 text-end">
                       <div class="d-flex gap-2 justify-content-end">
                         <button class="btn btn-sm btn-outline-primary rounded-3"
-                          (click)="openEdit(p)" title="Edit">
+                          (click)="openEdit(p)"
+                          [title]="translate.instant('seller.products.editTitle')">
                           <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-danger rounded-3"
-                          (click)="requestDelete(p)" title="Delete">
+                          (click)="requestDelete(p)"
+                          [title]="translate.instant('seller.products.deleteTitle')">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -244,9 +248,9 @@ import { Category } from '@domains/categories/dto';
             <div class="d-flex justify-content-between align-items-center px-4 py-3"
               style="border-top:1px solid #f1f5f9">
               <small class="text-muted">
-                Showing {{ ((filters.page ?? 1) - 1) * (filters.limit ?? 10) + 1 }}–{{
+                {{ 'seller.products.showing' | translate }} {{ ((filters.page ?? 1) - 1) * (filters.limit ?? 10) + 1 }}–{{
                   minVal(((filters.page ?? 1)) * (filters.limit ?? 10), pagination()!.total)
-                }} of {{ pagination()!.total }}
+                }} {{ 'seller.products.of' | translate }} {{ pagination()!.total }}
               </small>
               <div class="d-flex gap-1">
                 <button class="btn btn-sm btn-outline-secondary rounded-3"
@@ -281,6 +285,7 @@ import { Category } from '@domains/categories/dto';
 export class SellerProductsComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
   private readonly authService   = inject(AuthService);
+  readonly translate = inject(TranslateService);
 
   readonly products      = signal<SellerProduct[]>([]);
   readonly pagination    = signal<SellerPagination | null>(null);
@@ -346,7 +351,7 @@ export class SellerProductsComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set(err?.error?.message ?? 'Failed to load products.');
+        this.error.set(err?.error?.message ?? this.translate.instant('seller.products.loadError'));
         this.isLoading.set(false);
       },
     });
@@ -385,7 +390,11 @@ export class SellerProductsComponent implements OnInit {
 
   onSaved(): void {
     this.showForm.set(false);
-    this.flash(this.editTarget() ? 'Product updated successfully.' : 'Product created successfully.');
+    this.flash(
+      this.translate.instant(
+        this.editTarget() ? 'seller.products.updateSuccess' : 'seller.products.createSuccess',
+      ),
+    );
     this.load();
   }
 
@@ -399,13 +408,13 @@ export class SellerProductsComponent implements OnInit {
       next: () => {
         this.isDeleting.set(false);
         this.pendingDelete.set(null);
-        this.flash(`"${p.title}" deleted.`);
+        this.flash(this.translate.instant('seller.products.deleteSuccess', { title: p.title }));
         this.load();
       },
       error: (err) => {
         this.isDeleting.set(false);
         this.pendingDelete.set(null);
-        this.error.set(err?.error?.message ?? 'Failed to delete product.');
+        this.error.set(err?.error?.message ?? this.translate.instant('seller.products.deleteError'));
       },
     });
   }

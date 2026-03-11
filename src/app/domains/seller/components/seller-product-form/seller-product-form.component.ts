@@ -9,12 +9,10 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
-import { firstValueFrom } from 'rxjs';
-import { Category } from '@domains/categories/dto';
-import { SellerService } from '../../services/seller.services';
 import { CdnUploadService } from '@core/services/cdn-upload.service';
+import { Category } from '@domains/categories/dto';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import {
   SellerCreateProductDto,
   SellerProduct,
@@ -46,12 +44,15 @@ import { SellerService } from '../../services/seller.services';
                   : ('seller.productForm.newTitle' | translate)
               }}
             </h5>
-            <button class="btn-close btn-close-white" (click)="cancel.emit()"></button>
+            <button
+              class="btn-close btn-close-white"
+              [attr.aria-label]="translate.instant('seller.productForm.cancel')"
+              (click)="cancel.emit()"
+            ></button>
           </div>
 
           <!-- Body -->
           <div class="modal-body p-4" style="background:#fafafa">
-
             @if (error()) {
               <div
                 class="alert alert-danger border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2"
@@ -77,7 +78,7 @@ import { SellerService } from '../../services/seller.services';
                   </label>
                   <input
                     class="form-control border-0 bg-white shadow-sm rounded-3"
-                    placeholder="e.g. Wireless Bluetooth Headphones"
+                    [placeholder]="translate.instant('seller.productForm.titlePlaceholder')"
                     [(ngModel)]="form.title"
                     name="title"
                     maxlength="100"
@@ -99,7 +100,7 @@ import { SellerService } from '../../services/seller.services';
                   <textarea
                     class="form-control border-0 bg-white shadow-sm rounded-3"
                     rows="4"
-                    placeholder="Describe your product in detail…"
+                    [placeholder]="translate.instant('seller.productForm.descriptionPlaceholder')"
                     [(ngModel)]="form.description"
                     name="description"
                   ></textarea>
@@ -166,36 +167,53 @@ import { SellerService } from '../../services/seller.services';
                 <!-- ── Image Upload ──────────────────────────────────────── -->
                 <div class="col-12">
                   <label class="form-label fw-semibold small text-uppercase text-muted">
-                    Product Images
-                    <span class="fw-normal text-muted">(up to 5, max 5 MB each)</span>
+                    {{ 'seller.productForm.images' | translate }}
+                    <span class="fw-normal text-muted">{{
+                      'seller.productForm.imagesHint' | translate
+                    }}</span>
                   </label>
 
                   <!-- Drop zone -->
-                  <label class="d-block border-2 border-dashed rounded-3 p-4 text-center"
+                  <label
+                    class="d-block border-2 border-dashed rounded-3 p-4 text-center"
                     style="border:2px dashed #cbd5e1;cursor:pointer;background:#f8fafc"
-                    [class.opacity-50]="isUploading()">
+                    [class.opacity-50]="isUploading()"
+                  >
                     <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-1"></i>
                     <span class="small text-muted">
                       @if (isUploading()) {
-                        Uploading {{ uploadProgress() }}%…
+                        {{
+                          'seller.productForm.uploadingProgress'
+                            | translate: { progress: uploadProgress() }
+                        }}
                       } @else {
-                        Click to choose images or drag &amp; drop
+                        {{ 'seller.productForm.uploadCta' | translate }}
                       }
                     </span>
-                    <input type="file" class="d-none" multiple accept="image/*"
+                    <input
+                      type="file"
+                      class="d-none"
+                      multiple
+                      accept="image/*"
                       [disabled]="isUploading()"
-                      (change)="onFileSelect($event)" />
+                      (change)="onFileSelect($event)"
+                    />
                   </label>
 
                   <!-- Upload progress bar -->
                   @if (isUploading()) {
                     <div class="progress mt-2 rounded-pill" style="height:6px">
-                      <div class="progress-bar bg-success"
+                      <div
+                        class="progress-bar bg-success"
                         [style.width.%]="uploadProgress()"
-                        style="transition:width 0.3s"></div>
+                        style="transition:width 0.3s"
+                      ></div>
                     </div>
                     <p class="small text-muted mt-1 mb-0 text-center">
-                      Uploading image {{ uploadingIndex() }} of {{ uploadTotal() }}…
+                      {{
+                        'seller.productForm.uploadingImage'
+                          | translate: { current: uploadingIndex(), total: uploadTotal() }
+                      }}
                     </p>
                   }
                 </div>
@@ -206,21 +224,28 @@ import { SellerService } from '../../services/seller.services';
                     <div class="d-flex gap-2 flex-wrap">
                       @for (img of form.images; track $index) {
                         <div class="position-relative">
-                          <img [src]="img" class="rounded-3 border shadow-sm"
+                          <img
+                            [src]="img"
+                            class="rounded-3 border shadow-sm"
                             style="width:80px;height:80px;object-fit:cover"
-                            (error)="onImgError($event)" />
-                          <button type="button"
+                            (error)="onImgError($event)"
+                          />
+                          <button
+                            type="button"
                             class="btn btn-danger btn-sm position-absolute top-0 end-0
                               rounded-circle d-flex align-items-center justify-content-center"
                             style="width:20px;height:20px;padding:0;font-size:0.6rem;
                               transform:translate(40%,-40%)"
-                            (click)="removeImage($index)">
+                            (click)="removeImage($index)"
+                          >
                             <i class="bi bi-x"></i>
                           </button>
                         </div>
                       }
                     </div>
-                    <small class="text-muted">{{ form.images.length }} image(s) ready</small>
+                    <small class="text-muted">{{
+                      'seller.productForm.imagesReady' | translate: { count: form.images.length }
+                    }}</small>
                   </div>
                 }
               </div>
@@ -229,19 +254,25 @@ import { SellerService } from '../../services/seller.services';
 
           <!-- Footer -->
           <div class="modal-footer border-0 bg-white px-4 py-3">
-            <button class="btn btn-outline-secondary rounded-pill px-4"
-              (click)="cancel.emit()" [disabled]="isSaving() || isUploading()">
-              Cancel
+            <button
+              class="btn btn-outline-secondary rounded-pill px-4"
+              (click)="cancel.emit()"
+              [disabled]="isSaving() || isUploading()"
+            >
+              {{ 'seller.productForm.cancel' | translate }}
             </button>
             <button
               class="btn rounded-pill px-4 fw-semibold text-white"
               style="background:linear-gradient(135deg,#4ade80,#22c55e);border:none"
               (click)="save()"
-              [disabled]="isSaving() || isUploading() || loadingCats() || !isValid()">
+              [disabled]="isSaving() || isUploading() || loadingCats() || !isValid()"
+            >
               @if (isSaving()) {
-                <span class="spinner-border spinner-border-sm me-1"></span>Saving…
+                <span class="spinner-border spinner-border-sm me-1"></span
+                >{{ 'seller.productForm.saving' | translate }}
               } @else if (isUploading()) {
-                <span class="spinner-border spinner-border-sm me-1"></span>Uploading…
+                <span class="spinner-border spinner-border-sm me-1"></span
+                >{{ 'seller.productForm.uploading' | translate }}
               } @else {
                 <i class="bi bi-check-lg me-1"></i>
                 {{
@@ -259,22 +290,23 @@ import { SellerService } from '../../services/seller.services';
 })
 export class SellerProductFormComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
-  private readonly cdnService    = inject(CdnUploadService);
+  private readonly cdnService = inject(CdnUploadService);
+  readonly translate = inject(TranslateService);
 
   readonly editTarget = input<SellerProduct | null>(null);
-  readonly saved      = output<void>();
-  readonly cancel     = output<void>();
+  readonly saved = output<void>();
+  readonly cancel = output<void>();
 
   readonly flatCategories = signal<Category[]>([]);
-  readonly loadingCats    = signal(true);
-  readonly isSaving       = signal(false);
-  readonly error          = signal<string | null>(null);
+  readonly loadingCats = signal(true);
+  readonly isSaving = signal(false);
+  readonly error = signal<string | null>(null);
 
   // Upload state
-  readonly isUploading   = signal(false);
+  readonly isUploading = signal(false);
   readonly uploadProgress = signal(0);
   readonly uploadingIndex = signal(0);
-  readonly uploadTotal    = signal(0);
+  readonly uploadTotal = signal(0);
 
   form = {
     title: '',
@@ -316,15 +348,21 @@ export class SellerProductFormComponent implements OnInit {
   // ── Image upload ──────────────────────────────────────────────────────────
 
   async onFileSelect(event: Event): Promise<void> {
-    const input  = event.target as HTMLInputElement;
-    const files  = Array.from(input.files ?? []);
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
     if (!files.length) return;
 
     // Validate
-    const invalid = files.find(f => f.size > 5 * 1024 * 1024);
-    if (invalid) { this.error.set(`"${invalid.name}" exceeds 5 MB limit.`); return; }
+    const invalid = files.find((file) => file.size > 5 * 1024 * 1024);
+    if (invalid) {
+      this.error.set(
+        this.translate.instant('seller.productForm.errors.fileTooLarge', { name: invalid.name }),
+      );
+      return;
+    }
     if (this.form.images.length + files.length > 5) {
-      this.error.set('Maximum 5 images allowed per product.'); return;
+      this.error.set(this.translate.instant('seller.productForm.errors.tooManyImages'));
+      return;
     }
 
     this.error.set(null);
@@ -347,9 +385,8 @@ export class SellerProductFormComponent implements OnInit {
 
       // Step 3 — add returned URLs to the form
       this.form.images = [...this.form.images, ...urls];
-
-    } catch (err: any) {
-      this.error.set('Image upload failed. Please try again.');
+    } catch {
+      this.error.set(this.translate.instant('seller.productForm.errors.uploadFailed'));
     } finally {
       this.isUploading.set(false);
       this.uploadProgress.set(0);
@@ -391,29 +428,45 @@ export class SellerProductFormComponent implements OnInit {
 
     if (id) {
       const dto: SellerUpdateProductDto = {
-        title:          this.form.title.trim(),
-        description:    this.form.description.trim(),
-        price:          this.form.price!,
+        title: this.form.title.trim(),
+        description: this.form.description.trim(),
+        price: this.form.price!,
         stock_quantity: this.form.stock_quantity!,
-        category_id:    this.form.category_id,
-        images:         this.form.images,
+        category_id: this.form.category_id,
+        images: this.form.images,
       };
       this.sellerService.updateProduct(id, dto).subscribe({
-        next:  () => { this.isSaving.set(false); this.saved.emit(); },
-        error: (err) => { this.isSaving.set(false); this.error.set(err?.error?.message ?? 'Failed to update.'); },
+        next: () => {
+          this.isSaving.set(false);
+          this.saved.emit();
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          this.error.set(
+            err?.error?.message ?? this.translate.instant('seller.productForm.errors.updateFailed'),
+          );
+        },
       });
     } else {
       const dto: SellerCreateProductDto = {
-        title:          this.form.title.trim(),
-        description:    this.form.description.trim(),
-        price:          this.form.price!,
+        title: this.form.title.trim(),
+        description: this.form.description.trim(),
+        price: this.form.price!,
         stock_quantity: this.form.stock_quantity!,
-        category_id:    this.form.category_id,
-        images:         this.form.images,
+        category_id: this.form.category_id,
+        images: this.form.images,
       };
       this.sellerService.createProduct(dto).subscribe({
-        next:  () => { this.isSaving.set(false); this.saved.emit(); },
-        error: (err) => { this.isSaving.set(false); this.error.set(err?.error?.message ?? 'Failed to create.'); },
+        next: () => {
+          this.isSaving.set(false);
+          this.saved.emit();
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          this.error.set(
+            err?.error?.message ?? this.translate.instant('seller.productForm.errors.createFailed'),
+          );
+        },
       });
     }
   }
