@@ -94,7 +94,7 @@ export class ProfilePageComponent implements OnInit {
   initForms(){
     this.profileForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      phone: ['', [Validators.pattern(/^\+2[0-9]{10,15}$/)]],
+      phone: ['', [Validators.pattern(/^\+2[0-9]{11}$/)]],
       preferred_language: ['en', Validators.required],
       marketing_preferences: this.fb.group({
         push_notifications: [false],
