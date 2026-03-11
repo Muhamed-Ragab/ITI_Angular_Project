@@ -568,9 +568,12 @@
       "title": "My Products",
       "inStore": "product(s) in your store",
       "addProduct": "Add Product",
+      "allCategories": "All Categories",
+      "filteringBy": "Filtering by:",
       "searchPlaceholder": "Search products by name…",
       "loading": "Loading products…",
       "empty": "No products yet. Start by adding your first one!",
+      "emptyFiltered": "No products found in this category.",
       "product": "Product",
       "category": "Category",
       "price": "Price",
@@ -589,7 +592,12 @@
       "clearTitle": "Clear",
       "editTitle": "Edit",
       "deleteTitle": "Delete",
-      "deletePrefix": "Delete"
+      "deletePrefix": "Delete",
+      "loadError": "Failed to load products.",
+      "deleteError": "Failed to delete product.",
+      "createSuccess": "Product created successfully.",
+      "updateSuccess": "Product updated successfully.",
+      "deleteSuccess": "\"{{title}}\" deleted."
     },
     "orders": {
       "title": "My Orders",
@@ -644,11 +652,20 @@
       "newTitle": "New Product",
       "loadingCategories": "Loading categories…",
       "productTitle": "Product Title",
+      "titlePlaceholder": "e.g. Wireless Bluetooth Headphones",
       "description": "Description",
+      "descriptionPlaceholder": "Describe your product in detail…",
       "descHint": "(min 10 chars)",
       "price": "Price ($)",
       "stock": "Stock Quantity",
       "category": "Category",
+      "images": "Product Images",
+      "imagesHint": "(up to 5, max 5 MB each)",
+      "uploadCta": "Click to choose images or drag and drop",
+      "uploading": "Uploading…",
+      "uploadingProgress": "Uploading {{progress}}%…",
+      "uploadingImage": "Uploading image {{current}} of {{total}}…",
+      "imagesReady": "{{count}} image(s) ready",
       "imageUrls": "Image URLs",
       "imageHint": "(one per line, optional)",
       "minTitle": "Minimum 3 characters required",
@@ -657,7 +674,14 @@
       "cancel": "Cancel",
       "saving": "Saving…",
       "update": "Update Product",
-      "create": "Create Product"
+      "create": "Create Product",
+      "errors": {
+        "fileTooLarge": "\"{{name}}\" exceeds 5 MB limit.",
+        "tooManyImages": "Maximum 5 images allowed per product.",
+        "uploadFailed": "Image upload failed. Please try again.",
+        "updateFailed": "Failed to update.",
+        "createFailed": "Failed to create."
+      }
     }
   },
   "chatbot": {
