@@ -9,8 +9,12 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Category } from '@domains/categories/dto';
 import { TranslateModule } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
+import { Category } from '@domains/categories/dto';
+import { SellerService } from '../../services/seller.services';
+import { CdnUploadService } from '@core/services/cdn-upload.service';
 import {
   SellerCreateProductDto,
   SellerProduct,
@@ -47,6 +51,7 @@ import { SellerService } from '../../services/seller.services';
 
           <!-- Body -->
           <div class="modal-body p-4" style="background:#fafafa">
+
             @if (error()) {
               <div
                 class="alert alert-danger border-0 rounded-3 py-2 mb-3 d-flex align-items-center gap-2"
@@ -158,23 +163,41 @@ import { SellerService } from '../../services/seller.services';
                   </select>
                 </div>
 
-                <!-- Images -->
+                <!-- ── Image Upload ──────────────────────────────────────── -->
                 <div class="col-12">
                   <label class="form-label fw-semibold small text-uppercase text-muted">
-                    {{ 'seller.productForm.imageUrls' | translate }}
-                    <span class="fw-normal text-muted">{{
-                      'seller.productForm.imageHint' | translate
-                    }}</span>
+                    Product Images
+                    <span class="fw-normal text-muted">(up to 5, max 5 MB each)</span>
                   </label>
-                  <textarea
-                    class="form-control border-0 bg-white shadow-sm rounded-3 font-monospace"
-                    style="font-size:0.8rem"
-                    rows="3"
-                    placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                    [ngModel]="imagesText()"
-                    (ngModelChange)="onImagesChange($event)"
-                    name="images"
-                  ></textarea>
+
+                  <!-- Drop zone -->
+                  <label class="d-block border-2 border-dashed rounded-3 p-4 text-center"
+                    style="border:2px dashed #cbd5e1;cursor:pointer;background:#f8fafc"
+                    [class.opacity-50]="isUploading()">
+                    <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-1"></i>
+                    <span class="small text-muted">
+                      @if (isUploading()) {
+                        Uploading {{ uploadProgress() }}%…
+                      } @else {
+                        Click to choose images or drag &amp; drop
+                      }
+                    </span>
+                    <input type="file" class="d-none" multiple accept="image/*"
+                      [disabled]="isUploading()"
+                      (change)="onFileSelect($event)" />
+                  </label>
+
+                  <!-- Upload progress bar -->
+                  @if (isUploading()) {
+                    <div class="progress mt-2 rounded-pill" style="height:6px">
+                      <div class="progress-bar bg-success"
+                        [style.width.%]="uploadProgress()"
+                        style="transition:width 0.3s"></div>
+                    </div>
+                    <p class="small text-muted mt-1 mb-0 text-center">
+                      Uploading image {{ uploadingIndex() }} of {{ uploadTotal() }}…
+                    </p>
+                  }
                 </div>
 
                 <!-- Image previews -->
@@ -183,15 +206,21 @@ import { SellerService } from '../../services/seller.services';
                     <div class="d-flex gap-2 flex-wrap">
                       @for (img of form.images; track $index) {
                         <div class="position-relative">
-                          <img
-                            [src]="img"
-                            class="rounded-3 border shadow-sm"
-                            style="width:72px;height:72px;object-fit:cover"
-                            (error)="onImgError($event)"
-                          />
+                          <img [src]="img" class="rounded-3 border shadow-sm"
+                            style="width:80px;height:80px;object-fit:cover"
+                            (error)="onImgError($event)" />
+                          <button type="button"
+                            class="btn btn-danger btn-sm position-absolute top-0 end-0
+                              rounded-circle d-flex align-items-center justify-content-center"
+                            style="width:20px;height:20px;padding:0;font-size:0.6rem;
+                              transform:translate(40%,-40%)"
+                            (click)="removeImage($index)">
+                            <i class="bi bi-x"></i>
+                          </button>
                         </div>
                       }
                     </div>
+                    <small class="text-muted">{{ form.images.length }} image(s) ready</small>
                   </div>
                 }
               </div>
@@ -200,22 +229,19 @@ import { SellerService } from '../../services/seller.services';
 
           <!-- Footer -->
           <div class="modal-footer border-0 bg-white px-4 py-3">
-            <button
-              class="btn btn-outline-secondary rounded-pill px-4"
-              (click)="cancel.emit()"
-              [disabled]="isSaving()"
-            >
-              {{ 'seller.productForm.cancel' | translate }}
+            <button class="btn btn-outline-secondary rounded-pill px-4"
+              (click)="cancel.emit()" [disabled]="isSaving() || isUploading()">
+              Cancel
             </button>
             <button
               class="btn rounded-pill px-4 fw-semibold text-white"
               style="background:linear-gradient(135deg,#4ade80,#22c55e);border:none"
               (click)="save()"
-              [disabled]="isSaving() || loadingCats() || !isValid()"
-            >
+              [disabled]="isSaving() || isUploading() || loadingCats() || !isValid()">
               @if (isSaving()) {
-                <span class="spinner-border spinner-border-sm me-1"></span
-                >{{ 'seller.productForm.saving' | translate }}
+                <span class="spinner-border spinner-border-sm me-1"></span>Saving…
+              } @else if (isUploading()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>Uploading…
               } @else {
                 <i class="bi bi-check-lg me-1"></i>
                 {{
@@ -233,16 +259,22 @@ import { SellerService } from '../../services/seller.services';
 })
 export class SellerProductFormComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
+  private readonly cdnService    = inject(CdnUploadService);
 
   readonly editTarget = input<SellerProduct | null>(null);
-  readonly saved = output<void>();
-  // eslint-disable-next-line @angular-eslint/no-output-native
-  readonly cancel = output<void>();
+  readonly saved      = output<void>();
+  readonly cancel     = output<void>();
 
   readonly flatCategories = signal<Category[]>([]);
-  readonly loadingCats = signal(true);
-  readonly isSaving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly loadingCats    = signal(true);
+  readonly isSaving       = signal(false);
+  readonly error          = signal<string | null>(null);
+
+  // Upload state
+  readonly isUploading   = signal(false);
+  readonly uploadProgress = signal(0);
+  readonly uploadingIndex = signal(0);
+  readonly uploadTotal    = signal(0);
 
   form = {
     title: '',
@@ -260,7 +292,6 @@ export class SellerProductFormComponent implements OnInit {
       this.form.description = t.description ?? '';
       this.form.price = t.price ?? null;
       this.form.stock_quantity = t.stock_quantity ?? null;
-      // category_id can be an object or string
       const cat = t.category_id as any;
       this.form.category_id = cat?._id ?? cat?.id ?? (typeof cat === 'string' ? cat : '');
       this.form.images = [...(t.images ?? [])];
@@ -282,20 +313,60 @@ export class SellerProductFormComponent implements OnInit {
     });
   }
 
-  imagesText(): string {
-    return this.form.images.join('\n');
+  // ── Image upload ──────────────────────────────────────────────────────────
+
+  async onFileSelect(event: Event): Promise<void> {
+    const input  = event.target as HTMLInputElement;
+    const files  = Array.from(input.files ?? []);
+    if (!files.length) return;
+
+    // Validate
+    const invalid = files.find(f => f.size > 5 * 1024 * 1024);
+    if (invalid) { this.error.set(`"${invalid.name}" exceeds 5 MB limit.`); return; }
+    if (this.form.images.length + files.length > 5) {
+      this.error.set('Maximum 5 images allowed per product.'); return;
+    }
+
+    this.error.set(null);
+    this.isUploading.set(true);
+    this.uploadTotal.set(files.length);
+    this.uploadProgress.set(0);
+
+    try {
+      // Step 1 — get signed credentials from backend (one call covers all files)
+      const creds = await firstValueFrom(this.cdnService.getUploadCredentials('products'));
+
+      // Step 2 — upload each file sequentially, show progress
+      const urls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        this.uploadingIndex.set(i + 1);
+        const url = await firstValueFrom(this.cdnService.uploadToCloudinary(files[i], creds));
+        urls.push(url);
+        this.uploadProgress.set(Math.round(((i + 1) / files.length) * 100));
+      }
+
+      // Step 3 — add returned URLs to the form
+      this.form.images = [...this.form.images, ...urls];
+
+    } catch (err: any) {
+      this.error.set('Image upload failed. Please try again.');
+    } finally {
+      this.isUploading.set(false);
+      this.uploadProgress.set(0);
+      // Reset file input so same file can be re-selected
+      input.value = '';
+    }
   }
 
-  onImagesChange(val: string): void {
-    this.form.images = val
-      .split('\n')
-      .map((s) => s.trim())
-      .filter(Boolean);
+  removeImage(index: number): void {
+    this.form.images = this.form.images.filter((_, i) => i !== index);
   }
 
   onImgError(e: Event): void {
-    (e.target as HTMLImageElement).src = 'https://placehold.co/72x72/e2e8f0/94a3b8?text=?';
+    (e.target as HTMLImageElement).src = 'https://placehold.co/80x80/e2e8f0/94a3b8?text=?';
   }
+
+  // ── Validation & save ─────────────────────────────────────────────────────
 
   isValid(): boolean {
     const f = this.form;
@@ -320,41 +391,29 @@ export class SellerProductFormComponent implements OnInit {
 
     if (id) {
       const dto: SellerUpdateProductDto = {
-        title: this.form.title.trim(),
-        description: this.form.description.trim(),
-        price: this.form.price!,
+        title:          this.form.title.trim(),
+        description:    this.form.description.trim(),
+        price:          this.form.price!,
         stock_quantity: this.form.stock_quantity!,
-        category_id: this.form.category_id,
-        images: this.form.images,
+        category_id:    this.form.category_id,
+        images:         this.form.images,
       };
       this.sellerService.updateProduct(id, dto).subscribe({
-        next: () => {
-          this.isSaving.set(false);
-          this.saved.emit();
-        },
-        error: (err) => {
-          this.isSaving.set(false);
-          this.error.set(err?.error?.message ?? 'Failed to update product.');
-        },
+        next:  () => { this.isSaving.set(false); this.saved.emit(); },
+        error: (err) => { this.isSaving.set(false); this.error.set(err?.error?.message ?? 'Failed to update.'); },
       });
     } else {
       const dto: SellerCreateProductDto = {
-        title: this.form.title.trim(),
-        description: this.form.description.trim(),
-        price: this.form.price!,
+        title:          this.form.title.trim(),
+        description:    this.form.description.trim(),
+        price:          this.form.price!,
         stock_quantity: this.form.stock_quantity!,
-        category_id: this.form.category_id,
-        images: this.form.images,
+        category_id:    this.form.category_id,
+        images:         this.form.images,
       };
       this.sellerService.createProduct(dto).subscribe({
-        next: () => {
-          this.isSaving.set(false);
-          this.saved.emit();
-        },
-        error: (err) => {
-          this.isSaving.set(false);
-          this.error.set(err?.error?.message ?? 'Failed to create product.');
-        },
+        next:  () => { this.isSaving.set(false); this.saved.emit(); },
+        error: (err) => { this.isSaving.set(false); this.error.set(err?.error?.message ?? 'Failed to create.'); },
       });
     }
   }
