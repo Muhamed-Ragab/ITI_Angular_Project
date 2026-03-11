@@ -1,42 +1,45 @@
-import {
-  ChangeDetectionStrategy, Component, inject, OnInit, signal,
-} from '@angular/core';
-import { CommonModule, DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { ProfileService } from '@domains/profile/Services/profile.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { SellerOrder, SellerProduct } from '../../dto/seller.dto';
 import { SellerService } from '../../services/seller.services';
 
 @Component({
   selector: 'app-seller-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterModule, DatePipe, DecimalPipe, TitleCasePipe],
+  imports: [CommonModule, RouterModule, DatePipe, DecimalPipe, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container-fluid py-4">
-      <h2 class="mb-1">Seller Dashboard</h2>
+      <h2 class="mb-1">{{ 'seller.dashboard.title' | translate }}</h2>
       <p class="text-muted mb-4 small">
-        Welcome back, <strong>{{ userName() }}</strong>
-        @if (storeName()) { &nbsp;·&nbsp; <i class="bi bi-shop me-1"></i>{{ storeName() }} }
+        {{ 'seller.dashboard.welcomeBack' | translate }} <strong>{{ userName() }}</strong>
+        @if (storeName()) {
+          &nbsp;·&nbsp; <i class="bi bi-shop me-1"></i>{{ storeName() }}
+        }
       </p>
 
       <!-- Stats Cards -->
       <div class="row g-4 mb-4">
-
         <div class="col-12 col-sm-6 col-xl-3">
           <div class="card shadow-sm h-100">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
-                  <p class="text-muted mb-1">Total Products</p>
+                  <p class="text-muted mb-1">{{ 'seller.dashboard.totalProducts' | translate }}</p>
                   @if (isLoadingProducts()) {
-                    <div class="placeholder-glow"><span class="placeholder col-6 rounded"></span></div>
+                    <div class="placeholder-glow">
+                      <span class="placeholder col-6 rounded"></span>
+                    </div>
                   } @else {
                     <h3 class="mb-0">{{ totalProducts() }}</h3>
                   }
                   <small class="text-primary">
-                    <a routerLink="/seller/products" class="text-decoration-none">Manage →</a>
+                    <a routerLink="/seller/products" class="text-decoration-none">{{
+                      'seller.dashboard.manage' | translate
+                    }}</a>
                   </small>
                 </div>
                 <div class="stat-icon" style="background:#3498db20;color:#3498db">
@@ -52,14 +55,18 @@ import { SellerService } from '../../services/seller.services';
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
-                  <p class="text-muted mb-1">Total Orders</p>
+                  <p class="text-muted mb-1">{{ 'seller.dashboard.totalOrders' | translate }}</p>
                   @if (isLoadingOrders()) {
-                    <div class="placeholder-glow"><span class="placeholder col-6 rounded"></span></div>
+                    <div class="placeholder-glow">
+                      <span class="placeholder col-6 rounded"></span>
+                    </div>
                   } @else {
                     <h3 class="mb-0">{{ totalOrders() }}</h3>
                   }
                   <small class="text-success">
-                    <a routerLink="/seller/orders" class="text-decoration-none">View all →</a>
+                    <a routerLink="/seller/orders" class="text-decoration-none">{{
+                      'seller.dashboard.viewAll' | translate
+                    }}</a>
                   </small>
                 </div>
                 <div class="stat-icon" style="background:#27ae6020;color:#27ae60">
@@ -75,13 +82,17 @@ import { SellerService } from '../../services/seller.services';
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
-                  <p class="text-muted mb-1">Pending Orders</p>
+                  <p class="text-muted mb-1">{{ 'seller.dashboard.pendingOrders' | translate }}</p>
                   @if (isLoadingOrders()) {
-                    <div class="placeholder-glow"><span class="placeholder col-6 rounded"></span></div>
+                    <div class="placeholder-glow">
+                      <span class="placeholder col-6 rounded"></span>
+                    </div>
                   } @else {
                     <h3 class="mb-0">{{ pendingOrders() }}</h3>
                   }
-                  <small class="text-warning">Need attention</small>
+                  <small class="text-warning">{{
+                    'seller.dashboard.needAttention' | translate
+                  }}</small>
                 </div>
                 <div class="stat-icon" style="background:#f39c1220;color:#f39c12">
                   <i class="bi bi-clock"></i>
@@ -96,10 +107,15 @@ import { SellerService } from '../../services/seller.services';
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
-                  <p class="text-muted mb-1">Wallet Balance</p>
-                  <h3 class="mb-0">\${{ walletBalance() | number:'1.2-2' }}</h3>
+                  <p class="text-muted mb-1">{{ 'seller.dashboard.walletBalance' | translate }}</p>
+                  <h3 class="mb-0">\${{ walletBalance() | number: '1.2-2' }}</h3>
                   <small>
-                    <a routerLink="/seller/payouts" class="text-decoration-none" style="color:#9b59b6">Request payout →</a>
+                    <a
+                      routerLink="/seller/payouts"
+                      class="text-decoration-none"
+                      style="color:#9b59b6"
+                      >{{ 'seller.dashboard.requestPayout' | translate }}</a
+                    >
                   </small>
                 </div>
                 <div class="stat-icon" style="background:#9b59b620;color:#9b59b6">
@@ -109,53 +125,57 @@ import { SellerService } from '../../services/seller.services';
             </div>
           </div>
         </div>
-
       </div>
 
       <!-- Low Stock Alert -->
       @if (!isLoadingProducts() && lowStockProducts().length > 0) {
         <div class="alert alert-warning d-flex align-items-start gap-2 mb-4">
-          <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0"></i>
+          <i class="bi bi-exclamation-triangle-fill mt-1 shrink-0"></i>
           <div>
-            <strong>Low Stock Warning</strong> — {{ lowStockProducts().length }} product(s) running low.
-            <a routerLink="/seller/products" class="alert-link ms-1">Fix Now →</a>
+            <strong>{{ 'seller.dashboard.lowStock' | translate }}</strong> —
+            {{ 'seller.dashboard.lowStockCount' | translate: { count: lowStockProducts().length } }}
+            <a routerLink="/seller/products" class="alert-link ms-1">{{
+              'seller.dashboard.fixNow' | translate
+            }}</a>
           </div>
         </div>
       }
 
       <!-- Quick Actions + Recent Orders -->
       <div class="row g-4 mb-4">
-
         <!-- Quick Actions -->
         <div class="col-12 col-lg-5">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-white">
-              <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+              <h5 class="mb-0">
+                <i class="bi bi-lightning-charge me-2"></i
+                >{{ 'seller.dashboard.quickActions' | translate }}
+              </h5>
             </div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-6">
                   <a routerLink="/seller/products" class="btn btn-outline-primary w-100 py-3">
                     <i class="bi bi-plus-circle d-block fs-4 mb-1"></i>
-                    Add Product
+                    {{ 'seller.dashboard.addProduct' | translate }}
                   </a>
                 </div>
                 <div class="col-6">
                   <a routerLink="/seller/orders" class="btn btn-outline-success w-100 py-3">
                     <i class="bi bi-truck d-block fs-4 mb-1"></i>
-                    Manage Orders
+                    {{ 'seller.dashboard.manageOrders' | translate }}
                   </a>
                 </div>
                 <div class="col-6">
                   <a routerLink="/seller/payouts" class="btn btn-outline-warning w-100 py-3">
                     <i class="bi bi-cash-coin d-block fs-4 mb-1"></i>
-                    Request Payout
+                    {{ 'seller.dashboard.requestPayoutBtn' | translate }}
                   </a>
                 </div>
                 <div class="col-6">
                   <a routerLink="/seller/profile" class="btn btn-outline-secondary w-100 py-3">
                     <i class="bi bi-person-circle d-block fs-4 mb-1"></i>
-                    My Profile
+                    {{ 'seller.dashboard.myProfile' | translate }}
                   </a>
                 </div>
               </div>
@@ -167,44 +187,57 @@ import { SellerService } from '../../services/seller.services';
         <div class="col-12 col-lg-7">
           <div class="card shadow-sm h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-              <h5 class="mb-0"><i class="bi bi-bag-check me-2"></i>Recent Orders</h5>
-              <a routerLink="/seller/orders" class="btn btn-sm btn-primary">View All</a>
+              <h5 class="mb-0">
+                <i class="bi bi-bag-check me-2"></i
+                >{{ 'seller.dashboard.recentOrders' | translate }}
+              </h5>
+              <a routerLink="/seller/orders" class="btn btn-sm btn-primary">{{ 'seller.dashboard.viewAllBtn' | translate }}</a>
             </div>
             <div class="card-body p-0">
               @if (isLoadingOrders()) {
                 <div class="text-center py-5 text-muted">
                   <div class="spinner-border spinner-border-sm mb-2"></div>
-                  <p class="small mb-0">Loading orders...</p>
+                  <p class="small mb-0">{{ 'seller.dashboard.loadingOrders' | translate }}</p>
                 </div>
               } @else if (recentOrders().length === 0) {
                 <div class="text-center py-5 text-muted">
                   <i class="bi bi-inbox d-block fs-1 mb-2"></i>
-                  <p class="mb-0">No orders yet</p>
+                  <p class="mb-0">{{ 'seller.dashboard.noOrders' | translate }}</p>
                 </div>
               } @else {
                 <div class="table-responsive">
                   <table class="table table-hover mb-0">
                     <thead class="table-light">
                       <tr>
-                        <th>Order #</th>
-                        <th>Items</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Date</th>
+                        <th>{{ 'seller.dashboard.orderNumber' | translate }}</th>
+                        <th>{{ 'seller.dashboard.items' | translate }}</th>
+                        <th>{{ 'seller.dashboard.total' | translate }}</th>
+                        <th>{{ 'seller.dashboard.status' | translate }}</th>
+                        <th>{{ 'seller.dashboard.date' | translate }}</th>
                       </tr>
                     </thead>
                     <tbody>
                       @for (o of recentOrders(); track o._id) {
                         <tr>
-                          <td class="fw-bold font-monospace small">#{{ o._id.slice(-8).toUpperCase() }}</td>
+                          <td class="fw-bold font-monospace small">
+                            #{{ o._id.slice(-8).toUpperCase() }}
+                          </td>
                           <td>{{ o.items.length }}</td>
-                          <td class="fw-semibold">\${{ o.total_amount | number:'1.2-2' }}</td>
+                          <td class="fw-semibold">\${{ o.total_amount | number: '1.2-2' }}</td>
                           <td>
-                            <span class="badge rounded-pill" [ngClass]="statusClass(o.status)">
-                              {{ o.status | titlecase }}
+                            <span
+                              class="badge rounded-pill"
+                              [class.bg-warning]="o.status === 'pending'"
+                              [class.text-dark]="o.status === 'pending'"
+                              [class.bg-info]="o.status === 'processing'"
+                              [class.bg-primary]="o.status === 'shipped'"
+                              [class.bg-success]="o.status === 'delivered'"
+                              [class.bg-danger]="o.status === 'cancelled'"
+                            >
+                              {{ orderStatusKey(o.status) | translate }}
                             </span>
                           </td>
-                          <td class="text-muted small">{{ o.createdAt | date:'MMM d' }}</td>
+                          <td class="text-muted small">{{ o.createdAt | date: 'MMM d' }}</td>
                         </tr>
                       }
                     </tbody>
@@ -214,38 +247,40 @@ import { SellerService } from '../../services/seller.services';
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
   `,
-  styles: [`
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-  `],
+  styles: [
+    `
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+    `,
+  ],
 })
 export class SellerDashboardComponent implements OnInit {
-  private readonly sellerService  = inject(SellerService);
+  private readonly sellerService = inject(SellerService);
   private readonly profileService = inject(ProfileService);
-  private readonly authService    = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
   readonly isLoadingProducts = signal(true);
-  readonly isLoadingOrders   = signal(true);
-  readonly totalProducts     = signal(0);
-  readonly totalOrders       = signal(0);
-  readonly pendingOrders     = signal(0);
-  readonly walletBalance     = signal(0);
-  readonly recentOrders      = signal<SellerOrder[]>([]);
-  readonly lowStockProducts  = signal<SellerProduct[]>([]);
+  readonly isLoadingOrders = signal(true);
+  readonly totalProducts = signal(0);
+  readonly totalOrders = signal(0);
+  readonly pendingOrders = signal(0);
+  readonly walletBalance = signal(0);
+  readonly recentOrders = signal<SellerOrder[]>([]);
+  readonly lowStockProducts = signal<SellerProduct[]>([]);
 
-  userName(): string { return this.authService.currentUser()?.name ?? 'Seller'; }
+  userName(): string {
+    return this.authService.currentUser()?.name ?? 'Seller';
+  }
   storeName(): string {
     return (this.authService.currentUser() as any)?.seller_profile?.store_name ?? '';
   }
@@ -264,7 +299,7 @@ export class SellerDashboardComponent implements OnInit {
       next: (res) => {
         this.totalProducts.set(res.data?.pagination?.total ?? 0);
         const low = (res.data?.products ?? []).filter(
-          p => (p.stock_quantity ?? 0) > 0 && (p.stock_quantity ?? 0) <= 10,
+          (p) => (p.stock_quantity ?? 0) > 0 && (p.stock_quantity ?? 0) <= 10,
         );
         this.lowStockProducts.set(low);
         this.isLoadingProducts.set(false);
@@ -277,7 +312,7 @@ export class SellerDashboardComponent implements OnInit {
         const all: SellerOrder[] = res.data?.orders ?? [];
         this.totalOrders.set(all.length);
         this.pendingOrders.set(
-          all.filter(o => o.status === 'pending' || o.status === 'processing').length,
+          all.filter((o) => o.status === 'pending' || o.status === 'processing').length,
         );
         this.recentOrders.set(all.slice(0, 5));
         this.isLoadingOrders.set(false);
@@ -289,13 +324,14 @@ export class SellerDashboardComponent implements OnInit {
     });
   }
 
-  statusClass(status: string): Record<string, boolean> {
-    return {
-      'bg-warning text-dark': status === 'pending',
-      'bg-info text-white':   status === 'processing',
-      'bg-primary':           status === 'shipped',
-      'bg-success':           status === 'delivered',
-      'bg-danger':            status === 'cancelled',
+  orderStatusKey(status: string): string {
+    const map: Record<string, string> = {
+      pending: 'seller.orders.statusPending',
+      processing: 'seller.orders.statusProcessing',
+      shipped: 'seller.orders.statusShipped',
+      delivered: 'seller.orders.statusDelivered',
+      cancelled: 'seller.orders.statusCancelled',
     };
+    return map[status] ?? status;
   }
 }

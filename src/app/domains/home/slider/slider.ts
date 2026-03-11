@@ -1,12 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SliderBannerService } from './slider.banner.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { Banner } from '../dto/banner.dto';
+import { SliderBannerService } from './slider.banner.service';
 
 @Component({
   selector: 'app-slider',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   template: `
     <div
       id="mainCarousel"
@@ -44,7 +45,9 @@ import { Banner } from '../dto/banner.dto';
               <div class="carousel-caption d-none d-md-block">
                 <h5 class="text-white">{{ slide.title }}</h5>
                 <p class="text-white">{{ slide.content }}</p>
-                <a class="btn btn-warning" routerLink="/products">Shop Now</a>
+                <a class="btn btn-warning" routerLink="/products">{{
+                  'home.slider.shopNow' | translate
+                }}</a>
               </div>
             </div>
           } @else {
@@ -53,7 +56,9 @@ import { Banner } from '../dto/banner.dto';
               <div class="carousel-caption d-none d-md-block">
                 <h5 class="text-white">{{ slide.title }}</h5>
                 <p class="text-white">{{ slide.content }}</p>
-                <a class="btn btn-warning" routerLink="/products">Shop Now</a>
+                <a class="btn btn-warning" routerLink="/products">{{
+                  'home.slider.shopNow' | translate
+                }}</a>
               </div>
             </div>
           }

@@ -20,7 +20,7 @@ import { ProductDetail, Review, ReviewsPagination } from '../../dto';
     <div class="container py-4">
       <!-- Back Button -->
       <button class="btn btn-outline-secondary btn-sm mb-4" (click)="goBack()">
-        <i class="bi bi-arrow-left me-1"></i> Back to Products
+        <i class="bi bi-arrow-left me-1"></i> {{ 'products.detail.backToProducts' | translate }}
       </button>
 
       <!-- Loading -->

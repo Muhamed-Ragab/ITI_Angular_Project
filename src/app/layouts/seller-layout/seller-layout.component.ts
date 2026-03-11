@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthFacadeService } from '../../domains/auth/services/auth-facade.service';
-import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 
 interface NavItem {
   label: string;
@@ -14,8 +13,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-seller-layout',
-  standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, LanguageSwitcherComponent],
+  imports: [CommonModule, RouterModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="seller-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
@@ -30,10 +28,7 @@ interface NavItem {
           <div class="d-flex align-items-center justify-content-between">
             @if (!sidebarCollapsed()) {
               <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                  <i class="bi bi-shop" style="color:#4ade80;font-size:1.1rem"></i>
-                  <h5 class="mb-0 fw-bold text-white">{{ 'sellerLayout.panel' | translate }}</h5>
-                </div>
+                <h4 class="mb-0">{{ 'sellerLayout.panel' | translate }}</h4>
                 @if (storeName()) {
                   <small class="opacity-50">{{ storeName() }}</small>
                 }
@@ -58,29 +53,27 @@ interface NavItem {
             >
               <i class="bi" [class]="item.icon"></i>
               @if (!sidebarCollapsed()) {
-                <span>{{ item.label }}</span>
+                <span>{{ item.label | translate }}</span>
               }
             </a>
           }
         </nav>
 
-        <div class="sidebar-language px-3 pb-3">
-          <app-language-switcher></app-language-switcher>
-        </div>
-
         <div class="sidebar-footer">
           @if (!sidebarCollapsed()) {
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <div class="seller-avatar">{{ userInitial() }}</div>
-              <div class="overflow-hidden">
-                <div class="text-white small fw-semibold text-truncate">
-                  {{ currentUser()?.name }}
-                </div>
-                <div
-                  class="text-white-50"
-                  style="font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
-                >
-                  {{ currentUser()?.email }}
+            <div class="user-info mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="seller-avatar">{{ userInitial() }}</div>
+                <div class="overflow-hidden">
+                  <div class="text-white small fw-semibold text-truncate">
+                    {{ currentUser()?.name }}
+                  </div>
+                  <div
+                    class="opacity-50"
+                    style="font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+                  >
+                    {{ currentUser()?.email }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -115,12 +108,10 @@ interface NavItem {
                 [class]="sidebarCollapsed() ? 'bi-chevron-right' : 'bi-chevron-left'"
               ></i>
             </button>
-            <h6 class="mb-0 fw-bold d-none d-md-block">
-              {{ 'sellerLayout.dashboard' | translate }}
-            </h6>
+            <h5 class="mb-0 d-none d-md-block">{{ 'sellerLayout.dashboard' | translate }}</h5>
           </div>
           <div class="d-flex align-items-center gap-3">
-            <span class="text-muted d-none d-sm-inline small">{{ today | date: 'MMM d, y' }}</span>
+            <span class="text-muted d-none d-sm-inline">{{ today | date: 'fullDate' }}</span>
           </div>
         </header>
 
@@ -136,13 +127,14 @@ interface NavItem {
       .seller-layout {
         display: flex;
         min-height: 100vh;
-        background: #f8fafc;
+        background: #f8f9fa;
+        position: relative;
       }
 
-      /* ── Sidebar ────────────────────────────────── */
+      /* Sidebar Styles */
       .sidebar {
         width: 260px;
-        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        background: linear-gradient(180deg, #1a2e1a 0%, #1a3a1e 50%, #0f2d14 100%);
         color: white;
         display: flex;
         flex-direction: column;
@@ -151,96 +143,21 @@ interface NavItem {
         left: 0;
         bottom: 0;
         height: 100vh;
+        height: 100dvh;
         z-index: 1000;
-        transition: width 0.3s ease;
-        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
       }
 
       .sidebar-collapsed .sidebar {
         width: 70px;
       }
 
-      .sidebar-header {
-        padding: 1.25rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        min-height: 70px;
-        display: flex;
-        align-items: center;
-      }
-
-      .sidebar-nav {
-        flex: 1;
-        padding: 0.75rem 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-      }
-
-      .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.875rem 1.25rem;
-        color: rgba(255, 255, 255, 0.6);
-        text-decoration: none;
-        transition: all 0.2s ease;
-        border-left: 3px solid transparent;
-        font-size: 0.9rem;
-        white-space: nowrap;
-        overflow: hidden;
-      }
-
-      .nav-item:hover {
-        background: rgba(255, 255, 255, 0.07);
-        color: rgba(255, 255, 255, 0.9);
-      }
-
-      .nav-item.active {
-        background: rgba(74, 222, 128, 0.12);
-        color: #4ade80;
-        border-left-color: #4ade80;
-      }
-
-      .nav-item i {
-        font-size: 1.1rem;
-        width: 22px;
-        text-align: center;
-        flex-shrink: 0;
-      }
-
-      .sidebar-collapsed .nav-item {
-        justify-content: center;
-        padding: 0.875rem;
-        gap: 0;
-      }
-
-      .sidebar-footer {
-        padding: 1rem 1.25rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .sidebar-language {
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .seller-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #4ade80, #22c55e);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        color: #1a1a2e;
-        font-size: 0.85rem;
-        flex-shrink: 0;
-      }
-
       .sidebar-overlay {
         display: none;
       }
 
-      /* ── Mobile ─────────────────────────────────── */
       @media (max-width: 991.98px) {
         .sidebar {
           transform: translateX(-100%);
@@ -261,7 +178,105 @@ interface NavItem {
         }
       }
 
-      /* ── Main Content ───────────────────────────── */
+      .sidebar-header {
+        padding: 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+        white-space: nowrap;
+        color: white;
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        padding: 1rem 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .sidebar-nav::-webkit-scrollbar {
+        width: 6px;
+      }
+      .sidebar-nav::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .sidebar-nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
+      .sidebar-nav::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1.25rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        margin: 2px 0;
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .nav-item.active {
+        background: rgba(74, 222, 128, 0.2);
+        color: #4ade80;
+        border-left-color: #4ade80;
+      }
+
+      .nav-item i {
+        font-size: 1.25rem;
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-collapsed .nav-item {
+        justify-content: center;
+        padding: 0.875rem;
+      }
+
+      .sidebar-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+
+      .sidebar-collapsed .sidebar-footer {
+        padding: 1rem 0.5rem;
+      }
+
+      .seller-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #1a2e1a;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+      }
+
+      /* Main Content */
       .seller-content {
         flex: 1;
         margin-left: 260px;
@@ -299,7 +314,14 @@ interface NavItem {
 
       .seller-page-content {
         flex: 1;
+        padding: 0;
         overflow-x: hidden;
+      }
+
+      @media (max-width: 767.98px) {
+        .seller-header {
+          padding: 0.75rem 1rem;
+        }
       }
 
       @media (max-width: 991.98px) {
@@ -320,11 +342,11 @@ export class SellerLayoutComponent {
   readonly today = new Date();
 
   readonly navItems: NavItem[] = [
+    { label: 'sellerLayout.nav.profile', icon: 'bi bi-person-circle', route: '/seller/profile' },
     { label: 'sellerLayout.nav.dashboard', icon: 'bi-grid-1x2', route: '/seller' },
     { label: 'sellerLayout.nav.products', icon: 'bi-box-seam', route: '/seller/products' },
     { label: 'sellerLayout.nav.orders', icon: 'bi-bag-check', route: '/seller/orders' },
     { label: 'sellerLayout.nav.payouts', icon: 'bi-cash-coin', route: '/seller/payouts' },
-    { label: 'sellerLayout.nav.profile', icon: 'bi-person-circle', route: '/profile' },
   ];
 
   storeName(): string {

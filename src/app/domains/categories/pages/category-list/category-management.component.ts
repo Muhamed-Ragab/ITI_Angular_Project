@@ -1,13 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { CategoryTreeComponent } from '../../components/category-tree/category-tree.component';
 import { Category } from '../../dto';
 import { CategoryService } from '../../services/category.service';
-import { CategoryTreeComponent } from '../../components/category-tree/category-tree.component';
 import { CategoryFormComponent } from '../category-form/category-form.component';
 
 type ModalMode =
@@ -18,22 +13,20 @@ type ModalMode =
 
 @Component({
   selector: 'app-category-management',
-  standalone: true,
-  imports: [CategoryTreeComponent, CategoryFormComponent],
+  imports: [CategoryTreeComponent, CategoryFormComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container-fluid py-4">
-
       <!-- Page header -->
       <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
           <h4 class="fw-bold mb-0">
-            <i class="bi bi-diagram-3 me-2 text-primary"></i>Category Management
+            <i class="bi bi-diagram-3 me-2 text-primary"></i>{{ 'categories.title' | translate }}
           </h4>
-          <p class="text-muted small mb-0 mt-1">Manage the product category tree visible to customers.</p>
+          <p class="text-muted small mb-0 mt-1">{{ 'categories.description' | translate }}</p>
         </div>
         <button class="btn btn-primary" (click)="openCreateRoot()">
-          <i class="bi bi-plus-lg me-1"></i>Add Root Category
+          <i class="bi bi-plus-lg me-1"></i>{{ 'categories.addRoot' | translate }}
         </button>
       </div>
 
@@ -41,7 +34,7 @@ type ModalMode =
       @if (isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading…</span>
+            <span class="visually-hidden">{{ 'categories.loading' | translate }}</span>
           </div>
         </div>
       }
@@ -50,7 +43,9 @@ type ModalMode =
       @if (error()) {
         <div class="alert alert-danger">
           <i class="bi bi-exclamation-triangle me-2"></i>{{ error() }}
-          <button class="btn btn-sm btn-outline-danger ms-3" (click)="load()">Retry</button>
+          <button class="btn btn-sm btn-outline-danger ms-3" (click)="load()">
+            {{ 'categories.retry' | translate }}
+          </button>
         </div>
       }
 
@@ -66,12 +61,13 @@ type ModalMode =
         <div class="alert alert-warning d-flex align-items-center justify-content-between">
           <span>
             <i class="bi bi-exclamation-triangle me-2"></i>
-            Delete <strong>{{ pendingDelete()!.name }}</strong>? This cannot be undone.
-            Categories with products cannot be deleted.
+            {{ 'categories.delete' | translate }} <strong>{{ pendingDelete()!.name }}</strong
+            >? {{ 'categories.deleteWarning' | translate }}
+            {{ 'categories.deleteProductsWarning' | translate }}
           </span>
           <div class="d-flex gap-2">
             <button class="btn btn-sm btn-outline-secondary" (click)="pendingDelete.set(null)">
-              Cancel
+              {{ 'categories.cancel' | translate }}
             </button>
             <button
               class="btn btn-sm btn-danger"
@@ -81,7 +77,7 @@ type ModalMode =
               @if (isDeleting()) {
                 <span class="spinner-border spinner-border-sm me-1"></span>
               }
-              Delete
+              {{ 'categories.delete' | translate }}
             </button>
           </div>
         </div>
@@ -93,7 +89,7 @@ type ModalMode =
           <div class="card border-dashed text-center py-5">
             <div class="text-muted">
               <i class="bi bi-folder2-open" style="font-size:2.5rem"></i>
-              <p class="mt-2 mb-0">No categories yet. Add your first root category.</p>
+              <p class="mt-2 mb-0">{{ 'categories.empty' | translate }}</p>
             </div>
           </div>
         } @else {
@@ -110,7 +106,6 @@ type ModalMode =
           </div>
         }
       }
-
     </div>
 
     <!-- Modal -->
@@ -128,10 +123,7 @@ type ModalMode =
           (cancel)="modal.set(null)"
         />
       } @else {
-        <app-category-form
-          (saved)="onSaved()"
-          (cancel)="modal.set(null)"
-        />
+        <app-category-form (saved)="onSaved()" (cancel)="modal.set(null)" />
       }
     }
   `,

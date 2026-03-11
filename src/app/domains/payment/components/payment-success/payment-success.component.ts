@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-payment-success',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   template: `
     <div class="container py-5">
       <div class="row justify-content-center">
@@ -15,20 +15,26 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
               <div class="mb-4">
                 <i class="bi bi-check-circle text-success" style="font-size: 5rem;"></i>
               </div>
-              <h2 class="card-title text-success mb-3">Payment Successful!</h2>
+              <h2 class="card-title text-success mb-3">
+                {{ 'payment.success.title' | translate }}
+              </h2>
               <p class="card-text text-muted mb-4">
-                Your order has been placed and payment has been processed successfully.
+                {{ 'payment.success.message' | translate }}
               </p>
 
               @if (orderId()) {
                 <p class="mb-4">
-                  <strong>Order ID:</strong> {{ orderId() }}
+                  <strong>{{ 'payment.success.orderId' | translate }}</strong> {{ orderId() }}
                 </p>
               }
 
               <div class="d-grid gap-2">
-                <a routerLink="/orders" class="btn btn-primary">View My Orders</a>
-                <a routerLink="/products" class="btn btn-outline-secondary">Continue Shopping</a>
+                <a routerLink="/orders" class="btn btn-primary">{{
+                  'payment.success.viewOrders' | translate
+                }}</a>
+                <a routerLink="/products" class="btn btn-outline-secondary">{{
+                  'payment.success.continueShopping' | translate
+                }}</a>
               </div>
             </div>
           </div>

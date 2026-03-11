@@ -3,14 +3,15 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { RouterLink } from '@angular/router';
 import { CartService } from '@core/services/cart.service';
 import { formatCurrency } from '@core/utils';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   template: `
     <div class="container py-4">
-      <h2 class="mb-4">Shopping Cart</h2>
+      <h2 class="mb-4">{{ 'cart.title' | translate }}</h2>
 
       @if (cartService.isLoading()) {
         <div class="text-center py-5">
@@ -22,9 +23,11 @@ import { formatCurrency } from '@core/utils';
         <div class="card">
           <div class="card-body text-center py-5">
             <i class="bi bi-cart-x fs-1 text-muted"></i>
-            <h4 class="mt-3">Your cart is empty</h4>
-            <p class="text-muted">Looks like you haven't added anything to your cart yet.</p>
-            <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
+            <h4 class="mt-3">{{ 'cart.empty.title' | translate }}</h4>
+            <p class="text-muted">{{ 'cart.empty.message' | translate }}</p>
+            <a routerLink="/products" class="btn btn-primary">{{
+              'cart.empty.startShopping' | translate
+            }}</a>
           </div>
         </div>
       } @else {
@@ -56,7 +59,9 @@ import { formatCurrency } from '@core/utils';
                       <div class="d-flex justify-content-between align-items-start">
                         <div>
                           <h5 class="mb-1">{{ item.name }}</h5>
-                          <p class="text-muted mb-2">{{ formatCurrency(item.price) }} each</p>
+                          <p class="text-muted mb-2">
+                            {{ formatCurrency(item.price) }} {{ 'cart.each' | translate }}
+                          </p>
                         </div>
                         <button
                           class="btn btn-sm btn-outline-danger"
@@ -99,7 +104,7 @@ import { formatCurrency } from '@core/utils';
 
             <div class="d-flex justify-content-between">
               <a routerLink="/products" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+                <i class="bi bi-arrow-left me-2"></i>{{ 'cart.continueShopping' | translate }}
               </a>
             </div>
           </div>
@@ -108,27 +113,31 @@ import { formatCurrency } from '@core/utils';
           <div class="col-lg-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Order Summary</h5>
+                <h5 class="card-title">{{ 'cart.orderSummary' | translate }}</h5>
 
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Subtotal ({{ getTotalItems() }} items)</span>
+                  <span class="text-muted">{{
+                    'cart.subtotalItems' | translate: { count: getTotalItems() }
+                  }}</span>
                   <span>{{ formatCurrency(cartService.cart()!.subtotal) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Tax</span>
+                  <span class="text-muted">{{ 'cart.tax' | translate }}</span>
                   <span>{{ formatCurrency(cartService.cart()!.tax) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Shipping</span>
+                  <span class="text-muted">{{ 'cart.shipping' | translate }}</span>
                   <span>{{ formatCurrency(cartService.cart()!.shipping) }}</span>
                 </div>
                 <hr />
                 <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
-                  <span>Total</span>
+                  <span>{{ 'cart.total' | translate }}</span>
                   <span>{{ formatCurrency(cartService.cart()!.total) }}</span>
                 </div>
 
-                <a routerLink="/checkout" class="btn btn-primary w-100"> Proceed to Checkout </a>
+                <a routerLink="/checkout" class="btn btn-primary w-100">{{
+                  'cart.proceedToCheckout' | translate
+                }}</a>
               </div>
             </div>
           </div>

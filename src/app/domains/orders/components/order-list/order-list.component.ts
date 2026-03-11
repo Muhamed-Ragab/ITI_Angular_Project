@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { OrdersFacadeService } from '@domains/orders/services/orders-facade.service';
 import { formatCurrency, formatRelativeTime } from '@core/utils';
+import { OrdersFacadeService } from '@domains/orders/services/orders-facade.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-order-list',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   template: `
     <div class="container py-4">
-      <h2 class="mb-4">My Orders</h2>
+      <h2 class="mb-4">{{ 'orderList.title' | translate }}</h2>
 
       @if (isLoading()) {
         <div class="text-center py-5">
@@ -21,7 +21,9 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
       } @else if (error()) {
         <div class="alert alert-danger">
           {{ error() }}
-          <button class="btn btn-link" (click)="loadOrders()">Try again</button>
+          <button class="btn btn-link" (click)="loadOrders()">
+            {{ 'orderList.tryAgain' | translate }}
+          </button>
         </div>
       } @else {
         <!-- Filter - Always visible -->
@@ -32,42 +34,42 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
               [class.active]="!statusFilter()"
               (click)="filterByStatus('')"
             >
-              All
+              {{ 'orderList.filter.all' | translate }}
             </button>
             <button
               class="btn btn-outline-primary"
               [class.active]="statusFilter() === 'pending'"
               (click)="filterByStatus('pending')"
             >
-              Pending
+              {{ 'orderList.filter.pending' | translate }}
             </button>
             <button
               class="btn btn-outline-primary"
               [class.active]="statusFilter() === 'paid'"
               (click)="filterByStatus('paid')"
             >
-              Paid
+              {{ 'orderList.filter.paid' | translate }}
             </button>
             <button
               class="btn btn-outline-primary"
               [class.active]="statusFilter() === 'shipped'"
               (click)="filterByStatus('shipped')"
             >
-              Shipped
+              {{ 'orderList.filter.shipped' | translate }}
             </button>
             <button
               class="btn btn-outline-primary"
               [class.active]="statusFilter() === 'delivered'"
               (click)="filterByStatus('delivered')"
             >
-              Delivered
+              {{ 'orderList.filter.delivered' | translate }}
             </button>
             <button
               class="btn btn-outline-primary"
               [class.active]="statusFilter() === 'cancelled'"
               (click)="filterByStatus('cancelled')"
             >
-              Cancelled
+              {{ 'orderList.filter.cancelled' | translate }}
             </button>
           </div>
         </div>
@@ -77,15 +79,21 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
           <div class="text-center py-5">
             <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
             @if (statusFilter()) {
-              <h4 class="mt-3">No {{ statusFilter() }} orders found</h4>
-              <p class="text-muted">You don't have any orders with status "{{ statusFilter() }}"</p>
+              <h4 class="mt-3">
+                {{ 'orderList.empty.noFiltered' | translate: { status: statusFilter() } }}
+              </h4>
+              <p class="text-muted">
+                {{ 'orderList.empty.noFilteredMsg' | translate: { status: statusFilter() } }}
+              </p>
               <button class="btn btn-primary" (click)="filterByStatus('')">
-                View All Orders
+                {{ 'orderList.empty.viewAll' | translate }}
               </button>
             } @else {
-              <h4 class="mt-3">No orders yet</h4>
-              <p class="text-muted">You haven't placed any orders yet.</p>
-              <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
+              <h4 class="mt-3">{{ 'orderList.empty.title' | translate }}</h4>
+              <p class="text-muted">{{ 'orderList.empty.message' | translate }}</p>
+              <a routerLink="/products" class="btn btn-primary">{{
+                'orderList.empty.startShopping' | translate
+              }}</a>
             }
           </div>
         } @else {
@@ -104,19 +112,27 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
 
                       <!-- Items Count -->
                       <div class="col-md-2">
-                        <small class="text-muted d-block">Items</small>
-                        <span>{{ order.items.length }} product(s)</span>
+                        <small class="text-muted d-block">{{
+                          'orderList.items' | translate
+                        }}</small>
+                        <span>{{
+                          'orderList.products' | translate: { count: order.items.length }
+                        }}</span>
                       </div>
 
                       <!-- Total -->
                       <div class="col-md-2">
-                        <small class="text-muted d-block">Total</small>
+                        <small class="text-muted d-block">{{
+                          'orderList.total' | translate
+                        }}</small>
                         <span class="fw-bold">EGP {{ getOrderTotal(order).toFixed(2) }}</span>
                       </div>
 
                       <!-- Status -->
                       <div class="col-md-2">
-                        <small class="text-muted d-block">Status</small>
+                        <small class="text-muted d-block">{{
+                          'orderList.status' | translate
+                        }}</small>
                         <span [class]="getStatusClass(order.status)">
                           {{ order.status | titlecase }}
                         </span>
@@ -128,7 +144,7 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
                           [routerLink]="['/orders', getOrderId(order)]"
                           class="btn btn-sm btn-outline-primary"
                         >
-                          View Details
+                          {{ 'orderList.viewDetails' | translate }}
                         </a>
                       </div>
                     </div>
@@ -154,7 +170,7 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
               <ul class="pagination justify-content-center">
                 <li class="page-item" [class.disabled]="pagination().page === 1">
                   <button class="page-link" (click)="goToPage(pagination().page - 1)">
-                    Previous
+                    {{ 'orderList.pagination.previous' | translate }}
                   </button>
                 </li>
                 @for (page of getPageNumbers(); track $index) {
@@ -163,7 +179,9 @@ import { formatCurrency, formatRelativeTime } from '@core/utils';
                   </li>
                 }
                 <li class="page-item" [class.disabled]="pagination().page === pagination().pages">
-                  <button class="page-link" (click)="goToPage(pagination().page + 1)">Next</button>
+                  <button class="page-link" (click)="goToPage(pagination().page + 1)">
+                    {{ 'orderList.pagination.next' | translate }}
+                  </button>
                 </li>
               </ul>
             </nav>
