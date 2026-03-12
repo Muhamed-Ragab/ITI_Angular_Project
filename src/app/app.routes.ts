@@ -29,7 +29,6 @@ export const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
-    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'auth-redirect', pathMatch: 'full' },
       { path: 'auth-redirect', loadComponent: () => import('./core/components/auth-redirect/auth-redirect.component').then(m => m.AuthRedirectComponent) },
@@ -46,10 +45,12 @@ export const routes: Routes = [
       },
       {
         path: 'cart',
+        canActivate: [authGuard],
         loadChildren: () => import('./domains/cart/routes').then((m) => m.cartRoutes),
       },
       {
         path: 'checkout',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./domains/orders/components/checkout/checkout.component').then(
             (m) => m.CheckoutComponent,
@@ -57,10 +58,12 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
+        canActivate: [authGuard],
         loadChildren: () => import('./domains/orders/routes').then((m) => m.orderRoutes),
       },
       {
         path: 'payment',
+        canActivate: [authGuard],
         loadChildren: () => import('./domains/payment/routes').then((m) => m.paymentRoutes),
       },
       {
@@ -73,6 +76,7 @@ export const routes: Routes = [
       },
       {
         path: 'seller/payout',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./domains/profile/Components/seller-payout-status/seller-payout-status').then(
             (m) => m.SellerPayoutsComponent,

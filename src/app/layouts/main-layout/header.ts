@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
+import { GuestCartService } from '@core/services/guest-cart.service';
 import { Category } from '@app/domains/home/dto/category.dto';
 import { HomeService } from '@app/domains/home/services/home-service';
 import { LanguageSwitcherComponent } from '@shared/components/language-switcher/language-switcher.component';
@@ -168,10 +169,16 @@ export class Header {
   private readonly router = inject(Router);
   readonly authService = inject(AuthService);
   readonly cartService = inject(CartService);
+  readonly guestCartService = inject(GuestCartService);
 
   readonly categories = signal<Category[]>([]);
   readonly loading = signal(true);
-  readonly cartItemCount = computed(() => this.cartService.getCartItemCount());
+  readonly cartItemCount = computed(() => {
+    if (this.authService.isAuthenticated()) {
+      return this.cartService.getCartItemCount();
+    }
+    return this.guestCartService.getItemCount();
+  });
 
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
   readonly isSeler = computed(() => this.authService.currentUser()?.role === 'seller');
@@ -200,7 +207,11 @@ export class Header {
   }
 
   goToCart(): void {
-    this.router.navigate(['/cart']);
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/cart']);
+      return;
+    }
+    this.router.navigate(['/guest-checkout']);
   }
 
   logout(): void {

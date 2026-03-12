@@ -34,7 +34,7 @@ export class AuthRedirectComponent implements OnInit {
           this.router.navigate(['/home']);
         }
       } else {
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(['/home']);
       }
     };
 
