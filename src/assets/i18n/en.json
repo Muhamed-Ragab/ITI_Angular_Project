@@ -400,6 +400,10 @@
       "description": "Description",
       "descPlaceholder": "Optional description…",
       "namePlaceholder": "e.g. Electronics",
+      "image": "Image",
+      "imageHint": "Max 2MB. Recommended: 800x400px",
+      "uploadCta": "Upload Image",
+      "uploadingProgress": "Uploading…",
       "cancel": "Cancel",
       "saving": "Saving…",
       "save": "Save"
@@ -919,6 +923,7 @@
   "auth": {
     "login": {
       "title": "Login",
+      "subtitle": "Welcome back! Please login to your account",
       "emailLabel": "Email",
       "emailPlaceholder": "Enter your email",
       "passwordLabel": "Password",
@@ -930,6 +935,7 @@
       "noAccount": "Don't have an account?",
       "registerButton": "Register",
       "emailVerified": "Email verified successfully! Please login.",
+      "or": "or",
       "errors": {
         "invalidCredentials": "Invalid email or password",
         "loginFailed": "Login failed"
@@ -937,6 +943,7 @@
     },
     "register": {
       "title": "Create Account",
+      "subtitle": "Join us and start shopping today",
       "nameLabel": "Full Name",
       "namePlaceholder": "Enter your name",
       "emailLabel": "Email",
@@ -951,12 +958,14 @@
       "hasAccount": "Already have an account?",
       "loginButton": "Login",
       "successMessage": "Registration successful! Please check your email to verify your account.",
+      "or": "or",
       "errors": {
         "registrationFailed": "Registration failed"
       }
     },
     "otpLogin": {
       "title": "Login with OTP",
+      "subtitle": "Enter your email to receive a verification code",
       "emailLabel": "Email",
       "emailPlaceholder": "Enter your email",
       "sendOtpButton": "Send OTP",
@@ -975,6 +984,7 @@
     },
     "verifyEmail": {
       "verifying": "Verifying your email...",
+      "redirecting": "Redirecting to login...",
       "success": {
         "title": "Email Verified!",
         "message": "Your email has been successfully verified. Redirecting you to login..."

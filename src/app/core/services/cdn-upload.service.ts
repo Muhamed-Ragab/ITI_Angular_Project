@@ -17,14 +17,14 @@ export class CdnUploadService {
   private readonly api = inject(ApiService);
 
   /**
-   * Step 1 — POST /products/images/upload-payload
+   * Step 1 — POST /{folder}/images/upload-payload
    * Backend returns signed Cloudinary credentials.
    * Uses ApiService so the auth interceptor attaches the Bearer token.
    */
   getUploadCredentials(folder = 'products'): Observable<UploadCredentials> {
     return this.api
       .post<{ success: boolean; data: UploadCredentials }>(
-        '/products/images/upload-payload',
+        `/${folder}/images/upload-payload`,
         { folder },
       )
       .pipe(map(res => res.data));

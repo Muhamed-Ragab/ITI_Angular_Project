@@ -35,13 +35,6 @@ import { Category } from '../../dto';
             @if (showActions()) {
               <div class="d-flex gap-1">
                 <button
-                  class="btn btn-outline-primary btn-sm"
-                  [title]="'categories.addSubcategory' | translate"
-                  (click)="addSub.emit(cat)"
-                >
-                  <i class="bi bi-plus-lg"></i>
-                </button>
-                <button
                   class="btn btn-outline-secondary btn-sm"
                   [title]="'categories.edit' | translate"
                   (click)="edit.emit(cat)"
@@ -67,7 +60,6 @@ import { Category } from '../../dto';
                 [showActions]="showActions()"
                 (edit)="edit.emit($event)"
                 (delete)="delete.emit($event)"
-                (addSub)="addSub.emit($event)"
               />
             </div>
           }
@@ -82,5 +74,4 @@ export class CategoryTreeComponent {
 
   readonly edit = output<Category>();
   readonly delete = output<Category>();
-  readonly addSub = output<Category>();
 }

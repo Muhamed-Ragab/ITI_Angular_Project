@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './domains/categories/guards/admin.guard';
 import { HomeComponent } from './domains/home/home.component';
+import { sellerGuard } from './domains/seller/guards/seller.guard';
+import { AdminDashboardComponent } from './layouts/admin-layout/admin-dashboard.component';
+import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
-import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
-import { AdminDashboardComponent } from './layouts/admin-layout/admin-dashboard.component';
 import { SellerLayoutComponent } from './layouts/seller-layout/seller-layout.component';
-import { adminGuard } from './domains/categories/guards/admin.guard';
-import { sellerGuard } from './domains/seller/guards/seller.guard';
 
 export const routes: Routes = [
   {
@@ -32,7 +32,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'auth-redirect', pathMatch: 'full' },
-      { path: 'auth-redirect', loadComponent: () => import('./core/components/auth-redirect/auth-redirect.component').then(m => m.AuthRedirectComponent) },
+      {
+        path: 'auth-redirect',
+        loadComponent: () =>
+          import('./core/components/auth-redirect/auth-redirect.component').then(
+            (m) => m.AuthRedirectComponent,
+          ),
+      },
       { path: 'home', component: HomeComponent },
 
       {
@@ -89,8 +95,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadChildren: () =>
-          import('./domains/seller/routes').then((m) => m.sellerRoutes),
+        loadChildren: () => import('./domains/seller/routes').then((m) => m.sellerRoutes),
       },
     ],
   },
@@ -111,8 +116,7 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        loadChildren: () =>
-          import('./domains/orders/admin/routes').then((m) => m.adminOrderRoutes),
+        loadChildren: () => import('./domains/orders/admin/routes').then((m) => m.adminOrderRoutes),
       },
       {
         path: 'coupons',
@@ -134,13 +138,14 @@ export const routes: Routes = [
         path: 'payout',
         loadComponent: () =>
           import('./domains/AdminReviewPayout/payout-review/payout-review').then(
-            (m) => m.AdminPayoutsComponent,)
-          },
-          {
-            path: 'brodcust',
+            (m) => m.AdminPayoutsComponent,
+          ),
+      },
+      {
+        path: 'brodcust',
         loadComponent: () =>
           import('./domains/MarketingBroadcast/Components/marketing-broadcast/marketing-broadcast').then(
-            (m) => m.MarketingBroadcast 
+            (m) => m.MarketingBroadcast,
           ),
       },
       {
@@ -164,7 +169,6 @@ export const routes: Routes = [
       },
     ],
   },
-
   {
     path: '**',
     loadComponent: () =>

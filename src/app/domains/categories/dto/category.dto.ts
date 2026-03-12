@@ -9,6 +9,9 @@ export interface Category {
   subcategories?: Category[];
   productCount?: number;
   slug?: string;
+  // Image support
+  image?: string;
+  imagePublicId?: string;
 }
 
 export interface CategoryListResponse {
@@ -38,9 +41,12 @@ export interface CreateCategoryDto {
   name: string;
   description?: string;
   parentId?: string | null;
+  // Image URL from CDN
+  image?: string;
 }
 
 export interface UpdateCategoryDto {
   name?: string;
   description?: string;
+  image?: string;
 }
