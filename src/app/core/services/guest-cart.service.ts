@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 
 export interface GuestCartItem {
   productId: string;
@@ -25,11 +25,23 @@ const SHIPPING_COST = 10; // $10 shipping
 export class GuestCartService {
   readonly cart = signal<GuestCart | null>(null);
 
+  // Computed signals for reactive access
+  readonly cartItems = computed(() => this.cart()?.items ?? []);
+  
+  readonly itemCount = computed(() => 
+    this.cartItems().reduce((sum, item) => sum + item.quantity, 0)
+  );
+  
+  readonly subtotal = computed(() => this.cart()?.subtotal ?? 0);
+
   constructor() {
-    this.loadCart();
+    this.loadFromStorage();
   }
 
-  private loadCart(): void {
+  /**
+   * Load cart from localStorage - can be called to refresh state
+   */
+  loadFromStorage(): void {
     const stored = localStorage.getItem(GUEST_CART_KEY);
     if (stored) {
       this.cart.set(JSON.parse(stored));
