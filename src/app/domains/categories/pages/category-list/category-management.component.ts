@@ -100,7 +100,6 @@ type ModalMode =
                 [showActions]="true"
                 (edit)="openEdit($event)"
                 (delete)="requestDelete($event)"
-                (addSub)="openCreateSub($event)"
               />
             </div>
           </div>
@@ -163,10 +162,6 @@ export class CategoryManagementComponent implements OnInit {
 
   openCreateRoot(): void {
     this.modal.set({ type: 'create-root' });
-  }
-
-  openCreateSub(parent: Category): void {
-    this.modal.set({ type: 'create-sub', parent });
   }
 
   openEdit(target: Category): void {

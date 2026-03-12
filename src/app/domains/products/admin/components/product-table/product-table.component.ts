@@ -94,13 +94,6 @@ import { AdminProduct, AdminProductPagination } from '../../dto';
               <td class="text-end">
                 <div class="d-flex gap-1 justify-content-end">
                   <button
-                    class="btn btn-outline-primary btn-sm"
-                    [title]="'products.admin.table.edit' | translate"
-                    (click)="edit.emit(p)"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button
                     class="btn btn-outline-danger btn-sm"
                     [title]="'products.admin.table.delete' | translate"
                     (click)="delete.emit(p)"

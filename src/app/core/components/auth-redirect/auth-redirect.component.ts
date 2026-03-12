@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
       </div>
     </div>
   `,
-  standalone: true
+  standalone: true,
 })
 export class AuthRedirectComponent implements OnInit {
   private readonly auth = inject(AuthService);
@@ -34,7 +34,7 @@ export class AuthRedirectComponent implements OnInit {
           this.router.navigate(['/home']);
         }
       } else {
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(['/home']);
       }
     };
 

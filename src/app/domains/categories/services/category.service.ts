@@ -7,6 +7,7 @@ import {
   CategoryActionResponse,
   CreateCategoryDto,
   UpdateCategoryDto,
+  Category,
 } from '../dto';
 
 @Injectable({ providedIn: 'root' })
@@ -40,5 +41,17 @@ export class CategoryService {
   /** DELETE /categories/:id — fails if category has products */
   deleteCategory(id: string): Observable<CategoryActionResponse> {
     return this.api.delete<CategoryActionResponse>(`/categories/${id}`);
+  }
+
+  // ── Image Management ─────────────────────────────────────────────────────────
+
+  /** PUT /categories/:id/image — set category image */
+  setCategoryImage(categoryId: string, imageUrl: string): Observable<CategoryDetailResponse> {
+    return this.api.put<CategoryDetailResponse>(`/categories/${categoryId}/image`, { imageUrl });
+  }
+
+  /** DELETE /categories/:id/image — remove category image */
+  removeCategoryImage(categoryId: string): Observable<CategoryDetailResponse> {
+    return this.api.delete<CategoryDetailResponse>(`/categories/${categoryId}/image`);
   }
 }

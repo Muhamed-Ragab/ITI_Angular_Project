@@ -35,11 +35,7 @@ import { TranslateModule } from '@ngx-translate/core';
               <li>
                 <a routerLink="/products" class="text-decoration-none text-light">{{ 'footer.products' | translate }}</a>
               </li>
-              <li>
-                <a routerLink="/categories" class="text-decoration-none text-light">{{ 'footer.categories' | translate }}</a>
-              </li>
-              <li><a routerLink="/offers" class="text-decoration-none text-light">{{ 'footer.offers' | translate }}</a></li>
-            </ul>
+          </ul>
           </div>
 
           <!-- Customer -->
@@ -49,14 +45,18 @@ import { TranslateModule } from '@ngx-translate/core';
               <li><a routerLink="/profile" class="text-decoration-none text-light">{{ 'footer.myAccount' | translate }}</a></li>
               <li><a routerLink="/orders" class="text-decoration-none text-light">{{ 'footer.orders' | translate }}</a></li>
               <li><a routerLink="/wishlist" class="text-decoration-none text-light">{{ 'footer.wishlist' | translate }}</a></li>
-              <li><a routerLink="/" class="text-decoration-none text-light">{{ 'footer.help' | translate }}</a></li>
             </ul>
           </div>
 
           <div class="col-md-3 mb-4">
             <h6 class="fw-bold">{{ 'footer.contact' | translate }}</h6>
             <p class="small mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ 'footer.location' | translate }}</p>
-            <p class="small mb-1"><i class="fas fa-envelope me-2"></i>support@goshop.com</p>
+            <p class="small mb-1">
+              <i class="fas fa-envelope me-2"></i>
+              <a href="mailto:marcoreda56@gmail.com" class="text-decoration-none text-light fw-semibold">
+                marcoreda56@gmail.com
+              </a>
+            </p>    
             <p class="small mb-1"><i class="fas fa-phone me-2"></i>+20 100 568 253</p>
           </div>
         </div>
