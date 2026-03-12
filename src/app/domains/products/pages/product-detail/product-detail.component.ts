@@ -1,5 +1,5 @@
 import { CurrencyPipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@core/services/auth.service';
@@ -183,6 +183,7 @@ export class ProductDetailComponent implements OnInit {
 
   private readonly productService = inject(ProductService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly wishlistService = inject(WishlistService);
   private readonly guestWishlistService = inject(GuestWishlistService);
   private readonly cartService = inject(CartService);
@@ -283,6 +284,13 @@ export class ProductDetailComponent implements OnInit {
         image: product.images[0],
       });
     }
+    
+    // Show success feedback
+    this.showAddToCartSuccess();
+  }
+  
+  showAddToCartSuccess(): void {
+    this.cdr.markForCheck();
   }
 
   buyNow(): void {

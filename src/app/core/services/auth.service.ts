@@ -12,6 +12,7 @@ import { User } from '@domains/auth/types';
 import { environment } from '@env/environment';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
+import { CartService } from './cart.service';
 import { GuestSyncService } from './guest-sync.service';
 import { StorageService } from './storage.service';
 
@@ -21,6 +22,7 @@ export class AuthService {
   private readonly storage = inject(StorageService);
   private readonly router = inject(Router);
   private readonly guestSyncService = inject(GuestSyncService);
+  private readonly cartService = inject(CartService);
   private readonly route = inject(ActivatedRoute);
 
   readonly currentUser = signal<User | null>(null);
@@ -152,7 +154,9 @@ export class AuthService {
         if (response?.data?.token) {
           this.storage.setToken(response.data.token);
           this.currentUser.set(response.data.user);
+          // Sync guest cart to server and fetch user's server cart
           this.guestSyncService.syncGuestData().subscribe();
+          this.cartService.getCart().subscribe();
         }
       }),
     );
@@ -187,7 +191,9 @@ export class AuthService {
         if (response?.data?.token) {
           this.storage.setToken(response.data.token);
           this.currentUser.set(response.data.user);
+          // Sync guest cart to server and fetch user's server cart
           this.guestSyncService.syncGuestData().subscribe();
+          this.cartService.getCart().subscribe();
         }
       }),
     );
@@ -199,7 +205,9 @@ export class AuthService {
         if (response?.data?.token) {
           this.storage.setToken(response.data.token);
           this.currentUser.set(response.data.user);
+          // Sync guest cart to server and fetch user's server cart
           this.guestSyncService.syncGuestData().subscribe();
+          this.cartService.getCart().subscribe();
         }
       }),
     );

@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy, ChangeDetectorRef, effect } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
+import { GuestCartService } from '@core/services/guest-cart.service';
 import { Category } from '@app/domains/home/dto/category.dto';
 import { HomeService } from '@app/domains/home/services/home-service';
 import { LanguageSwitcherComponent } from '@shared/components/language-switcher/language-switcher.component';
@@ -10,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-header',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, LanguageSwitcherComponent, TranslateModule],
   template: `<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
     <div class="container">
@@ -166,12 +168,24 @@ import { TranslateModule } from '@ngx-translate/core';
 export class Header {
   private readonly categoryService = inject(HomeService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
   readonly authService = inject(AuthService);
   readonly cartService = inject(CartService);
+  readonly guestCartService = inject(GuestCartService);
 
   readonly categories = signal<Category[]>([]);
   readonly loading = signal(true);
-  readonly cartItemCount = computed(() => this.cartService.getCartItemCount());
+  
+  // Computed cart count - checks auth state to use appropriate cart
+  // FIX: Properly read from signals instead of calling methods
+  readonly cartItemCount = computed(() => {
+    if (this.authService.isAuthenticated()) {
+      // FIX: Read from signal directly instead of calling method
+      return this.cartService.cart()?.items.length ?? 0;
+    }
+    // This already reads from a computed signal - should work
+    return this.guestCartService.itemCount();
+  });
 
   readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
   readonly isSeler = computed(() => this.authService.currentUser()?.role === 'seller');
@@ -179,6 +193,27 @@ export class Header {
   constructor() {
     this.loadCategories();
     this.loadCart();
+    
+    // Use effect to trigger change detection when guest cart changes
+    effect(() => {
+      // Read the signal to track it
+      void this.guestCartService.itemCount();
+      // Trigger change detection
+      this.cdr.markForCheck();
+    });
+    
+    // Use effect to trigger change detection when auth state changes
+    effect(() => {
+      void this.authService.currentUser();
+      this.cdr.markForCheck();
+    });
+    
+    // Use effect to trigger change detection when cart changes (authenticated)
+    // FIX: Track cart() signal which is what we now read from in cartItemCount
+    effect(() => {
+      void this.cartService.cart();
+      this.cdr.markForCheck();
+    });
   }
 
   loadCategories() {
@@ -196,6 +231,9 @@ export class Header {
   loadCart() {
     if (this.authService.isAuthenticated()) {
       this.cartService.getCart().subscribe();
+    } else {
+      // Load guest cart from localStorage
+      this.guestCartService.loadFromStorage();
     }
   }
 
